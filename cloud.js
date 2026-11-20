@@ -124,8 +124,11 @@ body.spport,html.spport{background:#FFF7D9;overflow:hidden!important}
 #spL img{width:84px;height:84px;border-radius:22px;box-shadow:0 4px 12px rgba(37,64,107,.25)}
 #spL h2{margin:12px 0 2px;font-size:22px;font-weight:900}
 #spL p{margin:0 0 16px;color:#62789B;font-weight:600;font-size:14px}
-#spL input{width:100%;box-sizing:border-box;font:inherit;font-size:16px;font-weight:700;color:#25406B;border:2px solid #D5E5F8;border-radius:14px;padding:12px 14px;margin:0 0 10px;background:#F7FBFF;outline:none}
-#spL input:focus{border-color:#25406B}
+#spL{color-scheme:light}
+#spL input{width:100%;box-sizing:border-box;font:inherit;font-size:17px;font-weight:700;color:#25406B!important;-webkit-text-fill-color:#25406B!important;caret-color:#25406B;border:2px solid #B9CDE8!important;border-radius:14px!important;padding:13px 14px;margin:0 0 10px;background:#FFFFFF!important;box-shadow:none!important;outline:none;opacity:1}
+#spL input::placeholder{color:#7D90AE!important;-webkit-text-fill-color:#7D90AE!important;opacity:1;font-weight:700}
+#spL input:-webkit-autofill{-webkit-box-shadow:0 0 0 40px #fff inset!important;-webkit-text-fill-color:#25406B!important}
+#spL input:focus{border-color:#25406B!important;box-shadow:0 0 0 3px #FFE08A!important}
 #spL button{font:inherit;font-weight:900;font-size:16px;border-radius:14px;padding:12px;width:100%;cursor:pointer;margin-top:4px}
 #spL .spy{background:#FFE08A;color:#25406B;border:2px solid #25406B;box-shadow:0 3px 0 #25406B}
 #spL .spg{background:#fff;color:#25406B;border:2px solid #D5E5F8}
