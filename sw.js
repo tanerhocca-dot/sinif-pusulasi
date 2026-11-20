@@ -1,5 +1,5 @@
 // Sınıf Pusulası · çevrimdışı önbellek
-const V = 'sp-v3';
+const V = 'sp-v4';
 const CORE = ['./', 'index.html', 'cloud.js', 'config.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 const CDN = /^(cdnjs\.cloudflare\.com|fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.jsdelivr\.net|unpkg\.com)$/;
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });

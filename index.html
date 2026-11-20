@@ -1584,7 +1584,7 @@ function vSettings(v){
   var s=S.set,qc=s.qcats&&s.qcats.length?s.qcats:QCATS,nSch=(s.schools||SCH26).split('\n').filter(function(l){return l.trim()}).length;
   var lg=document.querySelector('#tlogo');
   var h='<div class="scol"><div class="card sprof" data-a="setOpen" data-k="prof"><img src="'+(lg?lg.src:'')+'" alt=""><div class="spt"><b>'+esc(s.teacherFull||s.teacher)+'</b><small>'+esc(s.school||'Okul adı ekleyin')+'</small><small>'+esc(s.year||'')+' · İmza: '+esc(s.teacher)+'</small></div><span class="sra">✎</span></div>';
-  h+=demoCard();h+='<div class="sgh">Tercihler</div><div class="card sgrp"><div class="sinl"><span class="srt"><b>Görünüm</b></span>'+chipsH([['auto','Otomatik'],['light','Açık'],['dark','Koyu']],s.theme,'theme')+'</div><div class="sinl"><span class="srt"><b>Devamsızlık uyarısı</b><small>Bu kadar gün gelmeyince uyarır</small></span>'+chipsH([['3','3'],['5','5'],['10','10']],String(AW()),'absW')+'</div><div class="sinl"><span class="srt"><b>İnek sesi</b><small>'+(MOO?'Kendi yüklediğiniz ses':'Varsayılan möö')+'</small></span><div class="chips"><button class="chip" data-a="mooTest">🔊 Dinle</button><label class="chip" for="fsnd" role="button">Ses yükle</label>'+(MOO?'<button class="chip" data-a="mooRes">Varsayılan</button>':'')+'</div></div><div class="sinl"><span class="srt"><b>Performans başlangıcı</b><small>Ders içi perf. notu = bu değer + puan</small></span>'+chipsH([['80','80'],['90','90'],['100','100']],String(+s.perfBase||100),'perfB')+'</div><div class="sinl"><span class="srt"><b>Kitap yıldızı</b><small>Kaç kitapta bir ⭐</small></span>'+chipsH([['3','3'],['5','5'],['10','10']],String(ST()),'star')+'</div></div>';
+  h+=demoCard()+'<div class="card sgrp"><div class="sinl"><span class="srt"><b>🎬 Tanıtım turu ve rehber</b><small>Uygulamanın neler yaptığını 7-A tanıtım sınıfı üzerinde adım adım görün.</small></span><div class="dmt"><button class="btn y" data-tr="start">Turu başlat</button><button class="btn g" data-tr="guide">📖 Rehber</button></div></div></div>';h+='<div class="sgh">Tercihler</div><div class="card sgrp"><div class="sinl"><span class="srt"><b>Görünüm</b></span>'+chipsH([['auto','Otomatik'],['light','Açık'],['dark','Koyu']],s.theme,'theme')+'</div><div class="sinl"><span class="srt"><b>Devamsızlık uyarısı</b><small>Bu kadar gün gelmeyince uyarır</small></span>'+chipsH([['3','3'],['5','5'],['10','10']],String(AW()),'absW')+'</div><div class="sinl"><span class="srt"><b>İnek sesi</b><small>'+(MOO?'Kendi yüklediğiniz ses':'Varsayılan möö')+'</small></span><div class="chips"><button class="chip" data-a="mooTest">🔊 Dinle</button><label class="chip" for="fsnd" role="button">Ses yükle</label>'+(MOO?'<button class="chip" data-a="mooRes">Varsayılan</button>':'')+'</div></div><div class="sinl"><span class="srt"><b>Performans başlangıcı</b><small>Ders içi perf. notu = bu değer + puan</small></span>'+chipsH([['80','80'],['90','90'],['100','100']],String(+s.perfBase||100),'perfB')+'</div><div class="sinl"><span class="srt"><b>Kitap yıldızı</b><small>Kaç kitapta bir ⭐</small></span>'+chipsH([['3','3'],['5','5'],['10','10']],String(ST()),'star')+'</div></div>';
   h+='</div><div class="scol"><div class="sgh">Yönetim</div><div class="card sgrp stiles">'+setRow('setOpen','🗂','Kontrol türleri',S.types.length+' tür',' data-k="types"')+setRow('bdgAll','🏅','Rozet kartları','PNG · veliye')+setRow('setOpen','✉️','Mesaj şablonları','WhatsApp metinleri',' data-k="tpl"')+setRow('setOpen','💬','Günün sözü',QUOTES.length+' söz · '+qc.length+' alan',' data-k="quote"')+setRow('setOpen','🏫','LGS okulları',nSch+' okul · 2026',' data-k="sch"')+setRow('setOpen','💾','Yedek',ref?'Bulut + kopya':'Cihazda',' data-k="bak"')+'</div></div>';
   v.className='setv';v.innerHTML=h;
   if(UI.setK&&!$('md').hidden&&$('mb').querySelector('.setm')){var sc=$('mb').scrollTop;$('mb').innerHTML='<div class="setm">'+setBody(UI.setK)+'</div>';$('mb').scrollTop=sc}
@@ -2505,7 +2505,7 @@ var DEFDUTY=['Sınıf başkan yardımcısı','Tahta sorumlusu','Kitaplık soruml
 function rgS(){if(!S.rg)S.rg={};var g=S.rg;['kind','notes'].forEach(function(k){if(!Array.isArray(g[k]))g[k]=[]});['wk','mo','plans'].forEach(function(k){if(!g[k]||typeof g[k]!=='object')g[k]={}});if(!Array.isArray(g.duties)||!g.duties.length)g.duties=DEFDUTY.slice();if(!g.dMig){g.duties=g.duties.filter(function(d){return d!=='Nöbetçi'});if(!g.duties.length)g.duties=DEFDUTY.slice();g.dMig=1}return g}
 var rgLc=function(x){return (x||'').toLocaleLowerCase('tr-TR').replace(/\s+/g,' ').trim()};
 function rgClass(){var g=rgS(),c=g.cid&&cls(g.cid);
-  if(!c){c=S.classes.find(function(x){return /^5\s*[-\/ ]?\s*a$/i.test((x.name||'').trim())});if(!c){c={id:uid(),name:'5-A',students:[]};S.classes.push(c)}g.cid=c.id}
+  if(!c){c=S.classes.find(function(x){return /^5\s*[-\/ ]?\s*a$/i.test((x.name||'').trim())})||S.classes.find(function(x){return !x.demo})||S.classes.find(function(x){return x.demo});if(!c){c={id:uid(),name:'Sınıfım',students:[]};S.classes.push(c)}if(!c.demo)g.cid=c.id}
   if(!g.imp){var add=0,upd=0;ROSTER5A.forEach(function(r){var ex=c.students.find(function(o){return (o.no&&o.no===r[0])||rgLc(o.name)===rgLc(r[1])});
       if(ex){if(!ex.no){ex.no=r[0];upd++}if(!ex.parent&&r[2]){ex.parent=r[2];upd++}}else{c.students.push({id:uid(),no:r[0],name:r[1],parent:r[2],phone:''});add++}});
     g.imp=true;save();if(add||upd)setTimeout(function(){toast('5-A listesi aktarıldı · '+add+' öğrenci eklendi'+(upd?', '+upd+' bilgi tamamlandı':''))},300)}
@@ -3693,7 +3693,88 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&e.target.dataset.a==='cnt'){var all=[].slice.call(document.querySelectorAll('[data-a=cnt]')),i=all.indexOf(e.target);e.target.blur();var nx=document.querySelectorAll('[data-a=cnt]')[i+1];if(nx)nx.focus()}
 });
 $('md').addEventListener('click',function(e){if(e.target===$('md')){closeM();render()}});
-load();
+/* ================= TANITIM TURU VE REHBER ================= */
+var TOURK='sp-tour-seen';
+function tourSeen(){try{if(localStorage.getItem(TOURK))return true}catch(e){}return !!(S.set&&S.set.tourSeen)}
+function tourMark(){try{localStorage.setItem(TOURK,'1')}catch(e){}S.set=S.set||{};if(!S.set.tourSeen){S.set.tourSeen=1;save()}}
+var TSTEPS=[
+ {t:'home',ti:'Hoş geldiniz 👋',tx:'Bu turda <b>7-A tanıtım sınıfıyla</b> (20 hayali öğrenci, Eylül–Ocak dönemi) uygulamanın neler yaptığını göreceksiniz. Zaman <b>15 Ocak 2027</b>’ye sarıldı; dönem boyunca girilmiş gibi dolu veri var. Gerçek sınıflarınıza hiçbir şey olmaz.'},
+ {t:'home',sel:'.hk',ti:'Hızlı giriş',tx:'Derste tek dokunuşla bugünün ödev, kitap ya da yoklama kontrolünü açarsınız. Her öğrenci için ✓ / ✗ / izinli işaretlemek birkaç saniye sürer.',dn:'Turdan sonra “Hızlı giriş”e dokunup bir kontrol açın.'},
+ {t:'home',sel:'.hrise,.hr2',ti:'Ana sayfa özetleri',tx:'Rozet kazananlar, denemede yükselenler, yaklaşan günler ve günün sözü. Sınıfın nabzı tek bakışta.'},
+ {t:'classes',sel:'#view .card.lst',ti:'Sınıflar',tx:'Sınıf listesini elle, yapıştırarak ya da e-Okul PDF’i / fotoğrafından oluşturursunuz. Öğrenci fotoğrafları, veli adı ve telefonu burada durur.'},
+ {t:'classes',act:'#view [data-a="openC"]',sel:'#view',ti:'Öğrenci listesi',tx:'Bir öğrenciye dokunduğunuzda <b>öğrenci kartı</b> açılır: ödevler, okuduğu kitaplar, deneme netleri, rozetler ve notlar tek yerde.',dn:'Turdan sonra bir öğrencinin fotoğrafına dokunun.'},
+ {t:'lists',sel:'#view .card.lst',ti:'Takip listeleri',tx:'Ödev, kitap okuma (+/−), sayfa sayısı, defter, proje, yoklama… Her girişten sonra yapmayanların velilerine <b>WhatsApp</b> mesajı tek tek ya da toplu gider; şablonu siz belirlersiniz.'},
+ {t:'exams',sel:'#view .exr,#view .exl',ti:'Denemeler',tx:'Deneme sonuçlarını Excel’den ya da elle girersiniz. Ders ders netler, sınıf sırası, gelişim grafiği ve LGS hedef okullarına göre konum otomatik hesaplanır.'},
+ {t:'report',sel:'#view .rsum2',ti:'Raporlar',tx:'Haftalık / aylık / dönemlik tamamlama oranları, devamsızlık uyarıları ve her veliye özel dönem raporu (WhatsApp’a hazır metin).'},
+ {t:'guide',sel:'#view .rgtiles',ti:'Rehberlik',tx:'Rehber öğretmenliği için: haftalık çalışma programı, rozet sistemi, haftanın / ayın öğrencisi, iyilik ağacı, nöbet çizelgesi, görüşme notları, karne görüşü ve veli duyuruları.'},
+ {t:'lists',sel:'#fab,#view .fab,.fab',ti:'＋ düğmesi',tx:'Her ekranın köşesindeki ＋ ile o ekrana yeni kayıt eklersiniz: yeni takip, yeni sınıf, yeni deneme…'},
+ {t:'settings',sel:'.dmc',ti:'Tanıtım sınıfı burada',tx:'7-A’yı buradan <b>kapatıp açabilir</b> ya da <b>silebilirsiniz</b>. Kendi sınıfınızı oluşturduğunuzda 7-A ona karışmaz. Tur ve rehber de bu sayfada.',end:1}
+];
+var TI=-1,TEL=null;
+function tourCss(){if(document.getElementById('sptcss'))return;var c=document.createElement('style');c.id='sptcss';c.textContent=
+ '#spt{position:fixed;inset:0;z-index:10000}#spt .tb{position:absolute;inset:0}'+
+ '#spt .th{position:fixed;border-radius:18px;box-shadow:0 0 0 9999px rgba(10,25,55,.58);border:3px solid var(--yl,#FFE08A);pointer-events:none;transition:all .3s cubic-bezier(.2,.8,.2,1)}'+
+ '#spt .th.nt{width:0;height:0;left:50%;top:40%;border:0}'+
+ '#spt .tc{position:fixed;width:min(370px,calc(100vw - 24px));background:var(--card,#fff);color:var(--tx,#25406B);border:3px solid var(--tx,#25406B);border-radius:22px;padding:16px 16px 14px;box-shadow:0 5px 0 var(--tx,#25406B);transition:top .3s,left .3s;font-family:inherit}'+
+ '#spt .tk{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:900;letter-spacing:.06em;color:var(--mut,#62789B)}'+
+ '#spt .tk i{display:flex;gap:4px}#spt .tk i b{width:7px;height:7px;border-radius:50%;background:var(--bd,#D5E5F8)}#spt .tk i b.on{background:var(--tx,#25406B)}'+
+ '#spt h4{margin:8px 0 6px;font-size:19px;font-weight:900}#spt p{margin:0;font-size:15px;line-height:1.5;font-weight:600}'+
+ '#spt .dn{margin-top:10px;padding:8px 10px;border-radius:12px;background:var(--okb,#DDF3E9);font-size:13px;font-weight:800}'+
+ '#spt .ta{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}#spt .ta .btn{flex:1}#spt .tx{background:none;border:0;color:var(--mut,#62789B);font:inherit;font-weight:800;font-size:13px;text-decoration:underline;padding:6px;cursor:pointer}'+
+ '.spg h3{margin-bottom:4px}.spg .gi{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1.5px solid var(--bd,#D5E5F8)}.spg .gi:first-of-type{border-top:0}.spg .ge{font-size:26px;line-height:1}.spg .gt{flex:1;min-width:0}.spg .gt b{display:block;font-size:15px}.spg .gt small{display:block;color:var(--mut);font-weight:600;font-size:13px;line-height:1.45;margin-top:2px}.spg .gb{max-height:58vh;overflow:auto;margin:6px -4px 0;padding:0 4px}'+
+ '@media (prefers-reduced-motion:reduce){#spt .th,#spt .tc{transition:none}}';
+ document.head.appendChild(c)}
+function tourStart(){tourCss();closeM();if(!S.classes.some(function(c){return c.demo})){if(S.demoVault)demoOn();else demoMake();render()}TI=0;tourShow()}
+function tourEnd(goCls){var o=document.getElementById('spt');if(o)o.remove();removeEventListener('resize',tourPos);removeEventListener('scroll',tourPos,true);TI=-1;TEL=null;tourMark();
+ if(goCls){goTab('classes');toast('＋ ile kendi sınıfınızı oluşturun')}}
+function tourShow(){var st=TSTEPS[TI];if(!st)return tourEnd();
+ if(UI.tab!==st.t||st.act)goTab(st.t,1);
+ setTimeout(function(){if(st.act){var a=document.querySelector(st.act);if(a)a.click()}
+  setTimeout(function(){TEL=null;if(st.sel){var L=st.sel.split(',');for(var i=0;i<L.length&&!TEL;i++){var e=document.querySelector(L[i]);if(e&&e.getClientRects().length)TEL=e}}
+   if(!TEL&&st.sel)TEL=document.querySelector('[data-a="tab"][data-t="'+st.t+'"]');
+   if(TEL&&TEL.id!=='view'){var r=TEL.getBoundingClientRect();if(r.top<70||r.bottom>innerHeight-220)TEL.scrollIntoView({block:'center',behavior:'smooth'})}else scrollTo(0,0);
+   tourDraw();setTimeout(tourPos,380)},st.act?260:120)},UI.tab===st.t&&!st.act?0:260)}
+function tourDraw(){var st=TSTEPS[TI],o=document.getElementById('spt');
+ if(!o){o=document.createElement('div');o.id='spt';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.innerHTML='<div class="tb"></div><div class="th nt"></div><div class="tc"></div>';document.body.appendChild(o);addEventListener('resize',tourPos);addEventListener('scroll',tourPos,true)}
+ var dots='';for(var i=0;i<TSTEPS.length;i++)dots+='<b class="'+(i===TI?'on':'')+'"></b>';
+ o.querySelector('.tc').innerHTML='<div class="tk"><span>TANITIM TURU · '+(TI+1)+' / '+TSTEPS.length+'</span><i>'+dots+'</i></div><h4>'+st.ti+'</h4><p>'+st.tx+'</p>'+(st.dn?'<div class="dn">👉 '+st.dn+'</div>':'')+
+  (st.end?'<div class="ta"><button class="btn y" data-tr="mine">Kendi sınıfımı oluştur</button><button class="btn g" data-tr="guide">📖 Rehber</button></div><div class="ta"><button class="btn g" data-tr="prev">‹ Geri</button><button class="btn g" data-tr="end">7-A ile gezineyim</button></div>':
+   '<div class="ta">'+(TI?'<button class="btn g" data-tr="prev">‹ Geri</button>':'')+'<button class="btn y" data-tr="next">'+(TI?'İleri ›':'Başlayalım ›')+'</button></div><div style="text-align:center"><button class="tx" data-tr="end">Turu kapat</button></div>');
+ var b=o.querySelector('[data-tr="next"],[data-tr="mine"]');if(b)setTimeout(function(){try{b.focus({preventScroll:true})}catch(e){}},60);tourPos()}
+function tourPos(){var o=document.getElementById('spt');if(!o)return;var h=o.querySelector('.th'),c=o.querySelector('.tc'),W=innerWidth,H=innerHeight,cw=c.offsetWidth,ch=c.offsetHeight;
+ if(!TEL||TEL.id==='view'&&!TSTEPS[TI].sel){h.className='th nt';h.style.cssText='';c.style.left=Math.max(12,(W-cw)/2)+'px';c.style.top=Math.max(12,(H-ch)/2)+'px';return}
+ var r=TEL.getBoundingClientRect(),p=8,top=Math.max(4,r.top-p),bot=Math.min(H-4,r.bottom+p);h.className='th';h.style.left=(r.left-p)+'px';h.style.top=top+'px';h.style.width=(r.width+p*2)+'px';h.style.height=Math.max(0,bot-top)+'px';
+ var y=bot+14;if(y+ch>H-10){y=top-ch-14;if(y<10)y=Math.max(10,H-ch-12)}var x=Math.min(Math.max(12,r.left+r.width/2-cw/2),W-cw-12);c.style.left=x+'px';c.style.top=y+'px'}
+var GUIDE=[
+ ['⚡','Ders içinde hızlı kontrol','Ödev, kitap, defter, yoklama: öğrenci başına tek dokunuş. Geri al ve not ekleme var.','home','.hk'],
+ ['👥','Sınıf ve öğrenci kartları','Listeyi PDF/fotoğraftan ya da yapıştırarak oluşturun; her öğrencinin kartında bütün geçmişi görün.','classes','#view .card.lst'],
+ ['💬','Veliye WhatsApp','Kontrolden sonra yapmayanların velilerine hazır mesaj; tek tek ya da yayın listesiyle hepsine birden.','lists','#view .card.lst'],
+ ['📝','Deneme analizi','Ders ders net, sınıf sırası, gelişim çizgisi, LGS hedef okullarına göre konum, veliye yorum.','exams','#view .exr,#view .exl'],
+ ['📊','Raporlar','Dönemlik tamamlama oranları, devamsızlık uyarısı, öğrenci başına veli raporu.','report','#view .rsum2'],
+ ['🫶','Rehberlik','Haftalık program, rozetler, haftanın öğrencisi, iyilik ağacı, nöbet, görüşme notları, karne görüşü, duyurular.','guide','#view .rgtiles'],
+ ['📺','Akıllı tahta','Sınıf panosu, sertifikalar ve programlar tahtaya yansıtılmaya uygun tam ekran açılır.','guide','#view .rgtiles'],
+ ['☁️','Her cihazda aynı veri','Aynı hesapla iPad, telefon ve bilgisayarda aynı sınıflar. İnternet yokken de çalışır; bağlantı gelince eşitlenir.','settings',null],
+ ['💾','Yedek','Ayarlar › Yedek’ten bütün veriyi (fotoğraflar dahil) kopyalayıp saklayın ya da başka cihaza taşıyın.','settings',null]
+];
+function guideOpen(){tourCss();openM('<div class="spg"><h3>📖 Neler yapabilirim?</h3><p class="mut">“Göster”e dokunun, uygulama sizi o ekrana götürsün. Örnekler 7-A tanıtım sınıfıyla gösterilir.</p><div class="gb">'+
+ GUIDE.map(function(g,i){return '<div class="gi"><span class="ge">'+g[0]+'</span><span class="gt"><b>'+g[1]+'</b><small>'+g[2]+'</small></span><button class="btn s g" data-tr="gshow" data-i="'+i+'">Göster</button></div>'}).join('')+
+ '</div><div class="acts"><button class="btn y" data-tr="start" style="flex:1">🎬 Turu başlat</button><button class="btn g" data-a="close">Kapat</button></div></div>')}
+function guideShow(i){var g=GUIDE[i];closeM();if(g[3]!=='settings'&&!S.classes.some(function(c){return c.demo})&&!S.classes.length){if(S.demoVault)demoOn();else demoMake()}
+ goTab(g[3],1);if(!g[4])return;setTimeout(function(){var e=null,L=g[4].split(',');for(var k=0;k<L.length&&!e;k++)e=document.querySelector(L[k]);if(!e)return;e.scrollIntoView({block:'center',behavior:'smooth'});
+  e.style.transition='box-shadow .3s';e.style.boxShadow='0 0 0 4px var(--yl,#FFE08A),0 0 0 8px rgba(37,64,107,.35)';setTimeout(function(){e.style.boxShadow=''},2600)},320)}
+function welcomeMaybe(){if(tourSeen()||S.classes.length||S.demoVault||document.getElementById('spL'))return;
+ openM('<div class="spg"><h3>🧭 Sınıf Pusulası’na hoş geldiniz</h3><p class="mut" style="margin-bottom:12px">Ödev ve kitap takibi, deneme analizi, rehberlik ve veliye WhatsApp tek uygulamada. İsterseniz önce hazır bir tanıtım sınıfıyla nasıl çalıştığına bakın.</p>'+
+ '<div class="qpick"><button class="qpb" data-tr="start"><span class="qpe">🎬</span><span class="qpt"><b>Tanıtım turunu başlat</b><small>7-A: 20 hayali öğrenci, dolu bir dönem · 2 dakika</small></span><span class="qpa">›</span></button>'+
+ '<button class="qpb" data-tr="guide"><span class="qpe">📖</span><span class="qpt"><b>Neler yapabilirim?</b><small>Özellikler ve kısayollar</small></span><span class="qpa">›</span></button>'+
+ '<button class="qpb" data-tr="mine"><span class="qpe">👥</span><span class="qpt"><b>Kendi sınıfımla başla</b><small>Listeyi yapıştırın ya da PDF’ten okutun</small></span><span class="qpa">›</span></button></div></div>')}
+document.addEventListener('click',function(ev){var b=ev.target.closest('[data-tr]');if(!b)return;ev.preventDefault();ev.stopPropagation();var a=b.dataset.tr;
+ if(a==='start')tourStart();else if(a==='next'){TI++;tourShow()}else if(a==='prev'){TI=Math.max(0,TI-1);tourShow()}
+ else if(a==='end')tourEnd();else if(a==='mine'){var o=document.getElementById('spt');if(o)tourEnd(true);else{closeM();tourMark();goTab('classes');toast('＋ ile kendi sınıfınızı oluşturun')}}
+ else if(a==='guide'){if(document.getElementById('spt'))tourEnd();guideOpen()}else if(a==='gshow')guideShow(+b.dataset.i)},true);
+document.addEventListener('keydown',function(e){if(TI<0)return;if(e.key==='Escape')tourEnd();else if(e.key==='ArrowRight'){TI++;tourShow()}else if(e.key==='ArrowLeft'&&TI>0){TI--;tourShow()}});
+window.SPTour={start:tourStart,guide:guideOpen,welcome:welcomeMaybe};
+
+load().then(function(){setTimeout(welcomeMaybe,500)},function(){setTimeout(welcomeMaybe,500)});
 })();
 
 (function(){var v=document.getElementById('view'),f=document.getElementById('fab');if(!v||!f)return;
