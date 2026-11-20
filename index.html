@@ -1254,8 +1254,8 @@ body.tbon{overflow:hidden}body.tbon #cmp,body.tbon #fmenu,body.tbon #fab{display
 <button id="dice" class="dice" data-a="diceOpen" aria-label="Rastgele öğrenci seç" title="Rastgele öğrenci seç"><span>🎲</span></button>
 <div id="bd" class="board" hidden></div>
 <div id="md" class="md" hidden><div class="mb" id="mb"></div></div>
-<script src="config.js?v=20261121c"></script>
-<script src="cloud.js?v=20261121c"></script>
+<script src="config.js?v=20261121d"></script>
+<script src="cloud.js?v=20261121d"></script>
 <script>
 (function(){
 var LS='ogrenci-takip-v1',ref=null,tm=null;
@@ -3793,7 +3793,7 @@ function portalData(sid){var o=stuById(sid);if(!o)return null;var st=o.st,c=o.c,
     L.forEach(function(l){var s=stat(l,sid);k[s]=(k[s]||0)+1;if(T.mode==='count'){var m=(l.m||{})[sid];if(m&&m.v)sum+=+m.v||0}});
     return {ti:t.title,em:T.emoji,mode:T.mode,unit:T.unit||'',tot:L.length,c:k,sum:sum,rec:rec}}).filter(function(x){return x.tot});
   var ng=ngS(),G=[];Object.keys(ng.terms||{}).sort().forEach(function(k){var d=ng.terms[k]&&ng.terms[k].d&&ng.terms[k].d[sid];if(!d||!Object.keys(d).length)return;var o2={};Object.keys(d).forEach(function(ders){var e=d[ders]||{},x={};['y1','y2','y3','p1','p2','p3','pr','o'].forEach(function(f){if(typeof e[f]==='number')x[f]=e[f]});var a=gAvg(e);if(a!=null)x.a=r2(a);o2[ders]=x});G.push({k:k,lab:termLab(k),d:o2})});
-  var EX=stuExams(c.id,sid).map(function(e){var r=(e.r||{})[sid]||{},rr=rankOf(e,sid);return {n:e.name,d:e.date,t:r2(totNet(e,sid)),a:r2(avgTot(e)),r:rr?rr.r:null,rn:rr?rr.n:null,p:r.p!=null&&r.p!==''?+r.p:null,s:e.subs.map(function(s){var v=subNet(e,sid,s.n),av=avgSub(e,s.n);return {n:s.n,q:s.q||'',v:v==null?null:r2(v),a:av==null?null:r2(av)}})}});
+  var EX=stuExams(c.id,sid).map(function(e){var r=(e.r||{})[sid]||{},rr=rankOf(e,sid);return {n:e.name,d:e.date,t:r2(totNet(e,sid)),a:r2(avgTot(e)),r:rr?rr.r:null,rn:rr?rr.n:null,p:r.p!=null&&r.p!==''?+r.p:null,s:e.subs.map(function(s){var v=subNet(e,sid,s.n),av=avgSub(e,s.n),x=(r.s||{})[s.n]||{},o={n:s.n,q:s.q||'',v:v==null?null:r2(v),a:av==null?null:r2(av)};if(x.d!==''&&x.d!=null&&!isNaN(x.d)){o.d=+x.d;o.y=+x.y||0}return o})}});
   var ab=absCount(sid);
   return {v:1,name:st.name,no:st.no||'',cls:c.name,teacher:S.set.teacherFull||S.set.teacher||'',school:S.set.school||'',term:termLab(tk),at:Date.now(),
     badges:B,lg:{net:netPts(sid),r:rk?rk.r:null,n:rk?rk.n:null,pg:perfGrade(sid),sh:shieldN(sid),h:hist},trk:trk,books:books(sid),bookNames:bookNames(sid).slice(-30),abs:ab,grades:G,ex:EX}}
