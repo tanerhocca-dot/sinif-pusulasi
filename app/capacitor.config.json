@@ -1,0 +1,8 @@
+{
+  "appId": "com.sinifpusulasi.app",
+  "appName": "Sınıf Pusulası",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#FFF7D9"
+  }
+}
