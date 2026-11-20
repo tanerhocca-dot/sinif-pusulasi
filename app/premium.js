@@ -12,7 +12,7 @@
 
   /* ---------- durum ---------- */
   function st() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
-  function setSt(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} refreshCard(); }
+  function setSt(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} refreshCard(); if (isPremium()) { var b = document.getElementById('prmDev'); if (b) b.remove(); } }
   function isPremium() { var s = st(); return !!s.on && (!s.exp || s.exp > Date.now()); }
   function realClassCount() {
     try { var d = JSON.parse(localStorage.getItem(LS) || '{}'); return (d.classes || []).filter(function (c) { return !c.demo; }).length; }
@@ -153,7 +153,8 @@
   }
   async function initRC() {
     var P = RC(); if (!P || !window.SP_RC_KEY) return;
-    try { await P.configure({ apiKey: window.SP_RC_KEY }); rcReady = true; apply(await P.getCustomerInfo()); }
+    try { var au = null; try { au = localStorage.getItem('sp-acct'); } catch (e) {}
+      await P.configure(au ? { apiKey: window.SP_RC_KEY, appUserID: au } : { apiKey: window.SP_RC_KEY }); /* Premium hesaba bağlı: her cihazda geçerli */ rcReady = true; apply(await P.getCustomerInfo()); }
     catch (e) { console.warn('rc', e); }
   }
   async function buy(btn) {
@@ -182,6 +183,67 @@
     window.open('https://play.google.com/store/account/subscriptions?package=com.sinifpusulasi.app', '_blank');
   }
 
-  window.SPPremium = { isPremium: isPremium, open: openPaywall };
+  /* ---------- Baz: hesap tek cihazda (Premium: her cihazda eşitleme) ---------- */
+  function devId() {
+    var k = 'sp-dev', v = null;
+    try { v = localStorage.getItem(k); if (!v) { v = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem(k, v); } } catch (e) { v = 'd0'; }
+    return v;
+  }
+  function devName() {
+    var ua = navigator.userAgent || '', m = ua.match(/Android [\d.]+; ([^;)]+)/);
+    var n = m ? m[1].replace(/ Build.*$/, '').trim() : '';
+    if (!n || n === 'K') n = /Mobile/.test(ua) ? 'Android telefon' : 'Android tablet';
+    return n;
+  }
+  var devBusy = false;
+  async function checkDevice() {
+    if (devBusy || isPremium()) return;
+    var uid = null; try { uid = localStorage.getItem('sp-acct'); } catch (e) {}
+    if (!uid || !window.claude || !window.claude.use) return;
+    devBusy = true;
+    try {
+      var db = await window.claude.use('db'); if (!db) return;
+      var ref = db.collection('data/users/' + uid).doc('dev'), me = devId();
+      var s = await ref.get(), d = s && s.exists ? s.data() : null;
+      if (isPremium()) return;
+      if (!d || !d.id || d.id === me) {
+        if (!d || d.id !== me || Date.now() - (d.at || 0) > 864e5) await ref.set({ id: me, name: devName(), at: Date.now() });
+        var old = document.getElementById('prmDev'); if (old) old.remove();
+        return;
+      }
+      showDevBlock(d, ref, me);
+    } catch (e) { console.warn('dev', e); }
+    finally { devBusy = false; }
+  }
+  function showDevBlock(d, ref, me) {
+    if (document.getElementById('prmDev')) return;
+    var when = d.at ? new Date(d.at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' }) : '';
+    var ov = document.createElement('div'); ov.className = 'prm-ov'; ov.id = 'prmDev';
+    ov.innerHTML = '<div class="prm" role="alertdialog"><div class="prm-top"><div style="font-size:44px;line-height:1">📱</div>' +
+      '<h2 style="margin-top:8px">Hesabın başka bir cihazda</h2>' +
+      '<p class="prm-why">Ücretsiz sürümde hesabın tek cihazda kullanılabilir. Şu an <b>' + String(d.name || 'başka bir cihaz').replace(/[<>&"]/g, '') + '</b>' + (when ? ' üzerinde (son kullanım ' + when + ')' : '') + ' açık.</p></div>' +
+      '<ul class="prm-f"><li><i>☁️</i><span><b>Premium</b> ile telefon, tablet ve bilgisayarında aynı anda, eşitlenmiş olarak kullan.</span></li></ul>' +
+      '<button class="prm-go" data-dev="prem">Premium\'a geç</button>' +
+      '<button class="prm-go" data-dev="here" style="background:#fff;color:#2F5492;border:2px solid #D5E5F8;margin-top:10px">Bu cihazda devam et</button>' +
+      '<p class="prm-sm">"Bu cihazda devam et" dersen hesabın bu cihaza geçer; diğer cihaz bir sonraki açılışta duraklar. Verilerin kaybolmaz.</p>' +
+      '<div class="prm-sub"><button data-dev="out">Çıkış yap</button></div></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', async function (e) {
+      var b = e.target.closest('[data-dev]'); if (!b) return;
+      var k = b.dataset.dev;
+      if (k === 'prem') openPaywall('sync');
+      else if (k === 'out') { if (window.SPCloud && window.SPCloud.askOut) window.SPCloud.askOut(); }
+      else if (k === 'here') {
+        b.disabled = true; b.textContent = 'Geçiliyor…';
+        try { await ref.set({ id: me, name: devName(), at: Date.now() }); ov.remove(); toast('Hesabın artık bu cihazda'); }
+        catch (x) { b.disabled = false; b.textContent = 'Bu cihazda devam et'; toast('Bağlanılamadı. İnterneti kontrol et.'); }
+      }
+    });
+  }
+  function startDev() { setTimeout(checkDevice, 2500); }
+  document.readyState === 'complete' ? startDev() : window.addEventListener('load', startDev);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') checkDevice(); });
+
+  window.SPPremium = { isPremium: isPremium, open: openPaywall, checkDevice: checkDevice };
   initRC();
 })();
