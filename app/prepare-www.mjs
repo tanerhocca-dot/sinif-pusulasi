@@ -7,12 +7,9 @@ const www = path.resolve(import.meta.dirname, 'www');
 fs.rmSync(www, { recursive: true, force: true });
 fs.mkdirSync(www, { recursive: true });
 for (const f of ['config.js', 'cloud.js', 'manifest.webmanifest']) fs.copyFileSync(path.join(root, f), path.join(www, f));
-fs.copyFileSync(path.join(import.meta.dirname, 'premium.js'), path.join(www, 'premium.js'));
 fs.cpSync(path.join(root, 'icons'), path.join(www, 'icons'), { recursive: true });
 let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-// Uygulama içinde olduğumuzu sayfaya bildir (ileride Premium/abonelik ekranı bunu kullanacak)
+// Uygulama içinde olduğumuzu sayfaya bildir
 html = html.replace('<head>', '<head><script>window.SP_NATIVE="android";</script>');
-// Premium kilidi ve abonelik ekranı (yalnız uygulamada)
-html = html.replace('</body>', '<script src="premium.js"></script></body>');
 fs.writeFileSync(path.join(www, 'index.html'), html);
 console.log('www hazır:', fs.readdirSync(www).join(', '));
