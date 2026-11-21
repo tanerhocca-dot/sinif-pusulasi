@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    match /data/users/{uid}/{doc} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    match /portal/{id} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.owner == request.auth.uid;
+    }
+    match /avreq/{id} {
+      allow get: if true;
+      allow list, delete: if false;
+      allow create, update: if exists(/databases/$(db)/documents/portal/$(id))
+        && get(/databases/$(db)/documents/portal/$(id)).data.role == 'o'
+        && request.resource.data.keys().hasOnly(['av', 'at'])
+        && request.resource.data.av is map && request.resource.data.av.size() <= 12;
+    }
+  }
+}
