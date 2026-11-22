@@ -4507,7 +4507,7 @@ function bbMon(d){var x=new Date(d+'T12:00');x.setDate(x.getDate()-((x.getDay()+
 function bbDow(d){return (new Date(d+'T12:00').getDay()+6)%7}
 function bbNet(D,Y){return Math.round(((+D||0)-(+Y||0)/3)*100)/100}
 function bbDnNet(dn,k){var r=(dn.r||{})[k];if(!r||(r[0]===''&&r[1]===''))return null;return bbNet(r[0],r[1])}
-function bbDnTot(dn){var t=0,any=false;BBD.d.forEach(function(d){var n=bbDnNet(dn,d.k);if(n!=null){t+=n;any=true}});return any?Math.round(t*100)/100:null}
+function bbDnTot(dn){var t=0,any=false;BBD.d.forEach(function(d){var r=(dn.r||{})[d.k];if(r&&!(r[0]===''&&r[1]==='')){t+=(+r[0]||0)-(+r[1]||0)/3;any=true}});return any?Math.round(t*100)/100:null}
 function bbPuan(dn){var p=BBD.base,any=false;BBD.d.forEach(function(d){var n=bbDnNet(dn,d.k);if(n!=null){any=true;p+=Math.max(0,n)*d.c}});return any?Math.min(500,Math.round(p*100)/100):null}
 function bbPct(D,Y,B){var t=(+D||0)+(+Y||0)+(+B||0);return t?Math.round((+D||0)/t*100):null}
 function bbYt(ds,kn){return 'https://www.youtube.com/results?search_query='+encodeURIComponent('LGS '+(kn||'')+' '+(bbDers(ds).n)+' konu anlatımı')}
@@ -4539,7 +4539,7 @@ function bbHbar(lab,pct,sub,col){return '<div class="bbhb"><div class="bbhl"><b>
 
 /* ---------- Deneme: yanlış/boş konu + neden kaydı ve analizi (öğretmen + öğrenci ortak) ---------- */
 var BB_WHY=[['k','Konu eksiği','#E0574F'],['d','Dikkat / işlem hatası','#E9A23B'],['o','Yorum hatası','#8A5CC9']];
-function bbWhy(k){for(var i=0;i<BB_WHY.length;i++)if(BB_WHY[i][0]===k)return BB_WHY[i];return BB_WHY[0]}
+var BB_WHY0=['','Neden girilmedi','#A9B4C6'];function bbWhy(k){for(var i=0;i<BB_WHY.length;i++)if(BB_WHY[i][0]===k)return BB_WHY[i];return BB_WHY0}
 /* deneme formu: D / Y / B ızgarası */
 function bbDnGrid(x,pre){return '<div class="bbdg3"><span></span><b>Doğru</b><b>Yanlış</b><b>Boş</b><b>Net</b>'+BBD.d.map(function(d){var r=(x.r||{})[d.k]||['','',''],v=function(i){return r[i]!==''&&r[i]!=null?r[i]:''};
   return '<label style="--dc:'+d.col+'">'+bbEsc(d.n)+' <small>'+d.q+'</small></label>'+[0,1,2].map(function(i){return '<input type="number" inputmode="numeric" min="0" max="'+d.q+'" id="'+pre+d.k+'_'+i+'" value="'+v(i)+'" data-dnf="1">'}).join('')+'<output id="'+pre+d.k+'_n">—</output>'}).join('')+'</div>'}
@@ -4553,7 +4553,7 @@ function bbKForm(pre){return '<div class="bbkf"><div class="bbkt">Yanlış / bo�
   '<button type="button" class="bbkadd" data-kadd="1">＋ Listeye ekle</button><div class="bbkl" id="'+pre+'kl"></div></div>'}
 function bbKBind(root,pre,items,onCh){var q=function(s){return root.querySelector(s)},knf=function(){var d=bbDers(q('#'+pre+'kds').value);q('#'+pre+'kkn').innerHTML=d.konu.map(function(k){return '<option>'+bbEsc(k)+'</option>'}).join('')+'<option>Diğer / karma</option>'},
   list=function(){var by={};items.forEach(function(it,i){(by[it.ds]=by[it.ds]||[]).push([it,i])});var h='';BBD.d.forEach(function(d){if(!by[d.k])return;var r=bbDnGridRead(root,pre+'_').r[d.k]||[0,0,0],sy=0,sb=0;by[d.k].forEach(function(p){if(p[0].t==='b')sb+=p[0].n;else sy+=p[0].n});
-    h+='<div class="bbkd" style="--dc:'+d.col+'"><b>'+bbEsc(d.n)+'</b><small class="'+((r[1]&&sy>r[1])||(r[2]&&sb>r[2])?'lo':'')+'">yanlış '+sy+(r[1]?'/'+r[1]:'')+' · boş '+sb+(r[2]?'/'+r[2]:'')+'</small></div>'+by[d.k].map(function(p){var it=p[0],w=bbWhy(it.r);return '<div class="bbki"><span class="bbkdot" style="background:'+w[2]+'"></span><span class="bbkn2">'+bbEsc(it.kn)+'<small>'+(it.t==='b'?'Boş':'Yanlış')+' · '+w[1]+'</small></span><b>×'+it.n+'</b><button type="button" data-kdel="'+p[1]+'" aria-label="Kaldır">✕</button></div>'}).join('')});
+    h+='<div class="bbkd" style="--dc:'+d.col+'"><b>'+bbEsc(d.n)+'</b><small class="'+((r[1]&&sy>r[1])||(r[2]&&sb>r[2])?'lo':'')+'">yanlış '+sy+(r[1]?'/'+r[1]:'')+' · boş '+sb+(r[2]?'/'+r[2]:'')+'</small></div>'+by[d.k].map(function(p){var it=p[0],w=bbWhy(it.r);return '<div class="bbki"><span class="bbkdot" style="background:'+w[2]+'"></span><span class="bbkn2">'+bbEsc(it.kn)+'<small>'+(it.t==='b'?'Boş':'Yanlış')+' ×'+it.n+'</small></span><select class="bbksel'+(it.r?'':' empty')+'" data-kr="'+p[1]+'" aria-label="Neden"><option value=""'+(it.r?'':' selected')+'>Neden seç</option>'+BB_WHY.map(function(x){return '<option value="'+x[0]+'"'+(it.r===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select><button type="button" data-kdel="'+p[1]+'" aria-label="Kaldır">✕</button></div>'}).join('')});
     q('#'+pre+'kl').innerHTML=h||'<p class="bbkem">Henüz konu eklenmedi. Ders → konu → yanlış/boş → neden seçip “Listeye ekle”ye dokunun.</p>';onCh&&onCh()};
   knf();list();q('#'+pre+'kds').addEventListener('change',knf);
   root.addEventListener('click',function(e){var b=e.target.closest('[data-kv]');if(b&&b.parentNode.dataset.kg){b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});return}
@@ -4561,26 +4561,27 @@ function bbKBind(root,pre,items,onCh){var q=function(s){return root.querySelecto
     if(e.target.closest('[data-kadd]')){var ds=q('#'+pre+'kds').value,kn=q('#'+pre+'kkn').value,t=q('[data-kg="t"] .on').dataset.kv,r=q('[data-kg="r"] .on').dataset.kv,n=Math.max(1,Math.min(20,parseInt(q('#'+pre+'kn').value,10)||1));
       var ex=items.find(function(z){return z.ds===ds&&z.kn===kn&&z.t===t&&z.r===r});if(ex)ex.n=Math.min(20,ex.n+n);else items.push({ds:ds,kn:kn,t:t,r:r,n:n});q('#'+pre+'kn').value=1;list();return}
     var dl=e.target.closest('[data-kdel]');if(dl){items.splice(+dl.dataset.kdel,1);list()}});
-  root.addEventListener('input',function(e){if(e.target.dataset&&e.target.dataset.dnf)list()});return list}
-function bbKClean(arr){var o=[];(Array.isArray(arr)?arr:[]).slice(0,120).forEach(function(it){if(!it||!BBD.d.some(function(d){return d.k===it.ds}))return;var n=parseInt(it.n,10);if(!(n>0))return;o.push({ds:it.ds,kn:String(it.kn||'').slice(0,80),t:it.t==='b'?'b':'y',r:['k','d','o'].indexOf(it.r)>=0?it.r:'k',n:Math.min(20,n)})});return o}
+  root.addEventListener('input',function(e){if(e.target.dataset&&e.target.dataset.dnf)list()});root.addEventListener('change',function(e){var k=e.target.dataset&&e.target.dataset.kr;if(k!=null&&items[+k]){items[+k].r=e.target.value;list()}});return list}
+function bbKClean(arr){var o=[];(Array.isArray(arr)?arr:[]).slice(0,120).forEach(function(it){if(!it||!BBD.d.some(function(d){return d.k===it.ds}))return;var n=parseInt(it.n,10);if(!(n>0))return;o.push({ds:it.ds,kn:String(it.kn||'').slice(0,80),t:it.t==='b'?'b':'y',r:['k','d','o'].indexOf(it.r)>=0?it.r:'',n:Math.min(20,n)})});return o}
 /* seçili denemeler */
 function bbDnSel(D,sel){sel=sel||{m:'5'};if(sel.m==='range'){return D.filter(function(x){return (!sel.f||x.d>=sel.f)&&(!sel.t||x.d<=sel.t)})}if(sel.m==='all')return D;var n=parseInt(sel.m,10)||5;return D.slice(-n)}
 function bbDnAnalysis(D,sel,at,opt){opt=opt||{};var S=bbDnSel(D,sel),A='data-'+at;
   var h='<div class="card bbda"><div class="sec">🔍 Yanlış ve boş analizi</div><div class="bbdr">'+[['1','Son deneme'],['3','Son 3'],['5','Son 5'],['all','Tümü'],['range','Tarih aralığı']].map(function(c){return '<button class="chip'+(sel.m===c[0]?' on':'')+'" '+A+'="dnr" data-v="'+c[0]+'">'+c[1]+'</button>'}).join('')+'</div>'+
    (sel.m==='range'?'<div class="bbdrr"><label>Başlangıç<input type="date" '+A+'i="dnf" value="'+(sel.f||'')+'"></label><label>Bitiş<input type="date" '+A+'i="dnt" value="'+(sel.t||'')+'"></label></div>':'');
   if(!S.length)return h+'<p class="mut">Seçilen aralıkta deneme yok.</p></div>';
-  var K={},R={k:0,d:0,o:0},RD={},any=0,netF=bbDnTot(S[0]),netL=bbDnTot(S[S.length-1]),tY=0,tB=0;
+  var K={},R={k:0,d:0,o:0,'':0},RD={},any=0,netF=bbDnTot(S[0]),netL=bbDnTot(S[S.length-1]),tY=0,tB=0;
   S.forEach(function(x,xi){var r=x.r||{};BBD.d.forEach(function(d){var v=r[d.k];if(v){tY+=+v[1]||0;tB+=v[2]!=null&&v[2]!==''?+v[2]:Math.max(0,d.q-(+v[0]||0)-(+v[1]||0))}});
-    (x.k||[]).forEach(function(it){any+=it.n;var key=it.ds+'|'+it.kn,z=K[key]=K[key]||{ds:it.ds,kn:it.kn,Y:0,B:0,n:0,r:{k:0,d:0,o:0},dn:{}};if(it.t==='b')z.B+=it.n;else z.Y+=it.n;z.n+=it.n;z.r[it.r]+=it.n;z.dn[xi]=(z.dn[xi]||0)+it.n;R[it.r]+=it.n;var rd=RD[it.ds]=RD[it.ds]||{k:0,d:0,o:0,n:0};rd[it.r]+=it.n;rd.n+=it.n})});
+    (x.k||[]).forEach(function(it){any+=it.n;var key=it.ds+'|'+it.kn,z=K[key]=K[key]||{ds:it.ds,kn:it.kn,Y:0,B:0,n:0,r:{k:0,d:0,o:0,'':0},dn:{}};var rk=it.r||'';if(it.t==='b')z.B+=it.n;else z.Y+=it.n;z.n+=it.n;z.r[rk]+=it.n;z.dn[xi]=(z.dn[xi]||0)+it.n;R[rk]+=it.n;var rd=RD[it.ds]=RD[it.ds]||{k:0,d:0,o:0,'':0,n:0};rd[rk]+=it.n;rd.n+=it.n})});
   h+='<div class="bbdk"><div><b>'+S.length+'</b><small>deneme</small></div><div><b>'+tY+'</b><small>yanlış</small></div><div><b>'+tB+'</b><small>boş</small></div><div><b>'+any+'</b><small>konusu girilen</small></div></div>';
   if(!any)return h+'<p class="mut">Bu denemelerde yanlış/boş konusu girilmemiş. Deneme eklerken “Yanlış / boş konuları ve nedenleri” bölümünü doldurun; konu ve neden analizi burada oluşur.</p></div>';
-  var bar=function(r,n){return '<div class="bbwb">'+BB_WHY.map(function(w){var p=n?r[w[0]]/n*100:0;return p?'<i style="width:'+p+'%;background:'+w[2]+'" title="'+w[1]+' '+r[w[0]]+'"></i>':''}).join('')+'</div>'};
-  h+='<div class="bbdsec">Neden dağılımı</div>'+bar(R,any)+'<div class="bbwlg">'+BB_WHY.map(function(w){return '<span><i style="background:'+w[2]+'"></i>'+w[1]+' <b>%'+Math.round(R[w[0]]/any*100)+'</b> ('+R[w[0]]+')</span>'}).join('')+'</div>';
+  var WW=BB_WHY.concat([BB_WHY0]),bar=function(r,n){return '<div class="bbwb">'+WW.map(function(w){var p=n?r[w[0]]/n*100:0;return p?'<i style="width:'+p+'%;background:'+w[2]+'" title="'+w[1]+' '+r[w[0]]+'"></i>':''}).join('')+'</div>'};
+  h+='<div class="bbdsec">Neden dağılımı</div>'+bar(R,any)+'<div class="bbwlg">'+WW.filter(function(w){return w[0]||R['']}).map(function(w){return '<span><i style="background:'+w[2]+'"></i>'+w[1]+' <b>%'+Math.round(R[w[0]]/any*100)+'</b> ('+R[w[0]]+')</span>'}).join('')+'</div>';
   h+='<div class="bbwd">'+BBD.d.filter(function(d){return RD[d.k]}).map(function(d){var rd=RD[d.k];return '<div class="bbwdr"><span style="--dc:'+d.col+'">'+bbEsc(d.s)+'</span>'+bar(rd,rd.n)+'<b>'+rd.n+'</b></div>'}).join('')+'</div>';
   /* nedensellik: çıkarımlar */
-  var ins=[],dom=BB_WHY.slice().sort(function(a,b){return R[b[0]]-R[a[0]]})[0],tip={k:'Konu eksiği baskın: bu konular için önce konu anlatımı ve temel soru çalışması, ardından karışık test.',d:'Dikkat / işlem hataları baskın: soruyu ikinci kez okuma, işlem kontrolü ve süreyi bölerek çözme rutini.',o:'Yorum hataları baskın: soru kökünü işaretleme, seçenekleri eleyerek okuma ve paragraf / yeni nesil soru rutini.'};
-  ins.push(['🎯','Genel: yanlış ve boşların <b>%'+Math.round(R[dom[0]]/any*100)+'</b>’i <b>'+dom[1].toLocaleLowerCase('tr-TR')+'</b>. '+tip[dom[0]]]);
-  BBD.d.forEach(function(d){var rd=RD[d.k];if(!rd||rd.n<3)return;var m=BB_WHY.slice().sort(function(a,b){return rd[b[0]]-rd[a[0]]})[0];if(rd[m[0]]/rd.n>=.5)ins.push(['📚',bbEsc(d.n)+': '+rd.n+' kaydın %'+Math.round(rd[m[0]]/rd.n*100)+'’i '+m[1].toLocaleLowerCase('tr-TR')+'.'])});
+  var known=R.k+R.d+R.o,ins=[],dom=BB_WHY.slice().sort(function(a,b){return R[b[0]]-R[a[0]]})[0],tip={k:'Konu eksiği baskın: bu konular için önce konu anlatımı ve temel soru çalışması, ardından karışık test.',d:'Dikkat / işlem hataları baskın: soruyu ikinci kez okuma, işlem kontrolü ve süreyi bölerek çözme rutini.',o:'Yorum hataları baskın: soru kökünü işaretleme, seçenekleri eleyerek okuma ve paragraf / yeni nesil soru rutini.'};
+  if(R[''])ins.push(['📝','<b>'+R['']+'</b> yanlış / boş için neden girilmemiş. Denemeyi açıp nedenleri seçtikçe neden analizi netleşir.']);
+  if(known)ins.push(['🎯','Nedeni girilenlerin <b>%'+Math.round(R[dom[0]]/known*100)+'</b>’i <b>'+dom[1].toLocaleLowerCase('tr-TR')+'</b>. '+tip[dom[0]]]);
+  BBD.d.forEach(function(d){var rd=RD[d.k];if(!rd)return;var kn2=rd.k+rd.d+rd.o;if(kn2<3)return;var m=BB_WHY.slice().sort(function(a,b){return rd[b[0]]-rd[a[0]]})[0];if(rd[m[0]]/kn2>=.5)ins.push(['📚',bbEsc(d.n)+': nedeni girilen '+kn2+' kaydın %'+Math.round(rd[m[0]]/kn2*100)+'’i '+m[1].toLocaleLowerCase('tr-TR')+'.'])});
   var gd=0;S.forEach(function(x){(x.k||[]).forEach(function(i){if(i.r==='d')gd+=i.t==='b'?i.n:i.n*4/3})});var gain=Math.round(gd/S.length*100)/100;if(gd)ins.push(['💡','Yalnız dikkat / işlem hataları önlenirse deneme başına yaklaşık <b>+'+bbFmt(gain)+' net</b> kazanılır (bir yanlış doğruya dönünce 1⅓ net).']);
   var chron=Object.keys(K).map(function(k){return K[k]}).filter(function(z){return Object.keys(z.dn).length>=2}).sort(function(a,b){return Object.keys(b.dn).length-Object.keys(a.dn).length||b.n-a.n});
   if(chron.length)ins.push(['🔄','Tekrarlayan konular ('+S.length+' denemenin en az ikisinde): '+chron.slice(0,5).map(function(z){return '<b>'+bbEsc(z.kn)+'</b> ('+Object.keys(z.dn).length+')'}).join(', ')+'.']);
@@ -4612,13 +4613,17 @@ var BB_DN_CSS='.bbdg3{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,
 /* ---------- PDF sonuç karnesi okuma (metin tabanlı PDF) ---------- */
 function bbFold(s){return String(s||'').toLocaleLowerCase('tr-TR').replace(/ç/g,'c').replace(/ğ/g,'g').replace(/ı/g,'i').replace(/i̇/g,'i').replace(/ö/g,'o').replace(/ş/g,'s').replace(/ü/g,'u').replace(/â/g,'a').replace(/î/g,'i').replace(/û/g,'u')}
 var BB_DRE=[['tr',/^(turkce|turk dili)/],['mat',/^(matematik|mat\b)/],['fen',/^(fen( bilimleri| ve teknoloji)?|fen\b)/],['ink',/^(t\.?\s?c\.?\s*inkilap|inkilap|tc inkilap|t c inkilap|tarih)/],['din',/^(din kulturu|din\b|dkab)/],['ing',/^(ingilizce|yabanci dil|ingiliz|ing\b)/]];
-function bbDersOf(t){t=bbFold(t).replace(/^[\d\s.\-)]+/,'').trim();for(var i=0;i<BB_DRE.length;i++)if(BB_DRE[i][1].test(t))return BB_DRE[i][0];return null}
+function bbDersOf(t){t=bbFold(t).replace(/^[\d\s.\-)]+/,'').replace(/^lgs[\s\-_]*/,'').trim();for(var i=0;i<BB_DRE.length;i++)if(BB_DRE[i][1].test(t))return BB_DRE[i][0];return null}
 function bbNums(s){var o=[];String(s).replace(/(^|[^\d,.])(\d{1,3}(?:[.,]\d{1,3})?)(?=$|[^\d])/g,function(m,p,n){o.push(+n.replace(',','.'));return m});return o}
 var BB_AY=['ocak','subat','mart','nisan','mayis','haziran','temmuz','agustos','eylul','ekim','kasim','aralik'];
 function bbFindDate(t){var f=bbFold(t),m=f.match(/(\d{1,2})[.\/-](\d{1,2})[.\/-](20\d\d)/);if(m)return m[3]+'-'+String(+m[2]).padStart(2,'0')+'-'+String(+m[1]).padStart(2,'0');
   m=f.match(/(20\d\d)-(\d\d)-(\d\d)/);if(m)return m[0];m=f.match(/(\d{1,2})\s+(ocak|subat|mart|nisan|mayis|haziran|temmuz|agustos|eylul|ekim|kasim|aralik)\s+(20\d\d)/);if(m)return m[3]+'-'+String(BB_AY.indexOf(m[2])+1).padStart(2,'0')+'-'+String(+m[1]).padStart(2,'0');return ''}
 /* rows: [{t:'satır metni', it:[{x,s}]}] */
-function bbParseKarne(rows){var R={r:{},k:[],n:'',d:'',log:[]},got={};
+function bbParseKarne(rows){rows.forEach(function(r){r.t=r.t.replace(/\u0000/g,'ti');(r.it||[]).forEach(function(i){i.s=i.s.replace(/\u0000/g,'ti')})});var R={r:{},k:[],n:'',d:'',log:[]},got={};
+  /* 0) başlıklı ders tablosu: DERS · SORU · DOĞRU · YANLIŞ · BOŞ · NET (boş hücreler olabilir) */
+  rows.forEach(function(rw,ri){if(!rw.it)return;var H={};rw.it.forEach(function(i){var f=bbFold(i.s).trim();if(f==='soru')H.q=i.x;else if(/^dogru$|^d$/.test(f))H.D=i.x;else if(/^yanlis$|^y$/.test(f))H.Y=i.x;else if(/^bos$|^b$/.test(f))H.B=i.x;else if(f==='net')H.N=i.x});if(H.D==null||H.Y==null)return;
+    rows.slice(ri+1,ri+12).forEach(function(r2){if(!r2.it||!r2.it.length)return;var k=bbDersOf(r2.it[0].s);if(!k||got[k])return;var V={};r2.it.slice(1).forEach(function(i){var v=bbNums(i.s)[0];if(v==null)return;var best=null,bd=1e9;['q','D','Y','B','N'].forEach(function(c){if(H[c]==null)return;var dd=Math.abs((i.x+(i.w||0)/2)-(H[c]+12));if(dd<bd){bd=dd;best=c}});if(best&&bd<40&&V[best]==null)V[best]=v});
+      if(V.D==null||V.Y==null||V.D%1||V.Y%1)return;var q=bbDers(k).q,B=V.B!=null&&V.B%1===0?V.B:(V.q||q)-V.D-V.Y;if(V.D+V.Y+B>q+0.01)return;R.r[k]=[V.D,V.Y,Math.max(0,B)];got[k]=1;R.log.push(bbDers(k).n+': D '+V.D+' · Y '+V.Y+' · B '+Math.max(0,B))})});
   rows.forEach(function(rw){if(!R.d){var d=bbFindDate(rw.t);if(d)R.d=d}});
   /* 1) satır düzeni: "Türkçe 20 15 3 2 14,00" */
   rows.forEach(function(rw){var it=rw.it&&rw.it.length?rw.it:[{x:0,s:rw.t}],first=it.map(function(i){return i.s}).join(' ');var k=bbDersOf(first);if(!k||got[k])return;var q=bbDers(k).q,n=bbNums(first.replace(/^[^A-Za-zÇĞİÖŞÜçğıöşü]*[A-Za-zÇĞİÖŞÜçğıöşü.\s]+/,''));if(n.length<2)return;
@@ -4630,22 +4635,42 @@ function bbParseKarne(rows){var R={r:{},k:[],n:'',d:'',log:[]},got={};
     var V={};rows.slice(ri+1,ri+12).forEach(function(r2){if(!r2.it||!r2.it.length)return;var lab=bbFold(r2.it[0].s).trim(),t=/^(dogru|d)$|^dogru/.test(lab)?0:/^(yanlis|y)$|^yanlis/.test(lab)?1:/^(bos|b)$|^bos/.test(lab)?2:-1;if(t<0||V[t])return;V[t]={};
       r2.it.slice(1).forEach(function(i){var v=bbNums(i.s)[0];if(v==null)return;var c=cols.reduce(function(a,c){return Math.abs(c.x-i.x)<Math.abs(a.x-i.x)?c:a});V[t][c.k]=v})});
     if(V[0]&&V[1])cols.forEach(function(c){if(got[c.k])return;var D=V[0][c.k],Y=V[1][c.k];if(D==null||Y==null)return;var q=bbDers(c.k).q,B=V[2]&&V[2][c.k]!=null?V[2][c.k]:q-D-Y;R.r[c.k]=[D,Y,Math.max(0,B)];got[c.k]=1;R.log.push(bbDers(c.k).n+': D '+D+' · Y '+Y+' · B '+B+' (tablo)')})})}
+  /* 3a) etiketli deneme adı ve tarih */
+  rows.forEach(function(rw,ri){if(R.n||!rw.it)return;var li=rw.it.findIndex(function(i){return /^(sinav adi|deneme adi|sinav)\s*:?$/.test(bbFold(i.s).trim())});if(li<0)return;var lab=rw.it[li],nx=rw.it.slice(li+1).find(function(i){return /^(kitapcik|numara|sinif|sube|tarih)/.test(bbFold(i.s))}),x0=lab.x+(lab.w||40)-4,x1=nx?nx.x-2:1e9,pick=function(r){return r&&r.it?r.it.filter(function(i){return i.x>=x0&&i.x<x1&&!/^(ad soyad|sinav|numara|kitapcik|sinif)/.test(bbFold(i.s))}).map(function(i){return i.s}).join(' '):''};
+    var v=[pick(rows[ri-1]),pick(rw),pick(rows[ri+1])].filter(Boolean).join('').replace(/\s+/g,' ').trim();if(!v)return;var c=v.replace(/^(\d+-)+(\d+-|oa-|OA-)*/,'').replace(/^(\d+-|OA-|oa-)+/,'');var m=c.match(/^([^(]+)\(/);R.n=(m?m[1]:c).trim().slice(0,60)||v.slice(0,60);R.nFull=v});
+  rows.forEach(function(rw){if(!rw.it)return;var li=rw.it.findIndex(function(i){return /tarih/.test(bbFold(i.s))&&!/\d/.test(i.s)});if(li<0)return;var d=bbFindDate(rw.it.slice(li).map(function(i){return i.s}).join(' '));if(d&&!R.dL){R.d=d;R.dL=1}});
   /* 3) deneme adı */
   var nm=rows.map(function(r){return r.t.trim()}).filter(function(t){var f=bbFold(t);return /(deneme|sinav|lgs|tg-?\d|kurumsal|turkiye geneli)/.test(f)&&!bbDersOf(t)&&!/^(ogrenci|ad|soyad|okul|sinif)/.test(f)&&t.length<=70});
-  nm.sort(function(a,b){return (/\d/.test(b)?1:0)-(/\d/.test(a)?1:0)});R.n=(nm[0]||'').replace(/\s+/g,' ').replace(/(sonuc|ogrenci)?\s*(karnesi|belgesi|raporu)$/i,'').trim().slice(0,60);
+  nm.sort(function(a,b){return (/\d/.test(b)?1:0)-(/\d/.test(a)?1:0)});if(!R.n)R.n=(nm[0]||'').replace(/\s+/g,' ').replace(/(sonuc|ogrenci)?\s*(karnesi|belgesi|raporu)$/i,'').trim().slice(0,60);
+  /* 4a) soru soru konu tablosu: No · Konu · DC (doğru cevap) · ÖC (öğrenci cevabı) · SO */
+  var QT=null;rows.forEach(function(rw,ri){if(QT||!rw.it)return;var hs=[];rw.it.forEach(function(i){var f=bbFold(i.s).trim();if(f==='no')hs.push({x:i.x});else if(hs.length){var h=hs[hs.length-1];if(f==='konu')h.k=i.x;else if(f==='dc'||f==='dogru cevap'||f==='cevap anahtari')h.dc=i.x;else if(f==='oc'||f==='ogrenci cevabi'||f==='cevap')h.oc=i.x;else if(f==='so'||f==='sonuc')h.so=i.x}});hs=hs.filter(function(h){return h.dc!=null&&h.oc!=null});if(hs.length)QT={ri:ri,h:hs}});
+  if(QT){var cur=QT.h.map(function(){return null}),cnt={},nq=0;rows.slice(QT.ri+1).forEach(function(rw){if(!rw.it)return;QT.h.forEach(function(h,ci){var x0=h.x-12,x1=ci+1<QT.h.length?QT.h[ci+1].x-12:1e9,g=rw.it.filter(function(i){return i.x>=x0&&i.x<x1});if(!g.length)return;var txt=g.map(function(i){return i.s}).join(' ').trim();
+      if(!/\d/.test(txt)){var k=bbDersOf(txt);if(k)cur[ci]=k;return}var ds=cur[ci];if(!ds)return;var no=g[0].s.trim().match(/^(\d{1,2})\b/);if(!no)return;
+      var near=function(i,hx){return hx!=null&&Math.abs(i.x-hx)<9},one=function(i){return /^[A-E]$/.test(i.s.trim())},dc=g.find(function(i){return one(i)&&near(i,h.dc)}),oc=g.find(function(i){return one(i)&&near(i,h.oc)}),so=g.find(function(i){return /^[+\-–]$/.test(i.s.trim())&&near(i,h.so)});
+      var kn=g.filter(function(i){return i!==dc&&i!==oc&&i!==so&&i.x<(h.dc!=null?h.dc-4:1e9)}).map(function(i){return i.s}).join(' ').replace(/^\s*\d{1,2}\s*/,'').replace(/[…\.]+$/,'').replace(/\s+/g,' ').trim();
+      if(!dc&&!kn)return;nq++;var t=!oc?'b':((so&&/[\-–]/.test(so.s))||(dc&&oc&&dc.s.trim()!==oc.s.trim()))?'y':null;if(!t)return;
+      kn=kn.charAt(0).toLocaleUpperCase('tr-TR')+kn.slice(1);var fk=bbFold(kn).replace(/[^a-z0-9]/g,''),can=bbDers(ds).konu.find(function(z){return bbFold(z).replace(/[^a-z0-9]/g,'')===fk});if(can)kn=can;var key=ds+'|'+kn+'|'+t;cnt[key]=cnt[key]||{ds:ds,kn:kn.slice(0,80),t:t,r:'',n:0};cnt[key].n++})});
+    R.k=Object.keys(cnt).map(function(k){return cnt[k]});R.qt=nq}
   /* 4) konu analizi satırları → yanlış / boş */
   var KW=[];BBD.d.forEach(function(d){d.konu.forEach(function(kn){var w=bbFold(kn).replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(function(x){return x.length>=4&&['ifadeler','olma','ilgili','olasiligi','enerjisi','donusumleri','cabalari','ozellikleri'].indexOf(x)<0});if(w[0])KW.push({ds:d.k,kn:kn,w:w.slice(0,2)})})});
-  rows.forEach(function(rw){var f=bbFold(rw.t);if(bbDersOf(rw.t))return;var n=bbNums(rw.t);if(n.length<3)return;var m=KW.filter(function(k){return k.w.every(function(w){return f.indexOf(w)>=0})})[0];if(!m)return;
+  if(!QT)rows.forEach(function(rw){var f=bbFold(rw.t);if(bbDersOf(rw.t))return;var n=bbNums(rw.t);if(n.length<3)return;var m=KW.filter(function(k){return k.w.every(function(w){return f.indexOf(w)>=0})})[0];if(!m)return;
     var st=-1;for(var i=1;i+2<n.length;i++){if(n[i-1]===n[i]+n[i+1]+n[i+2]&&!(n[i]%1||n[i+1]%1||n[i+2]%1)){st=i;break}}if(st<0&&n.length===3&&!(n[0]%1||n[1]%1||n[2]%1))st=0;
-    for(var i=st;i>=0&&i<=st;i++){var D=n[i],Y=n[i+1],B=n[i+2];if(Y)R.k.push({ds:m.ds,kn:m.kn,t:'y',r:'k',n:Math.min(20,Y)});if(B)R.k.push({ds:m.ds,kn:m.kn,t:'b',r:'k',n:Math.min(20,B)});break}});
+    for(var i=st;i>=0&&i<=st;i++){var D=n[i],Y=n[i+1],B=n[i+2];if(Y)R.k.push({ds:m.ds,kn:m.kn,t:'y',r:'',n:Math.min(20,Y)});if(B)R.k.push({ds:m.ds,kn:m.kn,t:'b',r:'',n:Math.min(20,B)});break}});
   R.ok=Object.keys(got).length;return R}
+/* PDF'lerde 'ti / tı / ft' bitişik harfleri (ligatür) bazen boş karakter (\u0000) gelir: bağlama göre düzelt */
+var BB_LIGW=['matematik','negatif','pozitif','nukleotit','genetik','istatistik','aktif','etik','kinetik','elektrik','manyetik','sentez','optik','politik','tipi','tip','titresim','motivasyon','partikul'];
+function bbLig(prev,next){var a=(String(prev).match(/[A-Za-zÇĞİÖŞÜçğıöşü]*$/)||[''])[0],b=(String(next).match(/^[A-Za-zÇĞİÖŞÜçğıöşü]*/)||[''])[0],w=function(c){return bbFold(a+c+b)};
+  if(/ra$/i.test(a)&&/^a/i.test(b))return 'ft';if(/^(paragra|ra)/.test(w('ft'))&&/fta|ftan|ftaki/.test(w('ft')))return 'ft';
+  var ww=w('ti');if(BB_LIGW.some(function(x){return ww.indexOf(x)>=0}))return 'ti';
+  var v=(bbFold(a).match(/[aeiou]/g)||[]),last=(a.match(/[aeıioöuüAEIİOÖUÜ]/g)||[]).pop();if(!last){var f=(b.match(/[aeıioöuüAEIİOÖUÜ]/)||[])[0];last=f}
+  return last&&/[aıouAIOU]/.test(last)?'tı':'ti'}
 async function bbPdfRows(lib,file){var doc=await lib.getDocument({data:await file.arrayBuffer()}).promise,rows=[];
   for(var p=1;p<=Math.min(doc.numPages,4);p++){var tc=await (await doc.getPage(p)).getTextContent(),L={};tc.items.forEach(function(it){if(!it.str||!it.str.trim())return;var y=Math.round(it.transform[5]/3);(L[y]=L[y]||[]).push({x:it.transform[4],w:it.width||0,s:it.str})});
-    Object.keys(L).sort(function(a,b){return b-a}).forEach(function(y){var a=L[y].sort(function(a,b){return a.x-b.x}),m=[];a.forEach(function(i){var l=m[m.length-1];if(l&&i.x-(l.x+l.w)<2.2&&!/^\d/.test(i.s.trim())===!/^\d/.test(l.s.trim())){l.s+=i.s;l.w=i.x+i.w-l.x}else m.push({x:i.x,w:i.w,s:i.s})});
+    Object.keys(L).sort(function(a,b){return b-a}).forEach(function(y){var a=L[y].sort(function(a,b){return a.x-b.x}),m=[];a.forEach(function(i,k){if(i.s.indexOf('\u0000')>=0){var pv=k?a[k-1].s:'',nx=k+1<a.length?a[k+1].s:'';i.s=i.s.replace(/\u0000/g,function(){return bbLig(pv,nx)})}});a.forEach(function(i){var l=m[m.length-1];if(l&&i.x-(l.x+l.w)<2.2&&!/^\d/.test(i.s.trim())===!/^\d/.test(l.s.trim())){l.s+=i.s;l.w=i.x+i.w-l.x}else m.push({x:i.x,w:i.w,s:i.s})});
       m.forEach(function(i){i.s=i.s.trim()});rows.push({t:m.map(function(i){return i.s}).join(' '),it:m})})}
   return rows}
 function bbPdfBanner(P){if(!P)return '';var miss=BBD.d.filter(function(d){return !P.r[d.k]}).map(function(d){return d.n});
-  return '<div class="bbpdfb'+(P.ok>=6?'':' warn')+'"><b>'+(P.ok?'📄 PDF’ten okundu: '+P.ok+'/6 ders':'📄 PDF’ten ders sonucu okunamadı')+'</b><small>'+(P.n?'Ad: '+bbEsc(P.n)+' · ':'')+(P.d?'Tarih: '+bbEsc(P.d)+' · ':'')+(P.k.length?P.k.length+' konu satırı (nedenleri kontrol edin) · ':'')+(miss.length&&P.ok?'Eksik: '+bbEsc(miss.join(', ')):P.ok?'Kontrol edip kaydedin.':'Değerleri elle girebilirsiniz.')+'</small></div>'}
+  return '<div class="bbpdfb'+(P.ok>=6?'':' warn')+'"><b>'+(P.ok?'📄 PDF’ten okundu: '+P.ok+'/6 ders':'📄 PDF’ten ders sonucu okunamadı')+'</b><small>'+(P.n?'Ad: '+bbEsc(P.n)+' · ':'')+(P.d?'Tarih: '+bbEsc(P.d)+' · ':'')+(P.k.length?P.k.reduce(function(a,i){return a+i.n},0)+' yanlış / boş soru konusuyla eklendi (nedenleri seçin) · ':'')+(miss.length&&P.ok?'Eksik: '+bbEsc(miss.join(', ')):P.ok?'Kontrol edip kaydedin.':'Değerleri elle girebilirsiniz.')+'</small></div>'}
 BB_DN_CSS+='.bbpdfb{background:rgba(46,139,106,.1);border:1.5px solid rgba(46,139,106,.45);border-radius:14px;padding:8px 10px;margin:8px 0}.bbpdfb.warn{background:rgba(233,162,59,.12);border-color:rgba(233,162,59,.6)}.bbpdfb b{display:block;font-size:14px}.bbpdfb small{display:block;font-size:12.5px;font-weight:700;opacity:.8;margin-top:2px}'+
  '.bbdrop{display:block;border:2px dashed #C9A227;border-radius:18px;padding:26px 14px;text-align:center;cursor:pointer;background:rgba(201,162,39,.06);margin:10px 0}.bbdrop b{display:block;font-size:16px}.bbdrop small{display:block;opacity:.7;font-weight:700;margin-top:4px}.bbdrop input{display:none}';
 
