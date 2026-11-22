@@ -4570,7 +4570,7 @@ function bbHead(sub){return '<div class="bbhd">'+bbLogo(52)+'<div class="bbht0">
 function vBB(v){bbCss();var b=bbS(),h;v.className='bbv';
   if(BBU.sid&&!bbStu(BBU.sid))BBU.sid=null;
   if(BBU.sid)h=bbDetail(bbStu(BBU.sid));else h=bbDash(b);
-  setH(v,h)}
+  v._h=null;v.innerHTML=h}
 function bbDash(b){var wk=bbMon(today()),L=b.st,tq=0,ty=0,tt=0,al=0;
   var cards=L.map(function(st){var ws=bbWkStat(st.id,wk),D=bbDns(st.id),ld=D[D.length-1],A=bbAlerts(st);tq+=ws.q;ty+=ws.y+ws.e*.5;tt+=ws.t;if(A.length)al++;
     return '<button class="bbcard" data-bb="open" data-sid="'+st.id+'"><div class="bbcrow"><span class="bbav">'+esc(ini(st.name))+'</span><span class="bbcn"><b>'+esc(st.name)+(st.demo?' <span class="bbtag">örnek</span>':'')+'</b><small>'+esc([st.gr?st.gr+'. sınıf':'',st.hl||''].filter(Boolean).join(' · ')||'Hedef girilmedi')+'</small></span>'+(ld?'<span class="bbcnet"><b>'+bbFmt(bbDnTot(ld))+'</b><small>son net</small></span>':'')+'</div>'+
