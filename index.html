@@ -1287,6 +1287,9 @@ input.gin.gn{color:#C4503F!important}
 @media(max-width:599px){input.gin{width:44px!important;font-size:14px!important;padding:6px 2px!important}.gret th{font-size:10.5px;padding:6px 2px!important}.gret td:first-child{max-width:92px;font-size:12.5px}.gcx{display:block;margin:2px auto 0;padding:0}.gret .gx{width:26px;height:26px}.clbr .btn{display:none}.clr .clt small{display:none}}
 #ptm .pta{flex-wrap:wrap!important}#ptm .pta .btn{padding:4px 7px!important}
 .ptcm .ptcv{position:relative;border-radius:18px;overflow:hidden;background:#EEF3FA}.ptcm .ptcv img{display:block;width:100%;height:auto}
+.lgratio{margin:8px 0;padding:10px 12px;border-radius:14px;background:#FFF6DB;border:1.5px solid #F3C24F;font-size:13px;font-weight:700;line-height:1.45;color:#5B4A12}
+[data-theme=dark] .lgratio{background:#3A3216;color:#F6E7B0}
+.lgpub .lgr{grid-template-columns:34px 1fr 50px 70px!important}
 </style>
 </head>
 <body>
@@ -1318,8 +1321,8 @@ var t0=Date.now(),done=false;window.SPIntroDone=function(){if(done)return;done=t
 <button id="dice" class="dice" data-a="diceOpen" aria-label="Rastgele öğrenci seç" title="Rastgele öğrenci seç"><span>🎲</span></button>
 <div id="bd" class="board" hidden></div>
 <div id="md" class="md" hidden><div class="mb" id="mb"></div></div>
-<script src="config.js?v=20261121h"></script>
-<script src="cloud.js?v=20261121h"></script>
+<script src="config.js?v=20261122b"></script>
+<script src="cloud.js?v=20261122b"></script>
 <script>
 /* ================= SINIF PUSULASI · AVATAR ÇİZİCİ (fotoğraf kullanmaz) ================= */
 (function(){
@@ -1472,10 +1475,48 @@ function avIn(st){if(!st)return '?';var p=phOf(st.id);if(p)return '<img class="a
 var byNo=function(a,b){return (parseInt(a.no)||9999)-(parseInt(b.no)||9999)||a.name.localeCompare(b.name,'tr')};
 
 /* ---------- storage ---------- */
+/* --- Çok cihazlı güvenli eşitleme: üç yönlü birleştirme (ortak taban · bu cihaz · bulut) --- */
+function m3eq(a,b){return a===b||JSON.stringify(a)===JSON.stringify(b)}
+function m3obj(x){return x!==null&&typeof x==='object'&&!Array.isArray(x)}
+function m3idArr(b,l,r){if(!Array.isArray(l)||!Array.isArray(r))return false;var all=l.concat(r,Array.isArray(b)?b:[]);return all.length>0&&all.every(function(o){return m3obj(o)&&o.id!=null})}
+function merge3(b,l,r){
+  if(m3eq(l,r))return l;if(b!==undefined&&m3eq(b,l))return r;if(b!==undefined&&m3eq(b,r))return l;
+  if(m3idArr(b,l,r)){var B={},L={},Rm={},out=[],seen={};(Array.isArray(b)?b:[]).forEach(function(o){B[o.id]=o});l.forEach(function(o){L[o.id]=o});r.forEach(function(o){Rm[o.id]=o});
+    var put=function(id){if(seen[id])return;seen[id]=1;var bi=B[id],li=L[id],ri=Rm[id],v;
+      if(li!==undefined&&ri!==undefined)v=merge3(bi,li,ri);
+      else if(li!==undefined)v=(bi!==undefined&&m3eq(bi,li))?undefined:li;
+      else v=(bi!==undefined&&m3eq(bi,ri))?undefined:ri;
+      if(v!==undefined)out.push(v)};
+    r.forEach(function(o){put(o.id)});l.forEach(function(o){put(o.id)});return out}
+  if(m3obj(l)&&m3obj(r)){var bo=m3obj(b)?b:{},o={},ks={};Object.keys(l).concat(Object.keys(r)).forEach(function(k){ks[k]=1});
+    Object.keys(ks).forEach(function(k){var hb=k in bo,hl=k in l,hr=k in r,v;
+      if(hl&&hr)v=merge3(hb?bo[k]:undefined,l[k],r[k]);
+      else if(hl)v=(hb&&m3eq(bo[k],l[k]))?undefined:l[k];
+      else v=(hb&&m3eq(bo[k],r[k]))?undefined:r[k];
+      if(v!==undefined)o[k]=v});return o}
+  return l}
+var DEVID=(function(){try{var d=localStorage.getItem('sp-devid');if(!d){d=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem('sp-devid',d)}return d}catch(e){return 'x'+Math.random()}})();
+var BASE=null,CUID=null,RW='',SYNCB=false;
+function noSync(o){var c={};Object.keys(o||{}).forEach(function(k){if(k!=='_sync')c[k]=o[k]});return c}
+function baseSet(o){BASE=JSON.parse(JSON.stringify(noSync(o)));try{localStorage.setItem('sp-base',JSON.stringify({u:CUID,s:BASE}))}catch(e){}}
+function baseGet(){if(BASE)return BASE;try{var x=JSON.parse(localStorage.getItem('sp-base')||'null');if(x&&CUID&&x.u===CUID)return x.s}catch(e){}return null}
+function adopt(o){Object.keys(S).forEach(function(k){delete S[k]});Object.assign(S,o);fix()}
+function withTo(p,ms){return Promise.race([p,new Promise(function(_,no){setTimeout(function(){no('to')},ms)})])}
+async function cloudMergeIn(){var snap=await withTo(ref.get(),6000);if(!snap||!snap.exists)return null;var d=snap.data();if(!d||!d.data)return null;var Rm=JSON.parse(d.data),rs=Rm._sync||{};
+  if(!rs.w||rs.w===RW)return null;var b=baseGet(),M=b?merge3(b,noSync(S),noSync(Rm)):noSync(Rm);RW=rs.w;var dirty=!m3eq(M,noSync(Rm));adopt(M);baseSet(Rm);return {dirty:dirty}}
+async function cloudWrite(){if(!ref)return;if(SYNCB){clearTimeout(tm);tm=setTimeout(cloudWrite,500);return}SYNCB=true;
+  try{try{var mi=await cloudMergeIn();if(mi)render()}catch(e){}
+    S._sync={at:Date.now(),dev:DEVID,w:DEVID+'.'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)};RW=S._sync.w;var js=JSON.stringify(S);try{localStorage.setItem(LS,js)}catch(e){}
+    await ref.set({data:js});baseSet(S)}
+  catch(e){toast('Buluta kaydedilemedi, cihazda duruyor')}SYNCB=false}
+async function cloudPull(){if(!ref||SYNCB||!$('md').hidden||document.querySelector('#tb:not([hidden])')||(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)))return;SYNCB=true;var mi=null;try{mi=await cloudMergeIn()}catch(e){}SYNCB=false;
+  if(mi){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}render();toast('☁️ Diğer cihazdaki değişiklikler alındı');if(mi.dirty)save()}}
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')setTimeout(cloudPull,800)});
+setInterval(function(){if(document.visibilityState==='visible')cloudPull()},90000);
 function save(){
   try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
   if(!ref)return;clearTimeout(tm);
-  tm=setTimeout(function(){ref.set({data:JSON.stringify(S)}).catch(function(){toast('Buluta kaydedilemedi, cihazda duruyor')})},600);
+  tm=setTimeout(cloudWrite,600);
 }
 function migrateTrk(){S.lists.forEach(function(l){if(l.trk&&S.trackers.some(function(t){return t.id===l.trk}))return;var tt=typ(l.tid),t=S.trackers.find(function(z){return z.cid===l.cid&&z.tid===l.tid});if(!t){t={id:uid(),cid:l.cid,tid:l.tid,title:(tt.name&&tt.name!=='?'?tt.name:l.title),cr:Date.now()};S.trackers.push(t)}l.trk=t.id;if(l.saved==null)l.saved=true})}
 function fix(){if(S.set&&!S.set.pbMig){S.set.perfBase=100;S.set.pbMig=1}if(!Array.isArray(S.pts))S.pts=[];var strip=function(x){return typeof x==='string'?x.replace(/\s*\(\+\/[−-]\)/g,'').trim():x};(S.types||[]).forEach(function(t){t.name=strip(t.name)});(S.trackers||[]).forEach(function(t){t.title=strip(t.title)});(S.lists||[]).forEach(function(l){l.title=strip(l.title)});['classes','lists','types','exams','trackers'].forEach(function(k){if(!Array.isArray(S[k]))S[k]=DEF[k].slice()});if(!S.types.length)S.types=JSON.parse(JSON.stringify(DEF.types));if(!S.types.some(function(t){return t.id==='kitappm'}))S.types.unshift(Object.assign({},DEF.types[1]));if(!S.types.some(function(t){return t.mode==='att'}))S.types.push({id:'yoklama',name:'Yoklama',emoji:'🗓',mode:'att'});S.set=Object.assign({},DEF.set,S.set||{});migrateTrk()}
@@ -1493,8 +1534,9 @@ async function load(){
       var localOnly=Object.keys(PH).some(function(k){return !o[k]});Object.keys(PH).forEach(function(k){if(!o[k])o[k]=PH[k]});
       var changed=Object.keys(o).length!==Object.keys(PH).length||Object.keys(o).some(function(k){return PH[k]!==o[k]});PH=o;
       try{localStorage.setItem(LSP,JSON.stringify(PH))}catch(e){}if(changed)render();if(localOnly)phPush()}).catch(function(e){console.warn('foto yükle',e)});
+    CUID=id;
     var snap=await ref.get();
-    if(snap.exists){var d=snap.data();if(d&&d.data){S=JSON.parse(d.data);fix();applyTheme();render()}}
+    if(snap.exists){var d=snap.data();if(d&&d.data){var Rm=JSON.parse(d.data),b=baseGet(),M=b?merge3(b,noSync(S),noSync(Rm)):noSync(Rm);RW=(Rm._sync&&Rm._sync.w)||'';var dirty=b&&!m3eq(M,noSync(Rm));S=M;fix();baseSet(Rm);try{localStorage.setItem(LS,JSON.stringify(S))}catch(x){}applyTheme();render();if(dirty)save()}}
     else if(S.classes.length){save()}
   }catch(e){}
 }
@@ -1559,10 +1601,11 @@ function diceOpen(){
   if(S.classes.length===1)return picker(S.classes[0]);
   openM('<h3>🎲 Hangi sınıf?</h3><div class="pkc">'+S.classes.map(function(c){return '<button class="btn '+(UI.pickC===c.id?'y':'g')+'" data-a="pickC" data-id="'+c.id+'">👥 '+esc(c.name)+'<span class="mut"> · '+c.students.length+'</span></button>'}).join('')+'</div><div class="acts"><button class="btn g" data-a="close">Kapat</button></div>');
 }
-function picker(c){UI.pickC=c.id;
-  var pool=c.students.filter(function(s){return !(PICKED[c.id]||{})[s.id]});
+function absentToday(c){var o={},d=today();S.lists.forEach(function(l){if(l.cid!==c.id||l.date!==d||typ(l.tid).mode!=='att')return;c.students.forEach(function(st){var x=stat(l,st.id);if(x==='n'||x==='e')o[st.id]=1})});return o}
+function picker(c){UI.pickC=c.id;var AB=absentToday(c);
+  var pool=c.students.filter(function(s){return !(PICKED[c.id]||{})[s.id]&&!AB[s.id]});
   if(!c.students.length){toast('Sınıfta öğrenci yok');return}
-  if(!pool.length){PICKED[c.id]={};pool=c.students.slice()}
+  if(!pool.length){PICKED[c.id]={};pool=c.students.filter(function(s){return !AB[s.id]});if(!pool.length)pool=c.students.slice()}
   openM('<div class="row"><h3 style="margin:0">🎲 Rastgele öğrenci · '+esc(c.name)+'</h3>'+(S.classes.length>1?'<button class="btn s g" data-a="diceOpen">Sınıf değiştir</button>':'')+'</div><div id="pk" class="pk">…</div><p class="mut" style="text-align:center">'+(pool.length-1)+' öğrenci seçilmeyi bekliyor (seçilenler tekrar gelmez)</p><div class="acts" style="justify-content:center"><button class="btn y" data-a="pick">Tekrar seç</button><button class="btn g" data-a="pickReset">Sıfırla</button><button class="btn g" data-a="close">Kapat</button></div>');
   var win=pool[Math.floor(Math.random()*pool.length)],n=0,el=$('pk');
   var face=function(st,w){return '<div class="pkf'+(w?' w':'')+'">'+(phOf(st.id)?'<img src="'+phOf(st.id)+'" alt="">':'<span>'+(st.no?esc(st.no):ini(st.name))+'</span>')+'</div><div class="pkn">'+(w?'🎉 ':'')+esc(st.name)+'</div>'};
@@ -1765,7 +1808,10 @@ function vSettings(v){
   var s=S.set,qc=s.qcats&&s.qcats.length?s.qcats:QCATS,nSch=(s.schools||SCH26).split('\n').filter(function(l){return l.trim()}).length;
   var lg=document.querySelector('#tlogo');
   var h='<div class="scol"><div class="card sprof" data-a="setOpen" data-k="prof"><img src="'+(lg?lg.src:'')+'" alt=""><div class="spt"><b>'+esc(s.teacherFull||s.teacher)+'</b><small>'+esc(s.school||'Okul adı ekleyin')+'</small><small>'+esc(s.year||'')+' · İmza: '+esc(s.teacher)+'</small></div><span class="sra">✎</span></div>';
-  h+=demoCard()+'<div class="card sgrp"><div class="sinl"><span class="srt"><b>🎬 Tanıtım turu ve rehber</b><small>Uygulamanın neler yaptığını 7-A tanıtım sınıfı üzerinde adım adım görün.</small></span><div class="dmt"><button class="btn y" data-tr="start">Turu başlat</button><button class="btn g" data-tr="guide">📖 Rehber</button></div></div></div>'+'<div class="card sgrp"><div class="sinl"><span class="srt"><b>🎨 Avatarlar</b><small>Öğrencilere fotoğraf yerine çizgi karakter verin; tahtada ve veli sayfalarında fotoğraf gösterilmesin.</small></span><div class="dmt"><button class="btn y" data-a="avOpen">Düzenle</button></div></div></div>'+(window.SPCloud&&window.SPCloud.portal?'<div class="card sgrp"><div class="sinl"><span class="srt"><b>👪 Veli ve öğrenci girişi</b><small>Her veli ve öğrenci kendi kullanıcı adı ve şifresiyle yalnızca kendi rozetlerini, lig puanını, ödev takibini, notlarını ve denemelerini görür.</small></span><div class="dmt"><button class="btn y" data-a="ptOpen">Yönet</button></div></div></div>':'');h+='<div class="sgh">Tercihler</div><div class="card sgrp"><div class="sinl"><span class="srt"><b>Görünüm</b></span>'+chipsH([['auto','Otomatik'],['light','Açık'],['dark','Koyu']],s.theme,'theme')+'</div><div class="sinl"><span class="srt"><b>Devamsızlık uyarısı</b><small>Bu kadar gün gelmeyince uyarır</small></span>'+chipsH([['3','3'],['5','5'],['10','10']],String(AW()),'absW')+'</div><div class="sinl"><span class="srt"><b>İnek sesi</b><small>'+(MOO?'Kendi yüklediğiniz ses':'Varsayılan möö')+'</small></span><div class="chips"><button class="chip" data-a="mooTest">🔊 Dinle</button><label class="chip" for="fsnd" role="button">Ses yükle</label>'+(MOO?'<button class="chip" data-a="mooRes">Varsayılan</button>':'')+'</div></div><div class="sinl"><span class="srt"><b>Performans başlangıcı</b><small>Ders içi perf. notu = bu değer + puan</small></span>'+chipsH([['80','80'],['90','90'],['100','100']],String(+s.perfBase||100),'perfB')+'</div><div class="sinl"><span class="srt"><b>Kitap yıldızı</b><small>Kaç kitapta bir ⭐</small></span>'+chipsH([['3','3'],['5','5'],['10','10']],String(ST()),'star')+'</div></div>';
+  h+=demoCard()+'<div class="card sgrp"><div class="sinl"><span class="srt"><b>🎬 Tanıtım turu ve rehber</b><small>Uygulamanın neler yaptığını 7-A tanıtım sınıfı üzerinde adım adım görün.</small></span><div class="dmt"><button class="btn y" data-tr="start">Turu başlat</button><button class="btn g" data-tr="guide">📖 Rehber</button></div></div></div>'+'<div class="card sgrp"><div class="sinl"><span class="srt"><b>🎨 Avatarlar</b><small>Öğrencilere fotoğraf yerine çizgi karakter verin; tahtada ve veli sayfalarında fotoğraf gösterilmesin.</small></span><div class="dmt"><button class="btn y" data-a="avOpen">Düzenle</button></div></div></div>'+(window.SPCloud&&window.SPCloud.portal?'<div class="card sgrp"><div class="sinl"><span class="srt"><b>👪 Veli ve öğrenci girişi</b><small>Her veli ve öğrenci kendi kullanıcı adı ve şifresiyle yalnızca kendi rozetlerini, lig puanını, ödev takibini, notlarını ve denemelerini görür.</small></span><div class="dmt"><button class="btn y" data-a="ptOpen">Yönet</button></div></div></div>':'');h+='<div class="sgh">Tercihler</div><div class="card sgrp"><div class="sinl"><span class="srt"><b>Görünüm</b></span>'+chipsH([['auto','Otomatik'],['light','Açık'],['dark','Koyu']],s.theme,'theme')+'</div><div class="sinl"><span class="srt"><b>Devamsızlık uyarısı</b><small>Bu kadar gün gelmeyince uyarır</small></span>'+chipsH([['3','3'],['5','5'],['10','10']],String(AW()),'absW')+'</div><div class="sinl"><span class="srt"><b>İnek sesi</b><small>'+(MOO?'Kendi yüklediğiniz ses':'Varsayılan möö')+'</small></span><div class="chips"><button class="chip" data-a="mooTest">🔊 Dinle</button><label class="chip" for="fsnd" role="button">Ses yükle</label>'+(MOO?'<button class="chip" data-a="mooRes">Varsayılan</button>':'')+'</div></div><div class="sinl"><span class="srt"><b>Performans başlangıcı</b><small>Perf. notu önerisi = bu değer + puan (en çok 100). 100 seçilirse ödüller notu artıramaz, yalnız yaptırımlar düşürür; 70–80 daha dengelidir.</small></span>'+chipsH([['70','70'],['80','80'],['90','90'],['100','100']],String(+s.perfBase||100),'perfB')+'</div><div class="sinl"><span class="srt"><b>Kitap yıldızı</b><small>Kaç kitapta bir ⭐</small></span>'+chipsH([['3','3'],['5','5'],['10','10']],String(ST()),'star')+'</div></div>'+
+   '<div class="sgh">⚖️ Adil ve güvenli sınıf</div><div class="card sgrp"><div class="sinl"><span class="srt"><b>Sıralamayı veli ve öğrenciyle paylaş</b><small>Deneme ve lig sırası veli mesajlarında, PDF’lerde ve veli/öğrenci sayfasında. Ölçme sonuçlarıyla öğrenciler arasında sıralama yapılmaması önerilir (MEB Ölçme ve Değerlendirme Yönetmeliği, 14.11.2026).</small></span>'+chipsH([['0','Kapalı'],['1','Açık']],s.rankShare?'1':'0','fairRank')+'</div>'+
+   '<div class="sinl"><span class="srt"><b>Perf. notu önerisini veli sayfasında göster</b><small>Öneri resmî not değildir; velide yanlış beklenti oluşturabilir.</small></span>'+chipsH([['0','Kapalı'],['1','Açık']],s.ptPerf?'1':'0','fairPerf')+'</div>'+
+   '<div class="sinl"><span class="srt"><b>Tahtada yaptırımları göster</b><small>Kapalıyken tahtada yaptırım puanı, eksi puanlar, perf. notu ve öğrenci geçmişi görünmez; yaptırım sessizce kaydedilir.</small></span>'+chipsH([['0','Kapalı'],['1','Açık']],s.tbNeg?'1':'0','fairTb')+'</div></div>';
   h+='</div><div class="scol"><div class="sgh">Yönetim</div><div class="card sgrp stiles">'+setRow('setOpen','🗂','Kontrol türleri',S.types.length+' tür',' data-k="types"')+setRow('bdgAll','🏅','Rozet kartları','PNG · veliye')+setRow('clOpen','🧹','Veri temizleme','İyilik, rozet, lig, not… tek tek ya da toplu')+setRow('setOpen','✉️','Mesaj şablonları','WhatsApp metinleri',' data-k="tpl"')+setRow('setOpen','💬','Günün sözü',QUOTES.length+' söz · '+qc.length+' alan',' data-k="quote"')+setRow('setOpen','🏫','LGS okulları',nSch+' okul · 2026',' data-k="sch"')+setRow('setOpen','💾','Yedek',ref?'Bulut + kopya':'Cihazda',' data-k="bak"')+'</div></div>';
   v.className='setv';v.innerHTML=h;
   if(UI.setK&&!$('md').hidden&&$('mb').querySelector('.setm')){var sc=$('mb').scrollTop;$('mb').innerHTML='<div class="setm">'+setBody(UI.setK)+'</div>';$('mb').scrollTop=sc}
@@ -2098,7 +2144,7 @@ function autoComment(e,sid){
   var c=cls(e.cid),st=c.students.find(function(s){return s.id===sid})||{name:''},fn=st.name.split(' ')[0],out=[],d=dTot(e,sid),rk=rankOf(e,sid),p=prevEx(e,sid);
   if(d!=null)out.push(Math.abs(d)<.5?fn+' bir önceki denemeye göre netini korudu ('+fmt(totNet(e,sid))+' net).':d>0?fn+' bir önceki denemeye göre toplam netini '+fmt(d)+' artırarak '+fmt(totNet(e,sid))+' nete çıkardı.':fn+' bu denemede bir öncekine göre '+fmt(-d)+' net geriledi ('+fmt(totNet(e,sid))+' net).');
   else out.push(fn+' bu denemede '+fmt(totNet(e,sid))+' net yaptı.');
-  if(rk)out.push('Sınıf içinde '+rk.n+' öğrenci arasında '+rk.r+'. sırada.');
+  if(rk&&rankShare())out.push('Sınıf içinde '+rk.n+' öğrenci arasında '+rk.r+'. sırada.');
   var diff=e.subs.map(function(s){var v=subNet(e,sid,s.n),a=avgSub(e,s.n);return v==null||a==null?null:{n:s.n,v:v,df:v-a}}).filter(Boolean).sort(function(a,b){return b.df-a.df});
   if(diff.length>1){if(diff[0].df>0.5)out.push('En güçlü olduğu ders '+diff[0].n+' (sınıf ortalamasının '+fmt(diff[0].df)+' net üzerinde).');var w=diff[diff.length-1];if(w.df<-0.5)out.push('Desteklenmesi gereken ders '+w.n+' (sınıf ortalamasının '+fmt(-w.df)+' net altında).')}
   if(p){var g=e.subs.map(function(s){var a=subNet(e,sid,s.n),b=subNet(p,sid,s.n);return a==null||b==null?null:{n:s.n,g:a-b}}).filter(Boolean).sort(function(a,b){return b.g-a.g});if(g.length&&g[0].g>=1)out.push('En belirgin gelişim '+g[0].n+' dersinde (+'+fmt(g[0].g)+' net).')}
@@ -2121,7 +2167,7 @@ function exMsg(e,sid){
   var t='Sayın '+(st.parent||'Velimiz')+',\n*'+e.name+'* ('+fd(e.date,{day:'numeric',month:'long'})+') sonuçlarına göre *'+st.name+'*:\n\n';
   t+='📊 Toplam net: *'+fmt(totNet(e,sid))+'*'+(d!=null?' ('+(d>=0?'▲ ':'▼ ')+sgn(d)+')':'')+'\n';
   if(r.p)t+='🏅 Puan: '+fmt(r.p)+'\n';
-  if(rk)t+='🔢 Sınıf sırası: '+rk.r+' / '+rk.n+'\n';
+  if(rk&&rankShare())t+='🔢 Sınıf sırası: '+rk.r+' / '+rk.n+'\n';
   var li=lgsInfo(e,sid);if(li){if(li.sc.est)t+='🎯 Tahmini LGS puanı: '+fmt(li.sc.v)+'\n';t+='📈 2026’ya göre yüzdelik: ≈ '+fmtPct(li.pct)+'\n';if(li.fit.ok.length)t+='🏫 Bu puanla: '+li.fit.ok[0].n+' (taban '+fmt(li.fit.ok[0].t)+')\n';if(li.fit.up.length)t+='⭐ Hedef: '+li.fit.up[0].n+' (taban '+fmt(li.fit.up[0].t)+')\n'}
   t+='\n📚 Ders netleri:\n';
   e.subs.forEach(function(s){var v=subNet(e,sid,s.n);if(v==null)return;var b=p?subNet(p,sid,s.n):null;t+='• '+s.n+': '+fmt(v)+(b!=null?' ('+sgn(v-b)+')':'')+'\n'});
@@ -2301,7 +2347,7 @@ async function exCanvas(e,sid){
   x.fillStyle='#fff';rr(x,M,195,W-2*M,90,18);x.fill();x.strokeStyle='#9CCBF2';x.lineWidth=3;x.stroke();
   x.fillStyle=NAVY;x.font='800 36px '+F;x.fillText(st.name,M+28,252);x.font='500 22px '+F;x.fillStyle=MUT;x.textAlign='right';x.fillText((st.no?'Okul No: '+st.no:'')+(st.parent?'   Veli: '+st.parent:''),W-M-28,250);x.textAlign='left';
   // stat boxes
-  var d=dTot(e,sid),rk=rankOf(e,sid),r=e.r[sid],stats=[['Toplam net',fmt(totNet(e,sid))],['Değişim',d==null?'—':sgn(d)],['Sınıf sırası',rk?rk.r+' / '+rk.n:'—'],[r.p?'Puan':'Sınıf ort.',r.p?fmt(r.p):fmt(avgTot(e))]];
+  var d=dTot(e,sid),rk=rankOf(e,sid),r=e.r[sid],stats=[['Toplam net',fmt(totNet(e,sid))],['Değişim',d==null?'—':sgn(d)],rankShare()?['Sınıf sırası',rk?rk.r+' / '+rk.n:'—']:['Sınıf ort.',fmt(avgTot(e))],r.p?['Puan',fmt(r.p)]:(rankShare()?['Sınıf ort.',fmt(avgTot(e))]:['Katıldığı deneme',String(exOf(e.cid).filter(function(z){return totNet(z,sid)!=null}).length)])];
   var bw=(W-2*M-3*20)/4;stats.forEach(function(s,i){var X=M+i*(bw+20),Y=315;x.fillStyle='#FFF7D9';rr(x,X,Y,bw,120,16);x.fill();x.fillStyle='#FFE08A';x.fillRect(X+16,Y,bw-32,6);
     x.textAlign='center';x.fillStyle=MUT;x.font='600 20px '+F;x.fillText(s[0],X+bw/2,Y+45);x.fillStyle=i===1&&d!=null?(d>0?'#2E8B6A':d<0?'#C4503F':NAVY):NAVY;x.font='800 40px '+F;x.fillText(s[1],X+bw/2,Y+95)});
   x.textAlign='left';
@@ -2703,7 +2749,8 @@ function kindOf(sid,a,b){return rgS().kind.filter(function(k){return k.sid===sid
 function kindCount(sid){return kindOf(sid).length}
 function rgScore(c,sid,a,b){var r={hw:0,rd:0,kd:0,miss:0};S.lists.forEach(function(l){if(l.cid!==c.id||l.date<a||l.date>b)return;var k=bcat(l),s=stat(l,sid);if(k==='hw'){if(s==='y')r.hw+=2;else if(s==='e')r.hw+=1;else if(s==='n')r.miss++}else if(k==='rd'&&s==='y')r.rd+=2});r.kd=kindOf(sid,a,b).length*3;r.gl=((S.rg&&S.rg.goals)||[]).filter(function(x){return x.sid===sid&&x.done&&x.dd&&x.dd>=a&&x.dd<=b}).length*2;r.tot=r.hw+r.rd+r.kd+r.gl;return r}
 function rgCands(c,per){var R=per==='wk'?wkRange():moRange();return c.students.map(function(st){return {st:st,s:rgScore(c,st.id,R[0],R[1])}}).filter(function(x){return x.s.tot>0}).sort(function(a,b){return b.s.tot-a.s.tot||a.s.miss-b.s.miss||a.st.name.localeCompare(b.st.name,'tr')})}
-function rgWin(c,per){var g=rgS(),key=per==='wk'?wkKey():moKey(),w=(per==='wk'?g.wk:g.mo)[key],st=w&&c.students.find(function(x){return x.id===w});if(st)return {st:st,sel:true};var cd=rgCands(c,per)[0];return cd?{st:cd.st,sel:false}:null}
+function rgWin(c,per){var g=rgS(),map=per==='wk'?g.wk:g.mo,key=per==='wk'?wkKey():moKey(),w=map[key],st=w&&c.students.find(function(x){return x.id===w});if(st)return {st:st,sel:true};var L=rgCands(c,per);if(!L.length)return null;
+  var won={};Object.keys(map).forEach(function(k){if(k!==key)won[map[k]]=(won[map[k]]||0)+1});var top=L[0].s.tot,alt=L.find(function(x){return !won[x.st.id]&&x.s.tot>=Math.max(1,top*.6)});return {st:(alt||L[0]).st,sel:false}}
 function avH(st,sz){return '<span class="av" style="width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz/3)+'px">'+avIn(st)+'</span>'}
 function rgHwStu(c,sid,sk){var L=S.lists.filter(function(l){return l.cid===c.id&&bcat(l)==='hw'&&(!sk||(function(){var t=trkById(l.trk)||{},sb=RGSUB.find(function(z){return z.k===sk});return t.rg===sk||(!t.rg&&sb&&sb.re.test(t.title||l.title||''))})())}).sort(function(a,b){return b.date.localeCompare(a.date)}).slice(0,10),r={y:0,e:0,n:0};L.forEach(function(l){var s=stat(l,sid);if(r[s]!=null)r[s]++});r.tot=r.y+r.e+r.n;r.pct=r.tot?Math.round((r.y+r.e*.5)/r.tot*100):null;return r}
 function rgHead(t,c,extra){return '<div class="card rgh"><div class="row"><button class="back" data-a="rgGo" data-k="">‹ Rehberlik</button><span class="tag">👥 '+esc(c.name)+'</span></div><p class="big">'+t+'</p>'+(extra||'')+'</div>'}
@@ -2772,7 +2819,7 @@ function rgBdg(v,c){var L=c.students.map(function(st){var b=badgesOf(st.id);retu
   h+='<div class="rgbg">'+L.map(function(x){return '<button class="rgbt'+(x.n?' has':'')+'" data-a="card" data-c="'+c.id+'" data-sid="'+x.st.id+'">'+avH(x.st,48)+'<b>'+esc(x.st.name)+'</b><span class="rgbe">'+(x.b.filter(function(z){return z.top}).map(function(z){return '<i title="'+esc(z.top.t)+'">'+z.top.e+'</i>'}).join('')||'<small>henüz rozet yok</small>')+'</span><small class="mut">📝 '+x.b[0].cur+' · 📚 '+x.b[1].cur+' · 💚 '+x.b[2].cur+'</small></button>'}).join('')+'</div>';
   v.innerHTML=h}
 /* --- Haftanın / ayın öğrencisi --- */
-function rgStar(v,c){var g=rgS(),h=rgHead('⭐ Haftanın ve ayın öğrencisi',c,'<p class="mut">Puan: eksiksiz ödev 2, eksik ödev 1, kitap okuma 2, iyilik 3, tamamlanan hedef 2. Öneriyi onaylayabilir ya da başka öğrenciyi seçebilirsiniz.</p>');
+function rgStar(v,c){var g=rgS(),h=rgHead('⭐ Haftanın ve ayın öğrencisi',c,'<p class="mut">Puan: eksiksiz ödev 2, eksik ödev 1, kitap okuma 2, iyilik 3, tamamlanan hedef 2. Öneri, puanı yakın olanlar arasında daha önce seçilmemiş öğrencilere öncelik verir; böylece hep aynı öğrenciler öne çıkmaz. Öneriyi onaylayabilir ya da başka öğrenciyi seçebilirsiniz.</p>');
   var sec=function(per,lab,key,range){var w=rgWin(c,per),cd=rgCands(c,per).slice(0,6),map=per==='wk'?g.wk:g.mo;
     var hist=Object.keys(map).filter(function(k){return k!==key}).sort().reverse().slice(0,6).map(function(k){var st=c.students.find(function(x){return x.id===map[k]});return st?'<span class="rghi">'+avH(st,26)+esc(st.name.split(' ')[0])+'<small>'+k.replace('-H',' · ')+'</small></span>':''}).join('');
     return '<div class="card rgst"><div class="row"><span class="ft">'+(per==='wk'?'⭐':'🏆')+' '+lab+'</span><span class="tag">'+range+'</span></div>'+(w?'<div class="rgwin">'+avH(w.st,96)+'<div><span class="rgsl">'+(w.sel?'SEÇİLDİ':'ÖNERİ')+'</span><b>'+esc(w.st.name)+'</b><div class="acts"><button class="btn y" data-a="rgSpot" data-per="'+per+'" data-sid="'+w.st.id+'">🖼️ Kart</button>'+(w.sel?'':'<button class="btn g" data-a="rgPick" data-per="'+per+'" data-sid="'+w.st.id+'">✓ Onayla</button>')+'</div></div></div>':'<p class="mut">Bu dönemde henüz puan yok. Ödev ve kitap kontrolleri girildikçe öneri çıkar.</p>')+
@@ -3283,7 +3330,7 @@ document.addEventListener('click',function(ev){var b=ev.target.closest('[data-a]
 function riseSlide(R,i){var x=R.rs[i],st=R.c.students.find(function(z){return z.id===x.sid})||{name:'?',id:x.sid},p=prevEx(R.e,x.sid),now=totNet(R.e,x.sid),bef=p?totNet(p,x.sid):null,rk=rankOf(R.e,x.sid);
   var medal=['🥇','🥈','🥉'][i],subs=R.e.subs.map(function(sb){var a=subNet(R.e,x.sid,sb.n),b=p?subNet(p,x.sid,sb.n):null;return a!=null&&b!=null?{n:sb.n,g:a-b}:null}).filter(function(z){return z&&z.g>0}).sort(function(a,b){return b.g-a.g}).slice(0,3);
   var conf='';for(var k=0;k<26;k++){conf+='<i style="left:'+((k*37)%100)+'%;animation-delay:'+((k%9)*.18).toFixed(2)+'s;background:'+['#FFD45C','#7FC4F5','#F59AB5','#9BE3B0','#fff'][k%5]+';transform:rotate('+(k*47%180)+'deg)"></i>'}
-  return '<div class="rsl"><div class="rsconf">'+conf+'</div><div class="rsk">'+(i+1)+'. SIRADA YÜKSELEN</div><div class="rsph">'+(phOf(st.id)?'<img src="'+phOf(st.id)+'" alt="">':'<span>'+esc(st.no||ini(st.name))+'</span>')+(medal?'<b class="rsmed">'+medal+'</b>':'<b class="rsmed rsn">'+(i+1)+'</b>')+'</div><h2>'+esc(st.name)+'</h2><div class="rsup">▲ +'+fmt(x.d)+' net</div><div class="rsfl"><span>'+fmt(bef)+'</span><i>➜</i><span><b>'+fmt(now)+'</b></span></div><p class="mut">'+(p?esc(p.name)+' → ':'')+esc(R.e.name)+(rk?' · sınıfta '+rk.r+'/'+rk.n:'')+'</p>'+(subs.length?'<div class="rssub">'+subs.map(function(z){return '<span>'+esc(z.n)+' <b>+'+fmt(z.g)+'</b></span>'}).join('')+'</div>':'')+
+  return '<div class="rsl"><div class="rsconf">'+conf+'</div><div class="rsk">'+(i+1)+'. SIRADA YÜKSELEN</div><div class="rsph">'+(phOf(st.id)?'<img src="'+phOf(st.id)+'" alt="">':'<span>'+esc(st.no||ini(st.name))+'</span>')+(medal?'<b class="rsmed">'+medal+'</b>':'<b class="rsmed rsn">'+(i+1)+'</b>')+'</div><h2>'+esc(st.name)+'</h2><div class="rsup">▲ +'+fmt(x.d)+' net</div><div class="rsfl"><span>'+fmt(bef)+'</span><i>➜</i><span><b>'+fmt(now)+'</b></span></div><p class="mut">'+(p?esc(p.name)+' → ':'')+esc(R.e.name)+(rk&&rankShare()?' · sınıfta '+rk.r+'/'+rk.n:'')+'</p>'+(subs.length?'<div class="rssub">'+subs.map(function(z){return '<span>'+esc(z.n)+' <b>+'+fmt(z.g)+'</b></span>'}).join('')+'</div>':'')+
    '<div class="acts" style="justify-content:center"><a class="btn wa" target="_blank" rel="noopener" href="'+wa(st.phone,'Sayın '+(st.parent||'Velimiz')+',\n'+st.name+' son denemede '+fmt(bef)+' netten '+fmt(now)+' nete çıkarak sınıfımızda en çok yükselen öğrencilerden biri oldu (+'+fmt(x.d)+' net)! Emeğini tebrik ederiz. 👏\n\n'+S.set.teacher)+'">💬 Veliyi müjdele</a><button class="btn g" data-a="risePng" data-i="'+i+'">🖼️ PNG</button><button class="btn g" data-a="xStu" data-sid="'+x.sid+'" data-c="'+R.c.id+'">📊 Analiz</button></div></div>'}
 
 async function riseCanvas(R,i){await fontsReady();var x0=R.rs[i],st=R.c.students.find(function(z){return z.id===x0.sid})||{name:'?',id:x0.sid},p=prevEx(R.e,x0.sid),now=totNet(R.e,x0.sid),bef=p?totNet(p,x0.sid):null,rk=rankOf(R.e,x0.sid);
@@ -3300,7 +3347,7 @@ async function riseCanvas(R,i){await fontsReady();var x0=R.rs[i],st=R.c.students
   x.fillStyle='#fff';fitFont(x,st.name,W-120,'900',72,40);x.fillText(st.name,W/2,cy+Rr+110);
   var pt='▲ +'+fmt(x0.d)+' net';x.font='900 52px '+F;var pw=x.measureText(pt).width+80,py=cy+Rr+150;var pg2=x.createLinearGradient(0,py,0,py+84);pg2.addColorStop(0,'#5FD39A');pg2.addColorStop(1,'#2FA36B');x.fillStyle=pg2;rrect(x,W/2-pw/2,py,pw,84,42);x.fill();x.fillStyle='#fff';x.fillText(pt,W/2,py+60);
   x.font='800 40px '+F;x.fillStyle='rgba(255,255,255,.85)';x.fillText(fmt(bef)+'   ➜   '+fmt(now)+' net',W/2,py+150);
-  x.fillStyle='rgba(255,255,255,.7)';fitFont(x,(p?p.name+' → ':'')+R.e.name+(rk?'  ·  sınıfta '+rk.r+'/'+rk.n:''),W-140,'700',28,18);x.fillText((p?p.name+' → ':'')+R.e.name+(rk?'  ·  sınıfta '+rk.r+'/'+rk.n:''),W/2,py+200);
+  x.fillStyle='rgba(255,255,255,.7)';var rkT=(p?p.name+' → ':'')+R.e.name+(rk&&rankShare()?'  ·  sınıfta '+rk.r+'/'+rk.n:'');fitFont(x,rkT,W-140,'700',28,18);x.fillText(rkT,W/2,py+200);
   var subs=R.e.subs.map(function(sb){var a=subNet(R.e,x0.sid,sb.n),b=p?subNet(p,x0.sid,sb.n):null;return a!=null&&b!=null?{n:sb.n,g:a-b}:null}).filter(function(z){return z&&z.g>0}).sort(function(a,b){return b.g-a.g}).slice(0,3);
   if(subs.length){var sy=py+240,tw=subs.map(function(z){x.font='800 26px '+F;return x.measureText(z.n+'  +'+fmt(z.g)).width+48}),tot=tw.reduce(function(a,b){return a+b},0)+(subs.length-1)*14,sx=W/2-tot/2;subs.forEach(function(z,k){x.fillStyle='rgba(255,255,255,.14)';rrect(x,sx,sy,tw[k],52,26);x.fill();x.fillStyle='#fff';x.textAlign='left';x.font='800 26px '+F;x.fillText(z.n,sx+24,sy+35);x.fillStyle='#9BE3B0';x.fillText('+'+fmt(z.g),sx+24+x.measureText(z.n+'  ').width,sy+35);sx+=tw[k]+14});x.textAlign='center'}
   x.fillStyle='rgba(255,255,255,.6)';x.font='700 26px '+F;x.fillText((S.set.teacherFull||S.set.teacher)+'  ·  '+new Date().toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}),W/2,H-50);
@@ -3317,8 +3364,11 @@ document.addEventListener('keydown',function(e){if(!$('rsv')||$('md').hidden)ret
 /* ================= ÖDÜL · YAPTIRIM · LİG ================= */
 var ODUL=[['kons','🎯','Yüksek konsantrasyon',3],['deger','💡','Derse değer katan hareket',3],['katil','🙋','Etkin katılım',2],['okuma','📖','Güzel okuma',2],['ozen','✍️','Özenli defter / yazı',2],['yardim','🤝','Arkadaşına yardım',2],['oyun','🧩','Oyun şampiyonu',2],['yaratici','🎨','Yaratıcı fikir',2],['sessiz','🤫','Örnek sınıf davranışı',2],['super','⭐','Süper yıldız',5],['kalkan','🛡️','Koruma kalkanı',0]];
 var ODUL_RG=[['iyilik','💚','İyilik',2],['gorev','🧹','Görev bilinci',2],['lider','🧭','Örnek lider',3]];
-var CEZA=[['geveze','🗣️','Geveze',-2],['dalgin','😶‍🌫️','Dalgın',-1],['ilgisiz','😴','İlgisiz',-2],['hazir','🎒','Hazırlıksız (kitap/defter yok)',-2],['gec','⏰','Derse geç kalma',-1],['kural','🚫','Sınıf kuralına uymama',-3]];
+var CEZA=[['geveze','🗣️','Ders akışını böldü',-2],['dalgin','😶‍🌫️','Dikkati dağıldı',-1],['ilgisiz','😴','Derse katılmadı',-2],['hazir','🎒','Hazırlıksız (kitap/defter yok)',-2],['gec','⏰','Derse geç kalma',-1],['kural','🚫','Sınıf kuralına uymama',-3]];
 function awAll(){return ODUL.concat(ODUL_RG,CEZA,[['kalkanK','🛡️','Kalkan korudu',0]])}
+function tbPub(){return document.body.classList.contains('tbon')&&!(S.set&&S.set.tbNeg)}
+function rankShare(){return !!(S.set&&S.set.rankShare)}
+function negToday(sid){var d=today();return ptsS().filter(function(p){return p.sid===sid&&p.date===d&&p.v<0}).length}
 function awDef(k){return awAll().find(function(a){return a[0]===k})||['?','❔','?',0]}
 function ptsS(){if(!Array.isArray(S.pts))S.pts=[];return S.pts}
 function curTerm(){return termDef()}
@@ -3356,25 +3406,32 @@ function awRender(){var c=cls(UI.awC),mode=UI.awM,isRg=S.rg&&S.rg.cid===c.id,sel
   if(mode==='lig'){openM('<div class="awm">'+tabs+cn+ligH(c)+'<div class="acts"><button class="btn g" data-a="close" style="flex:1">Kapat</button></div></div>');return}
   var L=c.students.slice().sort(byNo),cat=mode==='odul'?ODUL.concat(isRg?ODUL_RG:[]):CEZA;
   openM('<div class="awm">'+tabs+cn+
-   '<div class="awhint">'+(ns?'<b>'+ns+'</b> öğrenci seçili · '+(mode==='odul'?'ödülü seçin':'yaptırımı seçin'):'Önce öğrenci(leri) seçin, sonra '+(mode==='odul'?'ödüle':'yaptırıma')+' dokunun.')+'<span><button class="btn s g" data-a="awAllSel">'+(ns===L.length?'Seçimi temizle':'Tüm sınıf')+'</button></span></div>'+
-   '<div class="awgrid">'+L.map(function(st){var n=netPts(st.id),sh=shieldN(st.id);return '<button class="awst'+(sel[st.id]?' on':'')+'" data-a="awSel" data-sid="'+st.id+'">'+avH(st,44)+'<small>'+esc(st.name.split(' ')[0])+'</small><em class="'+(n>0?'p':n<0?'n':'')+'">'+(n>0?'+':'')+n+'</em>'+(sh>0?'<i class="awsh">🛡️'+(sh>1?sh:'')+'</i>':'')+'</button>'}).join('')+'</div>'+
+   '<div class="awhint">'+(ns?'<b>'+ns+'</b> öğrenci seçili · '+(mode==='odul'?'ödülü seçin':'yaptırımı seçin'):'Önce öğrenci(leri) seçin, sonra '+(mode==='odul'?'ödüle':'yaptırıma')+' dokunun.')+(mode==='ceza'&&ns<L.length?'':'<span><button class="btn s g" data-a="awAllSel">'+(ns===L.length?'Seçimi temizle':'Tüm sınıf')+'</button></span>')+'</div>'+
+   '<div class="awgrid">'+L.map(function(st){var n=netPts(st.id),sh=shieldN(st.id),pub=tbPub();return '<button class="awst'+(sel[st.id]?' on':'')+'" data-a="awSel" data-sid="'+st.id+'">'+avH(st,44)+'<small>'+esc(st.name.split(' ')[0])+'</small>'+(pub&&n<=0?'':'<em class="'+(n>0?'p':n<0?'n':'')+'">'+(n>0?'+':'')+n+'</em>')+(sh>0?'<i class="awsh">🛡️'+(sh>1?sh:'')+'</i>':'')+'</button>'}).join('')+'</div>'+
    '<div class="sec">'+(mode==='odul'?'🏆 Ödüller'+(isRg?' · rehberlik ödülleri dahil':''):'⚠️ Yaptırımlar · ödül puanından düşer')+'</div><div class="awcat '+mode+'">'+cat.map(function(a){return '<button class="awc'+(ns?'':' dis')+'" data-a="awGive" data-k="'+a[0]+'"><span class="awe">'+a[1]+'</span><b>'+esc(a[2])+'</b><em>'+(a[3]>0?'+'+a[3]:a[3]<0?a[3]:(a[0]==='kalkan'?'1 yaptırımı siler':'0'))+'</em></button>'}).join('')+'</div>'+
    '<div class="acts"><button class="btn g" data-a="awM" data-v="lig">📊 '+esc(c.name)+' ligi</button><button class="btn g" data-a="close">Kapat</button></div></div>')}
 function awGive(k){var c=cls(UI.awC),sel=UI.awSel,ids=Object.keys(sel).filter(function(x){return sel[x]&&c.students.some(function(s){return s.id===x})});if(!ids.length){toast('Önce öğrenci seçin');return}
-  var a=awDef(k),tk=curTerm(),added=[],shielded=[];ids.forEach(function(sid){if(a[3]<0&&shieldN(sid)>0){var e={id:uid(),cid:c.id,sid:sid,k:'kalkanK',v:0,note:a[2],date:today(),t:tk};ptsS().push(e);added.push(e);shielded.push(sid);return}
+  var a=awDef(k);
+  if(a[3]<0&&ids.length>=5){if(UI.awArm!==k||Date.now()-(UI.awArmT||0)>8000){UI.awArm=k;UI.awArmT=Date.now();toast('⚠️ '+ids.length+' öğrenciye birden yaptırım: toplu cezalandırma adil olmayabilir. Yine de vermek için tekrar dokunun.');return}UI.awArm=null}
+  if(k==='kalkan'){var full=ids.filter(function(sid){return shieldN(sid)>=2});if(full.length){ids=ids.filter(function(sid){return shieldN(sid)<2});if(!ids.length){toast('🛡️ Seçilen öğrencilerin zaten 2 kalkanı var (en fazla 2)');return}}}
+  var tk=curTerm(),added=[],shielded=[];ids.forEach(function(sid){if(a[3]<0&&shieldN(sid)>0){var e={id:uid(),cid:c.id,sid:sid,k:'kalkanK',v:0,note:a[2],date:today(),t:tk};ptsS().push(e);added.push(e);shielded.push(sid);return}
     var e2={id:uid(),cid:c.id,sid:sid,k:k,v:a[3],date:today(),t:tk};ptsS().push(e2);added.push(e2);
     if(k==='iyilik'&&S.rg&&S.rg.cid===c.id){var kd={id:uid(),sid:sid,cat:'yard',note:'Ders içi ödül',date:today(),cr:Date.now()};rgS().kind.push(kd);e2.kid=kd.id}});
   save();var nm=ids.length===1?(c.students.find(function(s){return s.id===ids[0]})||{name:''}).name.split(' ')[0]:ids.length+' öğrenci';
+  var pub=tbPub(),many=a[3]<0?ids.filter(function(sid){return negToday(sid)>=3}):[];
   awFx(a,ids);UI.awSel={};awRender();if($('tb')&&!$('tb').hidden)tbRender();
-  toast((shielded.length?'🛡️ Kalkan korudu ('+shielded.length+') · ':'')+a[1]+' '+nm+(a[3]?' · '+(a[3]>0?'+':'')+a[3]:''),function(){var ids2=added.map(function(e){return e.id});S.pts=ptsS().filter(function(p){return ids2.indexOf(p.id)<0});added.forEach(function(e){if(e.kid)rgS().kind=rgS().kind.filter(function(x){return x.id!==e.kid})});save();awRender();if($('tb')&&!$('tb').hidden)tbRender()});
+  toast(a[3]<0&&pub?'✓ Kaydedildi':(shielded.length?'🛡️ Kalkan korudu ('+shielded.length+') · ':'')+a[1]+' '+nm+(a[3]?' · '+(a[3]>0?'+':'')+a[3]:'')+(many.length&&!pub?' · '+(many.length===1?'Bu öğrenci':many.length+' öğrenci')+' bugün 3 ya da daha fazla yaptırım aldı; kısa bir bire bir konuşma iyi gelebilir':''),function(){var ids2=added.map(function(e){return e.id});S.pts=ptsS().filter(function(p){return ids2.indexOf(p.id)<0});added.forEach(function(e){if(e.kid)rgS().kind=rgS().kind.filter(function(x){return x.id!==e.kid})});save();awRender();if($('tb')&&!$('tb').hidden)tbRender()});
   try{navigator.vibrate&&navigator.vibrate(a[3]<0?[60,40,60]:[20,30,40])}catch(e){}}
-function awFx(a,ids){var el=document.createElement('div');el.className='awfx '+(a[3]<0?'neg':'pos');el.innerHTML='<span>'+a[1]+'</span><b>'+(a[3]>0?'+'+a[3]:a[3]<0?a[3]:'')+'</b>';document.body.appendChild(el);setTimeout(function(){el.remove()},1300)}
-function ligH(c){var mode=UI.lgP||'term',o=mode==='week'?{from:wkRange()[0]}:mode==='month'?{from:moKey()+'-01'}:{},L=league(c,o),top=L.slice(0,3),any=L.some(function(x){return x.net||x.plus||x.minus});
-  var pod=function(x,i){if(!x)return '<div class="pd e"></div>';return '<div class="pd p'+(i+1)+'" data-a="awHist" data-sid="'+x.st.id+'"><div class="pdav">'+avH(x.st,i===0?78:60)+'<b class="pdm">'+['🥇','🥈','🥉'][i]+'</b></div><small>'+esc(x.st.name.split(' ')[0])+'</small><em>'+(x.net>0?'+':'')+x.net+'</em><div class="pdb">'+(i+1)+'</div></div>'};
+function awFx(a,ids){if(a[3]<0&&tbPub())return;var el=document.createElement('div');el.className='awfx '+(a[3]<0?'neg':'pos');el.innerHTML='<span>'+a[1]+'</span><b>'+(a[3]>0?'+'+a[3]:a[3]<0?a[3]:'')+'</b>';document.body.appendChild(el);setTimeout(function(){el.remove()},1300)}
+function ligH(c){var mode=UI.lgP||'term',o=mode==='week'?{from:wkRange()[0]}:mode==='month'?{from:moKey()+'-01'}:{},L=league(c,o),top=L.slice(0,3),any=L.some(function(x){return x.net||x.plus||x.minus}),pub=tbPub();
+  var RW=c.students.reduce(function(a,st){ptsOf(st.id,{from:wkRange()[0]}).forEach(function(p){if(p.v>0)a.p++;else if(p.v<0)a.n++});return a},{p:0,n:0}),ratio=!pub&&RW.n&&RW.p/RW.n<3?'<div class="lgratio">💡 Bu hafta '+RW.p+' ödül, '+RW.n+' yaptırım. Araştırmalar olumlu geri bildirimin olumsuza en az 3’e 1 olmasını öneriyor; fark edilen küçük olumlu davranışları ödüllendirmek sınıf iklimini güçlendirir.</div>':'';
+  if(pub){L=L.filter(function(x){return x.net>0});top=L.slice(0,3)}
+  var pod=function(x,i){if(!x)return '<div class="pd e"></div>';return '<div class="pd p'+(i+1)+'"'+(pub?'':' data-a="awHist" data-sid="'+x.st.id+'"')+'><div class="pdav">'+avH(x.st,i===0?78:60)+'<b class="pdm">'+['🥇','🥈','🥉'][i]+'</b></div><small>'+esc(x.st.name.split(' ')[0])+'</small><em>'+(x.net>0?'+':'')+x.net+'</em><div class="pdb">'+(i+1)+'</div></div>'};
   return '<div class="lgh"><div class="chips">'+[['term',termLab(curTerm())],['month','Bu ay'],['week','Bu hafta']].map(function(p){return '<button class="chip'+(mode===p[0]?' on':'')+'" data-a="lgP" data-v="'+p[0]+'">'+p[1]+'</button>'}).join('')+'</div>'+
    (any?'<div class="pod">'+pod(top[1],1)+pod(top[0],0)+pod(top[2],2)+'</div>':'<p class="mut" style="text-align:center;padding:20px 0">Bu dönemde henüz puan yok. Ödül ve yaptırımlar verildikçe lig oluşur.</p>')+
-   '<div class="lgt"><div class="lgr lgh2"><span>#</span><span>Öğrenci</span><span>🏆</span><span>⚠️</span><span>Puan</span><span>Perf.</span></div>'+L.map(function(x,i){return '<div class="lgr'+(i<3&&any?' top':'')+'" data-a="awHist" data-sid="'+x.st.id+'"><span>'+(i+1)+'</span><span class="lgn">'+avH(x.st,26)+esc(x.st.name)+(x.sh>0?' 🛡️':'')+'</span><span>'+x.plus+'</span><span>'+x.minus+'</span><span class="'+(x.net>0?'p':x.net<0?'n':'')+'"><b>'+(x.net>0?'+':'')+x.net+'</b></span><span><b>'+x.pg+'</b></span></div>'}).join('')+'</div>'+
-   '<p class="mut">Perf. = ders içi performans notu önerisi: '+(+S.set.perfBase||100)+' + dönem puanı (30–100). Başlangıç puanını Ayarlar’dan değiştirebilirsiniz. Satıra dokunun: geçmiş ve silme.</p>'+
+   (pub?'<div class="lgt lgpub"><div class="lgr lgh2"><span>#</span><span>Öğrenci</span><span>🏆</span><span>Puan</span></div>'+L.slice(0,10).map(function(x,i){return '<div class="lgr'+(i<3?' top':'')+'"><span>'+(i+1)+'</span><span class="lgn">'+avH(x.st,26)+esc(x.st.name)+'</span><span>'+x.plus+'</span><span class="p"><b>+'+x.net+'</b></span></div>'}).join('')+'</div><p class="mut">Tahtada yalnızca olumlu puanlar gösterilir; yaptırımlar ve performans notları gizlidir.</p>':
+   ratio+'<div class="lgt"><div class="lgr lgh2"><span>#</span><span>Öğrenci</span><span>🏆</span><span>⚠️</span><span>Puan</span><span>Perf.</span></div>'+L.map(function(x,i){return '<div class="lgr'+(i<3&&any?' top':'')+'" data-a="awHist" data-sid="'+x.st.id+'"><span>'+(i+1)+'</span><span class="lgn">'+avH(x.st,26)+esc(x.st.name)+(x.sh>0?' 🛡️':'')+'</span><span>'+x.plus+'</span><span>'+x.minus+'</span><span class="'+(x.net>0?'p':x.net<0?'n':'')+'"><b>'+(x.net>0?'+':'')+x.net+'</b></span><span><b>'+x.pg+'</b></span></div>'}).join('')+'</div>')+
+   (pub?'':'<p class="mut">Perf. = ders içi performans notu önerisi: '+(+S.set.perfBase||100)+' + dönem puanı (30–100). Başlangıç puanını Ayarlar’dan değiştirebilirsiniz. Satıra dokunun: geçmiş ve silme.</p>')+
    (any?'<div class="acts"><button class="btn g" data-a="clOpen" data-k="pts" data-c="'+c.id+'">🧹 Puanları temizle</button><a class="btn wa" target="_blank" rel="noopener" href="'+wa('','🏆 *'+c.name+' Sınıf Ligi* · '+(mode==='week'?'bu hafta':mode==='month'?'bu ay':termLab(curTerm()))+'\n\n'+top.map(function(x,i){return ['🥇','🥈','🥉'][i]+' '+x.st.name+' ('+(x.net>0?'+':'')+x.net+' puan)'}).join('\n')+'\n\nTebrikler! 👏\n'+S.set.teacher)+'">📣 İlk üçü paylaş</a></div>':'')+'</div>'}
 function awHist(sid){var o=stuById(sid),st=o.st,L=ptsOf(sid).slice().sort(function(a,b){return b.date.localeCompare(a.date)}),rk=rankIn(o.c,sid);
   openM('<div class="awm"><div class="row" style="justify-content:flex-start;gap:12px"><button class="back" data-a="awM" data-v="lig">‹</button>'+avH(st,50)+'<div><h3 style="margin:0">'+esc(st.name)+'</h3><div class="mut">'+esc(o.c.name)+' · '+termLab(curTerm())+'</div></div></div>'+
@@ -3391,7 +3448,7 @@ document.addEventListener('click',function(ev){var b=ev.target.closest('[data-a]
   case 'fbCeza':fabToggle(false);awOpen('ceza');break;
   case 'awM':UI.awM=b.dataset.v;awRender();break;
   case 'awC':UI.awC=b.dataset.id;UI.awSel={};awRender();break;
-  case 'awSel':UI.awSel[sid]=!UI.awSel[sid];b.classList.toggle('on',!!UI.awSel[sid]);var c=cls(UI.awC),ns=Object.keys(UI.awSel).filter(function(k){return UI.awSel[k]}).length;var hh=document.querySelector('.awhint');if(hh)hh.firstChild.nodeValue='';document.querySelectorAll('.awc').forEach(function(x){x.classList.toggle('dis',!ns)});var hb=document.querySelector('.awhint');if(hb)hb.innerHTML=(ns?'<b>'+ns+'</b> öğrenci seçili · '+(UI.awM==='odul'?'ödülü seçin':'yaptırımı seçin'):'Önce öğrenci(leri) seçin, sonra '+(UI.awM==='odul'?'ödüle':'yaptırıma')+' dokunun.')+'<span><button class="btn s g" data-a="awAllSel">'+(ns===c.students.length?'Seçimi temizle':'Tüm sınıf')+'</button></span>';break;
+  case 'awSel':UI.awSel[sid]=!UI.awSel[sid];b.classList.toggle('on',!!UI.awSel[sid]);var c=cls(UI.awC),ns=Object.keys(UI.awSel).filter(function(k){return UI.awSel[k]}).length;var hh=document.querySelector('.awhint');if(hh)hh.firstChild.nodeValue='';document.querySelectorAll('.awc').forEach(function(x){x.classList.toggle('dis',!ns)});var hb=document.querySelector('.awhint');if(hb)hb.innerHTML=(ns?'<b>'+ns+'</b> öğrenci seçili · '+(UI.awM==='odul'?'ödülü seçin':'yaptırımı seçin'):'Önce öğrenci(leri) seçin, sonra '+(UI.awM==='odul'?'ödüle':'yaptırıma')+' dokunun.')+(UI.awM==='ceza'&&ns<c.students.length?'':'<span><button class="btn s g" data-a="awAllSel">'+(ns===c.students.length?'Seçimi temizle':'Tüm sınıf')+'</button></span>');break;
   case 'awAllSel':{var c2=cls(UI.awC),all=c2.students.every(function(s){return UI.awSel[s.id]});UI.awSel={};if(!all)c2.students.forEach(function(s){UI.awSel[s.id]=true});awRender();break}
   case 'awGive':awGive(b.dataset.k);break;
   case 'lgP':UI.lgP=b.dataset.v;awRender();break;
@@ -3528,14 +3585,14 @@ function tgSt(h){var e=$('tgst');if(e)e.innerHTML=h}
 var TGF={};
 function tgRes(win){if(TG.mode!=='solo'){if(win)tgPoint(1);return}setTimeout(function(){tgSoloEnd(win)},win?700:900)}
 function tgSoloEnd(win){var g=$('tg');if(!g)return;tgClr();var c=cls(TB.cid),st=c.students.find(function(x){return x.id===TG.pl}),pe=tgPen(),d=pe?awDef(pe.k):null,msg,sub,btn;
-  if(win&&pe){var i=ptsS().indexOf(pe);if(i>=0)ptsS().splice(i,1);save();msg='Yaptırım silindi!';sub=(d?d[2]+' ('+pe.v+')':'Yaptırım')+' kaldırıldı. Aferin '+esc(st.name.split(' ')[0])+'!';
+  if(win&&pe){var i=ptsS().indexOf(pe);if(i>=0)ptsS().splice(i,1);save();msg=tbPub()?'Telafi tamam!':'Yaptırım silindi!';sub=(tbPub()?'Bugünkü kayıt silindi.':(d?d[2]+' ('+pe.v+')':'Yaptırım')+' kaldırıldı.')+' Aferin '+esc(st.name.split(' ')[0])+'!';
     var nx=ptsS().filter(function(p){return p.cid===c.id&&p.sid===TG.pl&&p.date===today()&&p.v<0}).pop();TG.pid=nx?nx.id:null;if(!nx)TG.pl=TG.pl;try{if($('tb')&&!$('tb').hidden)tbRender()}catch(e){}}
   else if(win){msg='Tebrikler!';sub=esc(st.name.split(' ')[0])+' oyunu kazandı.'}
-  else{msg='Bu sefer olmadı';sub=pe?'Yaptırım duruyor. İstersen tekrar dene!':'Bir dahaki sefere!'}
+  else{msg='Bu sefer olmadı';sub=pe?(tbPub()?'İstersen tekrar dene!':'Yaptırım duruyor. İstersen tekrar dene!'):'Bir dahaki sefere!'}
   var e=document.createElement('div');e.className='tgso '+(win?'w':'l');e.innerHTML='<div class="tgsoc">'+(win?'<div class="tgconf">'+Array.from({length:18}).map(function(_,k){return '<i style="--x:'+(Math.random()*100)+'%;--d:'+(Math.random()*.6)+'s;--h:'+(k*40)+'"></i>'}).join('')+'</div>':'')+(st?tbAv(st,'big'):'')+'<span class="tgsoe">'+(win?(pe?'🧽':'🏆'):'💪')+'</span><b>'+msg+'</b><p>'+sub+'</p><div class="tgsob">'+(!win?'<button class="tgbtn go" data-a="tgSoloAgain">Tekrar dene</button>':'')+(win&&!pe?'<button class="tgbtn go" data-a="tgSoloAw">Ödül ver</button>':'')+(win&&TG.pid?'<button class="tgbtn go" data-a="tgSoloAgain">Diğer yaptırım için oyna</button>':'')+'<button class="tgbtn" data-a="tgPickM">Başka öğrenci</button><button class="tgbtn g" data-a="tgSoloX">Kapat</button></div></div>';g.appendChild(e);var b=document.querySelector('#tg .tgbarw');if(b)b.outerHTML=tgBar()}
 function tgPickM(){var c=cls(TB.cid),P=ptsS().filter(function(p){return p.cid===c.id&&p.date===today()&&p.v<0}).slice().reverse(),has={};P.forEach(function(p){has[p.sid]=1});
-  var row=function(st,p){var d=p?awDef(p.k):null;return '<button class="tgpr'+(p?' pen':'')+'" data-a="tgPick" data-sid="'+st.id+'" data-pid="'+(p?p.id:'')+'">'+tbAv(st,'sm')+'<b>'+esc(st.name)+'</b>'+(p?'<span>'+(d?d[1]+' '+esc(d[2]):'Yaptırım')+' <em>'+p.v+'</em></span>':'')+'</button>'};
-  openM('<h3>Bireysel oyun · öğrenci seçin</h3><p class="mut">Bugün yaptırım alan öğrenci oyunu kazanırsa yaptırımı silinir.</p><div class="tgpl2">'+(P.length?'<div class="tgph">Bugün yaptırım alanlar</div>'+P.map(function(p){var st=c.students.find(function(x){return x.id===p.sid});return st?row(st,p):''}).join(''):'<p class="mut" style="margin:6px 0 10px">Bugün bu sınıfta yaptırım yok.</p>')+'<div class="tgph">Diğer öğrenciler · alıştırma</div><div class="tgpg">'+c.students.slice().sort(byNo).filter(function(st){return !has[st.id]}).map(function(st){return row(st,null)}).join('')+'</div></div><div class="acts"><button class="btn g" data-a="close" style="flex:1">Vazgeç</button></div>')}
+  var pub=tbPub(),row=function(st,p){var d=p?awDef(p.k):null;return '<button class="tgpr'+(p?' pen':'')+'" data-a="tgPick" data-sid="'+st.id+'" data-pid="'+(p?p.id:'')+'">'+tbAv(st,'sm')+'<b>'+esc(st.name)+'</b>'+(p?'<span>'+(pub?'🧽 Telafi hakkı':(d?d[1]+' '+esc(d[2]):'Yaptırım')+' <em>'+p.v+'</em>')+'</span>':'')+'</button>'};
+  openM('<h3>Bireysel oyun · öğrenci seçin</h3><p class="mut">'+(pub?'Telafi hakkı olan öğrenci oyunu kazanırsa bugünkü bir kaydı silinir.':'Bugün yaptırım alan öğrenci oyunu kazanırsa yaptırımı silinir.')+'</p><div class="tgpl2">'+(P.length?'<div class="tgph">'+(pub?'Telafi hakkı olanlar':'Bugün yaptırım alanlar')+'</div>'+P.map(function(p){var st=c.students.find(function(x){return x.id===p.sid});return st?row(st,p):''}).join(''):'<p class="mut" style="margin:6px 0 10px">Bugün bu sınıfta yaptırım yok.</p>')+'<div class="tgph">Diğer öğrenciler · alıştırma</div><div class="tgpg">'+c.students.slice().sort(byNo).filter(function(st){return !has[st.id]}).map(function(st){return row(st,null)}).join('')+'</div></div><div class="acts"><button class="btn g" data-a="close" style="flex:1">Vazgeç</button></div>')}
 function tgPoint(n){n=n||1;var k=TG.turn;TG.sc[k]+=n;var b=document.querySelector('#tg .tgbarw');if(b)b.outerHTML=tgBar();var el=document.querySelector('#tg .tgtm.t'+k+' b');if(el)el.classList.add('pop');tgFx('+'+n,k)}
 function tgFx(t,k){var g=$('tgst');if(!g)return;var e=document.createElement('div');e.className='tgfx t'+(k==null?'x':k);e.textContent=t;g.appendChild(e);setTimeout(function(){e.remove()},1300)}
 function tgBad(el){if(!el)return;el.classList.remove('bad');void el.offsetWidth;el.classList.add('bad');try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}}
@@ -3703,9 +3760,9 @@ function demoMake(){var R=demoRnd(7070707),old=S.classes.find(function(c){return
     studs.forEach(function(st){var p=P[st.id];if(R()<.04)return;var rr={s:{}};SUBS.forEach(function(sb){var lvl=Math.max(.05,Math.min(.98,p.a+p.tr*pg+.07*pg+dif+p.sub[sb.n]+(R()-.5)*.16)),d=Math.round(sb.q*lvl),bos=Math.round((sb.q-d)*R()*.45),y=sb.q-d-bos;rr.s[sb.n]={d:d,y:y,n:+(d-y/3).toFixed(2)}});e.r[st.id]=rr});S.exams.push(e)});
   // ödül / yaptırım
   var OK=['kons','deger','katil','okuma','ozen','yardim','yaratici'].filter(function(k){return awDef(k)}),CK=CEZA.map(function(c){return c[0]});
-  days.forEach(function(s,di){if(R()<.3)return;var n=3+Math.floor(R()*4);for(var j=0;j<n;j++){var st=studs[Math.floor(R()*studs.length)],p=P[st.id],good=R()<.12+p.beh*.8;var k=good?OK[Math.floor(R()*OK.length)]:CK[Math.floor(R()*CK.length)],a=awDef(k);if(!a)continue;ptsS().push({id:uid(),cid:cid,sid:st.id,k:k,v:a[3],date:s,t:tk,demo:1})}});
+  days.forEach(function(s,di){if(R()<.3)return;var n=3+Math.floor(R()*4);for(var j=0;j<n;j++){var st=studs[Math.floor(R()*studs.length)],p=P[st.id],good=R()<.5+p.beh*.45;var k=good?OK[Math.floor(R()*OK.length)]:CK[Math.floor(R()*CK.length)],a=awDef(k);if(!a)continue;ptsS().push({id:uid(),cid:cid,sid:st.id,k:k,v:a[3],date:s,t:tk,demo:1})}});
   // ocak ayına biraz hareket (ay ligi canlı olsun)
-  days.filter(function(s){return s>='2027-01-04'}).forEach(function(s){for(var j=0;j<3;j++){var st=studs[Math.floor(R()*studs.length)],p=P[st.id],k=R()<.3+p.beh*.6?OK[Math.floor(R()*OK.length)]:CK[Math.floor(R()*CK.length)],a=awDef(k);ptsS().push({id:uid(),cid:cid,sid:st.id,k:k,v:a[3],date:s,t:tk,demo:1})}});
+  days.filter(function(s){return s>='2027-01-04'}).forEach(function(s){for(var j=0;j<3;j++){var st=studs[Math.floor(R()*studs.length)],p=P[st.id],k=R()<.55+p.beh*.4?OK[Math.floor(R()*OK.length)]:CK[Math.floor(R()*CK.length)],a=awDef(k);ptsS().push({id:uid(),cid:cid,sid:st.id,k:k,v:a[3],date:s,t:tk,demo:1})}});
   // yazılı ve performans notları
   var DERS=['Türkçe','Matematik','Fen Bilimleri','Sosyal Bilgiler','İngilizce','Din Kültürü ve Ahlak Bilgisi'],ng=ngS(),T=ng.terms[tk]=ng.terms[tk]||{d:{},date:'2027-01-15'};
   studs.forEach(function(st){var p=P[st.id],G=T.d[st.id]={};DERS.forEach(function(dn,di){var b=p.a*100+((P[st.id].sub[SUBS[Math.min(di,5)].n]||0)*60),cl=function(v){return Math.max(25,Math.min(100,Math.round(v)))};var off=[2,-9,-3,4,6,8][di];G[dn]={y1:cl(b+off-6+p.tr*20+(R()-.5)*20),y2:cl(b+off+p.tr*60+(R()-.5)*20),p1:cl(60+p.dil*40+(R()-.5)*8),p2:cl(55+p.beh*40+p.dil*8+(R()-.5)*8)}})});
@@ -3861,6 +3918,9 @@ document.addEventListener('click',function(e){
   case 'mooTest':moo();break;
   case 'mooRes':MOO=null;try{localStorage.removeItem('sp-moo')}catch(e){}if(phRef)phRef.doc('moo').delete().catch(function(){});renderView();toast('Varsayılan möö sesine dönüldü');break;
   case 'perfB':S.set.perfBase=+b.dataset.v;save();renderView();toast('Performans başlangıcı: '+b.dataset.v);break;
+  case 'fairRank':S.set.rankShare=b.dataset.v==='1';save();renderView();break;
+  case 'fairPerf':S.set.ptPerf=b.dataset.v==='1';save();renderView();break;
+  case 'fairTb':S.set.tbNeg=b.dataset.v==='1';save();renderView();break;
   case 'theme':S.set.theme=b.dataset.v;applyTheme();save();renderView();break;
   case 'addT':{var tn=$('ntN').value.trim();if(!tn){toast('Tür adı yazın');return}S.types.push({id:uid(),name:tn,emoji:$('ntE').value.trim()||'📋',mode:$('ntM').value,unit:$('ntU').value.trim()||($('ntM').value==='count'?'adet':'')});save();renderView();toast('Tür eklendi');break}
   case 'delT':{if(S.lists.some(function(l){return l.tid===id})){toast('Bu türde listeler var, önce onları silin');return}if(S.types.length<2)return;S.types=S.types.filter(function(t){return t.id!==id});save();renderView();break}
@@ -4004,10 +4064,10 @@ function portalData(sid){var o=stuById(sid);if(!o)return null;var st=o.st,c=o.c,
     L.forEach(function(l){var s=stat(l,sid);k[s]=(k[s]||0)+1;if(T.mode==='count'){var m=(l.m||{})[sid];if(m&&m.v)sum+=+m.v||0}});
     return {ti:t.title,em:T.emoji,mode:T.mode,unit:T.unit||'',tot:L.length,c:k,sum:sum,rec:rec}}).filter(function(x){return x.tot});
   var ng=ngS(),G=[];Object.keys(ng.terms||{}).sort().forEach(function(k){var d=ng.terms[k]&&ng.terms[k].d&&ng.terms[k].d[sid];if(!d||!Object.keys(d).length)return;var o2={};Object.keys(d).forEach(function(ders){var e=d[ders]||{},x={};['y1','y2','y3','p1','p2','p3','pr','o'].forEach(function(f){if(typeof e[f]==='number')x[f]=e[f]});var a=gAvg(e);if(a!=null)x.a=r2(a);o2[ders]=x});G.push({k:k,lab:termLab(k),d:o2})});
-  var EX=stuExams(c.id,sid).map(function(e){var r=(e.r||{})[sid]||{},rr=rankOf(e,sid);return {n:e.name,d:e.date,t:r2(totNet(e,sid)),a:r2(avgTot(e)),r:rr?rr.r:null,rn:rr?rr.n:null,p:r.p!=null&&r.p!==''?+r.p:null,s:e.subs.map(function(s){var v=subNet(e,sid,s.n),av=avgSub(e,s.n),x=(r.s||{})[s.n]||{},o={n:s.n,q:s.q||'',v:v==null?null:r2(v),a:av==null?null:r2(av)};if(x.d!==''&&x.d!=null&&!isNaN(x.d)){o.d=+x.d;o.y=+x.y||0}return o})}});
+  var EX=stuExams(c.id,sid).map(function(e){var r=(e.r||{})[sid]||{},rr=rankOf(e,sid);return {n:e.name,d:e.date,t:r2(totNet(e,sid)),a:r2(avgTot(e)),r:rr&&rankShare()?rr.r:null,rn:rr&&rankShare()?rr.n:null,p:r.p!=null&&r.p!==''?+r.p:null,s:e.subs.map(function(s){var v=subNet(e,sid,s.n),av=avgSub(e,s.n),x=(r.s||{})[s.n]||{},o={n:s.n,q:s.q||'',v:v==null?null:r2(v),a:av==null?null:r2(av)};if(x.d!==''&&x.d!=null&&!isNaN(x.d)){o.d=+x.d;o.y=+x.y||0}return o})}});
   var ab=absCount(sid);
   return {v:1,av:(S.av&&S.av[sid]&&window.SPAvatar)?SPAvatar.norm(S.av[sid]):null,name:st.name,no:st.no||'',cls:c.name,teacher:S.set.teacherFull||S.set.teacher||'',school:S.set.school||'',term:termLab(tk),at:Date.now(),
-    badges:B,lg:{net:netPts(sid),r:rk?rk.r:null,n:rk?rk.n:null,pg:perfGrade(sid),sh:shieldN(sid),h:hist},trk:trk,books:books(sid),bookNames:bookNames(sid).slice(-30),abs:ab,grades:G,ex:EX}}
+    badges:B,lg:{net:netPts(sid),r:rk&&rankShare()?rk.r:null,n:rk&&rankShare()?rk.n:null,pg:S.set.ptPerf?perfGrade(sid):null,sh:shieldN(sid),h:hist},trk:trk,books:books(sid),bookNames:bookNames(sid).slice(-30),abs:ab,grades:G,ex:EX}}
 function ptHash(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h>>>0)}
 var ptTm=null,ptBusy=false,ptAgain=false;
 function portalSoon(){if(!ptOn())return;clearTimeout(ptTm);ptTm=setTimeout(portalSync,12000)}
