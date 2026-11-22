@@ -4008,7 +4008,7 @@ async function ptMake(sid,role){var o=stuById(sid);if(!o||o.st.demo||o.c.demo){t
   var u=e[role]&&e[role].u||ptUser(o.st,role),p=ptPass(),id=await window.SPCloud.portalId(u,p);e[role]={u:u,p:p,id:id,cr:Date.now()};e.h='';save();
   ptRender();toast('Giriş hazır ✓ · sayfası yayınlanıyor');portalSync()}
 async function ptDel(sid,role){var e=ptS()[sid];if(!e||!e[role])return;try{var db=await claude.use('db');if(db)await db.collection('portal').doc(e[role].id).delete()}catch(x){}delete e[role];if(!e.v&&!e.o)delete ptS()[sid];save();ptRender();toast('Giriş kapatıldı')}
-function ptMsg(st,role){var e=(ptS()[st.id]||{})[role];if(!e)return '';var url=location.protocol==='https:'?location.origin+location.pathname:'https://tanerhocca-dot.github.io/sinif-pusulasi/';
+function ptMsg(st,role){var e=(ptS()[st.id]||{})[role];if(!e)return '';var url=(location.protocol==='https:'&&!window.SP_NATIVE&&!/^(localhost|127\.)/.test(location.hostname))?location.origin+location.pathname:'https://www.sinifpusulasi.com.tr/';
   return role==='v'?'Sayın velimiz,\n'+st.name+' için Sınıf Pusulası veli sayfanız hazır. Rozetlerini, lig puanını, ödev ve kitap takibini, notlarını ve deneme sonuçlarını buradan izleyebilirsiniz.\n\n🔗 '+url+'\nGiriş: *Veli*\nKullanıcı adı: *'+e.u+'*\nŞifre: *'+e.p+'*\n\nBu bilgileri lütfen kimseyle paylaşmayın.\n'+(S.set.teacher||'')
    :'Merhaba '+st.name.split(' ')[0]+'! 🎒\nSınıf Pusulası öğrenci sayfan hazır: rozetlerin, lig puanın, ödevlerin, notların ve denemelerin burada.\n\n🔗 '+url+'\nGiriş: Öğrenci\nKullanıcı adı: '+e.u+'\nŞifre: '+e.p+'\n\nŞifreni kimseye söyleme. 😊\n'+(S.set.teacher||'')}
 var PTC=null;
