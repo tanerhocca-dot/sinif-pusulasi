@@ -1,0 +1,30 @@
+{
+ "id": "birebir",
+ "name": "Birebir · Koçluk",
+ "short_name": "Birebir",
+ "description": "Birebir koçluk: haftalık program, görev ve deneme takibi",
+ "start_url": "./birebir.html",
+ "scope": "./birebir",
+ "display": "standalone",
+ "background_color": "#141414",
+ "theme_color": "#161616",
+ "lang": "tr",
+ "icons": [
+  {
+   "src": "icons/birebir-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icons/birebir-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icons/birebir-maskable.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
