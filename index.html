@@ -1744,6 +1744,7 @@ function vClass(v){
   });
   h+='<div class="srow"><span class="av sph ph0">＋</span><input id="asNo" placeholder="No" inputmode="numeric"><input id="asN" placeholder="Ad Soyad"><input id="asP" placeholder="Veli"><input id="asT" placeholder="05xx…" inputmode="tel"><button class="x" style="color:var(--ok)" data-a="addS" aria-label="Ekle">+</button></div>';
   h+=''+ANDH+'<p class="mut">Değişiklikler otomatik kaydedilir. Telefonu olmayan veliler için WhatsApp kişi seçme ekranı açılır.</p></div>';
+  h+=bfCardH(c);
   h+=supClassH(c);
   v.innerHTML=h;
 }
@@ -4405,6 +4406,81 @@ document.addEventListener('click',function(ev){var b=ev.target.closest('[data-a]
   case 'supVrm':supVidStore(null);render();toast('Kutlama videosu kaldırıldı');break;
   case 'supRm':supStore(null);render();toast('Varsayılan görsele dönüldü');break}},true);
 CLM.push(['sup','⭐','Süper etiketler','Haftanın yazarı, ekstra ödev, çok kral hareket',function(c,ids,inS){return supS().filter(function(r){return inS(r.sid)}).length},function(c,ids,inS){S.sup=supS().filter(function(r){return !inS(r.sid)})}]);
+
+/* ================= ÖĞRENCİ VE VELİ BİLGİ FORMU (PDF üret · doldurulmuş formu içeri al) ================= */
+var BFC=[['Sıra',7,'c'],['Okul No',14,'c'],['Öğrencinin Adı Soyadı',48,'l'],['Velinin Adı Soyadı',44,'l'],['Yakınlık',15,'c'],['Veli Telefonu',30,'l'],['Not',24,'l']];
+var BFK=['sira','okulno','ogrenci','veli','yakinlik','telefon','not'];
+function bfVal(st,k){if(!st)return '';return k==='okulno'?(st.no||''):k==='ogrenci'?(st.name||''):k==='veli'?(st.parent||''):k==='yakinlik'?(st.rel||''):k==='telefon'?(st.phone||''):k==='not'?(st.note||''):''}
+async function bfCanvas(c,list,pi,pages,bw){await fontsReady();var MM=1240/210,W=1240,H=1754,cv=document.createElement('canvas');cv.width=W;cv.height=H;var x=cv.getContext('2d'),F='Nunito,system-ui,sans-serif';
+  var NAVY=bw?'#000':'#25406B',MUT=bw?'#000':'#4F6A95',LINE=bw?'#000':'#D5E5F8',m=function(v){return v*MM};x.fillStyle='#fff';x.fillRect(0,0,W,H);
+  var L=m(14),T=m(12),Wd=W-2*L,y=T,cells=[];
+  var my=await ldImg(SUPIMG||(S.set&&S.set.logo)||null),site=await ldImg((document.querySelector('link[rel="apple-touch-icon"]')||{}).href);
+  var gray=function(im){return bw&&im?grayImg(im):im};
+  // başlık camı
+  var hh=m(25);rrect(x,L,y,Wd,hh,m(5));if(!bw){var g=x.createLinearGradient(L,y,L+Wd,y+hh);g.addColorStop(0,'#C5E3FA');g.addColorStop(1,'#AFD2F5');x.fillStyle=g;x.fill();x.lineWidth=2;x.strokeStyle='#D5E5F8';x.stroke()}else{x.lineWidth=1.5;x.strokeStyle='#000';x.stroke()}
+  var lx=L+m(4);if(my){var ls=bw?m(13):m(16.5);x.drawImage(gray(my),lx+(m(18)-ls)/2,y+m(2),ls,ls)}x.textAlign='center';x.fillStyle=MUT;x.font='700 '+m(2.5)+'px '+F;if(S.set.teacher)x.fillText(S.set.teacher,lx+m(9),y+m(22.4));
+  x.fillStyle=NAVY;x.fillRect(lx+m(21),y+m(4),2,hh-m(8));
+  var sbw=m(52),sx=L+Wd-m(3.5)-sbw,sy=y+m(4.2),sh=hh-m(8.4);rrect(x,sx,sy,sbw,sh,m(3.6));if(!bw){var g2=x.createLinearGradient(sx,sy,sx+sbw,sy+sh);g2.addColorStop(0,'#FFEFB3');g2.addColorStop(1,'#FFDC73');x.fillStyle=g2;x.fill();x.lineWidth=3;x.strokeStyle='#9CCBF2';x.stroke()}else{x.lineWidth=1.5;x.strokeStyle='#000';x.stroke()}
+  if(site){var ss=bw?m(10):m(12.5);x.save();rrect(x,sx+m(3),sy+(sh-ss)/2,ss,ss,m(3));x.clip();x.drawImage(gray(site),sx+m(3),sy+(sh-ss)/2,ss,ss);x.restore()}
+  x.textAlign='left';x.fillStyle=NAVY;x.font='900 '+m(3.3)+'px '+F;x.fillText('Sınıf Pusulası',sx+m(17.5),sy+sh/2-m(.4));x.fillStyle=MUT;x.font='800 '+m(2.6)+'px '+F;x.fillText('sinifpusulasi.com.tr',sx+m(17.5),sy+sh/2+m(3.6));
+  var tx=lx+m(25),tw=sx-tx-m(4);x.fillStyle=MUT;x.font='900 '+m(2.5)+'px '+F;x.fillText('SINIF PUSULASI  ·  KAYIT FORMU',tx,y+m(8.4));x.fillStyle=NAVY;fitFont(x,'ÖĞRENCİ VE VELİ BİLGİ FORMU',tw,'900',m(5.2),m(3.2));x.fillText('ÖĞRENCİ VE VELİ BİLGİ FORMU',tx,y+m(14.6));x.fillStyle=MUT;x.font='700 '+m(2.9)+'px '+F;x.fillText('Öğrenci  ·  Okul numarası  ·  Veli  ·  İletişim'+(pages>1?'   ·   Sayfa '+(pi+1)+'/'+pages:''),tx,y+m(19.6));
+  y+=hh+m(2.4);
+  // bilgi satırı
+  var ih=m(8.4);rrect(x,L,y,Wd,ih,ih/2);if(!bw){x.fillStyle='#fff';x.fill();x.lineWidth=2;x.strokeStyle='#D5E5F8';x.stroke()}else{x.lineWidth=1.5;x.strokeStyle='#000';x.stroke()}
+  var px=L+m(5),by=y+ih/2+m(1.1);x.font='800 '+m(3.1)+'px '+F;x.fillStyle=NAVY;
+  [['Okul:',S.set.school||'',m(42)],['Sınıf / Şube:',c.name||'',m(16)],['Rehber Öğretmen:',S.set.teacherFull||S.set.teacher||'',m(30)]].forEach(function(f){x.font='800 '+m(3.1)+'px '+F;x.fillStyle=NAVY;x.fillText(f[0],px,by);px+=x.measureText(f[0]).width+m(1.5);x.strokeStyle=bw?'#000':'#8FA6C8';x.lineWidth=1.4;x.beginPath();x.moveTo(px,by+m(1));x.lineTo(px+f[2],by+m(1));x.stroke();if(f[1]){x.font='700 '+m(2.9)+'px '+F;fitFont(x,f[1],f[2]-m(1),'700',m(2.9),m(2));x.fillText(f[1],px+m(.8),by-m(.2))}px+=f[2]+m(4)});
+  x.textAlign='right';x.font='italic 700 '+m(2.9)+'px '+F;x.fillStyle=bw?'#000':'#62789B';x.fillText(termDef().split('/')[0],L+Wd-m(5),by);x.textAlign='left';y+=ih+m(2.4);
+  // tablo
+  var fh=m(11.5),tabH=H-m(9)-fh-m(2.4)-y,thH=m(7),rh=(tabH-thH)/42;
+  rrect(x,L,y,Wd,tabH,m(4));x.save();x.clip();if(!bw){x.fillStyle='#DCEBFB';x.fillRect(L,y,Wd,thH)}
+  for(var r=0;r<42;r++){var ry=y+thH+r*rh;if(!bw){x.fillStyle=r%2?'#FFFBED':'#fff';x.fillRect(L,ry,Wd,rh);x.fillStyle='#EEF5FD';x.fillRect(L,ry,m(7),rh)}}
+  x.strokeStyle=bw?'#000':'#9CCBF2';x.lineWidth=bw?1.6:2;x.beginPath();x.moveTo(L,y+thH);x.lineTo(L+Wd,y+thH);x.stroke();
+  x.strokeStyle=LINE;x.lineWidth=bw?.8:1.2;for(var r2_=1;r2_<42;r2_++){var yy=y+thH+r2_*rh;x.beginPath();x.moveTo(L,yy);x.lineTo(L+Wd,yy);x.stroke()}
+  var cx=L;BFC.forEach(function(col,i){if(i){x.beginPath();x.moveTo(cx,y);x.lineTo(cx,y+tabH);x.stroke()}cx+=m(col[1])});
+  cx=L;BFC.forEach(function(col){x.fillStyle=bw?'#000':'#1E3A66';fitFont(x,col[0],m(col[1])-m(2.4),'900',m(2.6),m(1.9));x.textAlign=col[2]==='c'?'center':'left';x.fillText(col[0],col[2]==='c'?cx+m(col[1])/2:cx+m(1.6),y+thH/2+m(.95));cx+=m(col[1])});
+  for(var r3=0;r3<42;r3++){var st=list[r3],ry2=y+thH+r3*rh+rh/2+m(.9);cx=L;BFC.forEach(function(col,i){var k=BFK[i],v=i===0?String(pi*42+r3+1):bfVal(st,k);
+      if(v){x.fillStyle=i===0?(bw?'#000':'#3D7CC9'):(bw?'#000':'#25406B');fitFont(x,v,m(col[1])-m(2.6),i===0?'900':(i===2?'800':'700'),m(2.65),m(1.8));x.textAlign=col[2]==='c'?'center':'left';x.fillText(v,col[2]==='c'?cx+m(col[1])/2:cx+m(1.6),ry2)}
+      else if(i>0)cells.push({n:'r'+String(r3+1).padStart(2,'0')+'_'+k+(st?'__'+st.id:''),x:cx/MM,y:(y+thH+r3*rh)/MM,w:col[1],h:rh/MM});cx+=m(col[1])})}
+  x.restore();rrect(x,L,y,Wd,tabH,m(4));x.lineWidth=bw?1.5:2;x.strokeStyle=bw?'#000':'#D5E5F8';x.stroke();y+=tabH+m(2.4);
+  // alt bilgi
+  rrect(x,L,y,Wd,fh,fh/2);if(!bw){var g3=x.createLinearGradient(L,y,L+Wd,y+fh);g3.addColorStop(0,'#F4F9FE');g3.addColorStop(1,'#fff');x.fillStyle=g3;x.fill();x.lineWidth=2;x.strokeStyle='#D5E5F8';x.stroke()}else{x.lineWidth=1.5;x.strokeStyle='#000';x.stroke()}
+  if(my)x.drawImage(gray(my),L+m(2),y+m(1.5),m(8.5),m(8.5));x.textAlign='left';x.fillStyle=NAVY;x.font='900 '+m(3.1)+'px '+F;x.fillText((S.set.teacher?S.set.teacher+'  ·  ':'')+'Sınıf Pusulası',L+m(12.5),y+m(5));x.fillStyle=bw?'#000':'#62789B';x.font='700 '+m(2.3)+'px '+F;fitFont(x,'Yakınlık: Anne, Baba, Vasi  ·  Telefon 05xx xxx xx xx  ·  Doldurulan form Sınıflar › sınıf › “Formu içeri al” ile sisteme aktarılır.',Wd-m(36),'700',m(2.3),m(1.7));x.fillText('Yakınlık: Anne, Baba, Vasi  ·  Telefon 05xx xxx xx xx  ·  Doldurulan form Sınıflar › sınıf › “Formu içeri al” ile sisteme aktarılır.',L+m(12.5),y+m(8.7));
+  if(site){x.save();rrect(x,L+Wd-m(20),y+m(2.2),m(7),m(7),m(2));x.clip();x.drawImage(gray(site),L+Wd-m(20),y+m(2.2),m(7),m(7));x.restore()}
+  x.beginPath();x.arc(L+Wd-m(7),y+fh/2,m(4),0,7);if(!bw){x.fillStyle='#FFE08A';x.fill()}x.lineWidth=bw?1.2:2;x.strokeStyle=bw?'#000':'#9CCBF2';x.stroke();x.textAlign='center';x.fillStyle=NAVY;x.font='900 '+m(2.5)+'px '+F;x.fillText((pi+1)+'/'+pages,L+Wd-m(7),y+fh/2+m(.9));
+  return {cv:cv,cells:cells}}
+async function bfPdf(c,bw){var L=c.students.slice().sort(byNo),pages=Math.max(1,Math.ceil(L.length/42));openM('<h3>📄 Bilgi formu hazırlanıyor…</h3><div class="spin"></div>');
+  try{await ensurePdf();var pdf=new jspdf.jsPDF({unit:'mm',format:'a4'}),pv=[],one=null,rowsMap=[],TF=(jspdf.jsPDF&&jspdf.jsPDF.AcroForm&&jspdf.jsPDF.AcroForm.TextField)||(jspdf.AcroForm&&jspdf.AcroForm.TextField)||null;
+    for(var p=0;p<pages;p++){var part=L.slice(p*42,p*42+42),R=await bfCanvas(c,part,p,pages,bw);if(p)pdf.addPage();pdf.addImage(R.cv.toDataURL('image/jpeg',.92),'JPEG',0,0,210,297);pv.push(pvImg(R.cv));if(!p)one=R.cv;
+      for(var i=0;i<42;i++)rowsMap.push(part[i]?part[i].id:'');
+      if(TF)R.cells.forEach(function(ce){try{var f=new TF();f.fieldName='p'+(p+1)+'_'+ce.n;f.Rect=[ce.x+.4,ce.y+.3,ce.w-.8,ce.h-.6];f.fontSize=0;f.multiline=false;if(/_telefon$/.test(ce.n))f.maxLength=16;pdf.addField(f)}catch(e){}})}
+    pdf.setProperties({title:c.name+' · Öğrenci ve Veli Bilgi Formu',author:S.set.teacher||'Sınıf Pusulası',keywords:'SPFORM:'+JSON.stringify({v:1,c:c.id,r:rowsMap})});
+    var nm=fname(c.name+'_Ogrenci_Veli_Bilgi_Formu'+(bw?'_SB':''))+'.pdf';
+    pdfDone({title:'📄 Bilgi formu hazır',sub:esc(c.name+' · '+L.length+' öğrenci · '+pages+' sayfa'),pages:pv,png:one,blob:pdf.output('blob'),name:nm,note:'Kayıtlı bilgiler basılı gelir; boş kutular '+(TF?'iPad’de doldurulabilir ya da elle yazılabilir':'elle doldurulur')+'. Doldurulan formu Sınıflar › '+esc(c.name)+' › “Formu içeri al” ile yükleyin.'})}
+  catch(e){console.warn(e);closeM();toast('PDF oluşturulamadı')}}
+async function bfImport(c,file){openM('<h3>📥 Form okunuyor…</h3><div class="spin"></div>');
+  try{var B='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';if(!window.pdfjsLib){await loadScript(B+'pdf.min.js');await loadScript(B+'pdf.worker.min.js');pdfjsLib.GlobalWorkerOptions.workerSrc=B+'pdf.worker.min.js'}
+    var doc=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise,meta=null;try{var md=await doc.getMetadata(),kw=(md&&md.info&&md.info.Keywords)||'';if(kw.indexOf('SPFORM:')===0)meta=JSON.parse(kw.slice(7))}catch(e){}
+    var rows={};for(var p=1;p<=doc.numPages;p++){var an=await (await doc.getPage(p)).getAnnotations();an.forEach(function(a){if(!a.fieldName)return;var v=String(a.fieldValue==null?'':a.fieldValue).trim();if(!v)return;var mm=a.fieldName.match(/^(?:p(\d+)_)?r(\d+)_([a-z]+)(?:__([A-Za-z0-9]+))?$/);if(!mm)return;var gi=((+(mm[1]||p))-1)*42+(+mm[2])-1,o=rows[gi]=rows[gi]||{};o[mm[3]]=v;if(mm[4])o._sid=mm[4]})}
+    var keys=Object.keys(rows);if(!keys.length){closeM();openM('<h3>Formda doldurulmuş kutu bulunamadı</h3><p>Bu PDF’te dijital olarak doldurulmuş kutu yok. El yazısıyla doldurulup taranmış formlar bu sürümde otomatik okunamıyor.</p><p class="mut">Yapabilecekleriniz: formu iPad’de (Dosyalar ya da Acrobat) kutulara yazarak doldurup yükleyin; ya da el yazısı bilgileri “📋 Yapıştır” ile <b>no ; ad soyad ; veli ; telefon</b> biçiminde satır satır ekleyin.</p><div class="acts"><button class="btn g" data-a="close">Tamam</button></div>');return}
+    if(meta&&meta.c&&meta.c!==c.id&&cls(meta.c)){var oc=cls(meta.c);closeM();toast('Bu form '+oc.name+' sınıfına ait · oraya aktarılıyor');c=oc}
+    var lc=function(v){return (v||'').toLocaleLowerCase('tr-TR').replace(/\s+/g,' ').trim()},ups=[],adds=[];
+    keys.sort(function(a,b){return a-b}).forEach(function(k){var v=rows[k],sid=v._sid||(meta&&meta.r&&meta.r[k]),st=sid&&c.students.find(function(s){return s.id===sid});
+      if(!st)st=c.students.find(function(s){return (v.okulno&&s.no&&String(s.no)===v.okulno)||(v.ogrenci&&lc(s.name)===lc(v.ogrenci))});
+      var ch={};if(v.okulno)ch.no=v.okulno;if(v.ogrenci)ch.name=v.ogrenci.replace(/\s+/g,' ');if(v.veli)ch.parent=v.veli;if(v.yakinlik)ch.rel=v.yakinlik;if(v.telefon)ch.phone=v.telefon;if(v.not)ch.note=v.not;
+      if(st){var real={};Object.keys(ch).forEach(function(f){if((st[f]||'')!==ch[f])real[f]=ch[f]});if(Object.keys(real).length)ups.push({st:st,ch:real})}
+      else if(ch.name)adds.push(ch)});
+    UI.bfI={cid:c.id,ups:ups,adds:adds};closeM();bfReview()}
+  catch(e){console.warn(e);closeM();toast('Form okunamadı')}}
+function bfReview(){var I=UI.bfI,c=cls(I.cid),lab={no:'No',name:'Ad',parent:'Veli',rel:'Yakınlık',phone:'Telefon',note:'Not'};
+  var line=function(ch){return Object.keys(ch).map(function(f){return '<span class="pill p">'+lab[f]+': '+esc(ch[f])+'</span>'}).join(' ')};
+  openM('<h3>📥 '+esc(c.name)+' · formdan gelenler</h3>'+(!I.ups.length&&!I.adds.length?'<p>Formdaki bilgiler sistemde zaten aynı. Değişiklik yok.</p>':
+    (I.ups.length?'<div class="sec">✎ Güncellenecek ('+I.ups.length+')</div>'+I.ups.map(function(u){return '<div class="rgcd"><div class="lm"><b>'+esc(u.st.name)+'</b><small>'+line(u.ch)+'</small></div></div>'}).join(''):'')+
+    (I.adds.length?'<div class="sec">＋ Yeni öğrenci ('+I.adds.length+')</div>'+I.adds.map(function(a){return '<div class="rgcd"><div class="lm"><b>'+esc(a.name)+'</b><small>'+line(a)+'</small></div></div>'}).join(''):''))+
+    '<div class="acts">'+(I.ups.length||I.adds.length?'<button class="btn y" data-a="bfApply" style="flex:1">💾 Sisteme aktar</button>':'')+'<button class="btn g" data-a="close">'+(I.ups.length||I.adds.length?'Vazgeç':'Tamam')+'</button></div>')}
+function bfApply(){var I=UI.bfI,c=cls(I.cid);if(!I||!c)return;var bak=JSON.stringify(S);I.ups.forEach(function(u){Object.assign(u.st,u.ch)});I.adds.forEach(function(a){c.students.push(Object.assign({id:uid(),no:'',name:'',parent:'',phone:''},a))});UI.bfI=null;save();closeM();render();clUndo(bak,'📥 '+(I.ups.length+I.adds.length)+' öğrenci bilgisi aktarıldı')}
+function bfCardH(c){return '<div class="card"><div class="row"><span class="ft">📄 Öğrenci ve veli bilgi formu</span></div><p class="mut" style="margin:4px 0 8px">Kayıtlı öğrenciler basılı gelir; eksikleri velilere doldurtun ya da iPad’de yazın, sonra formu buradan geri yükleyin.</p><div class="acts" style="margin:0"><button class="btn s y" data-a="bfPdf" data-c="'+c.id+'" data-bw="0">📄 Form PDF</button><button class="btn s g" data-a="bfPdf" data-c="'+c.id+'" data-bw="1">🖨 S-B</button><label class="btn s g" for="fbf" role="button">📥 Formu içeri al</label><input type="file" id="fbf" accept="application/pdf,.pdf" hidden data-c="'+c.id+'"></div></div>'}
+document.addEventListener('change',function(e){var t=e.target;if(t&&t.id==='fbf'&&t.files.length){var f=t.files[0],c=cls(t.dataset.c)||cls(UI.cls);t.value='';if(c)bfImport(c,f)}});
+document.addEventListener('click',function(ev){var b=ev.target.closest('[data-a]');if(!b)return;var a=b.dataset.a;if(a!=='bfPdf'&&a!=='bfApply')return;ev.stopPropagation();if(a==='bfPdf')bfPdf(cls(b.dataset.c),b.dataset.bw==='1');else bfApply()},true);
 
 load().then(function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500);setTimeout(avPull,4000)},function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500)});
 })();
