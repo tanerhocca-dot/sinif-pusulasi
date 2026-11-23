@@ -1,14 +1,38 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
+    // Site yöneticisi: üyelikleri onaylar (config.js içindeki SP_ADMIN ile aynı adres)
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email != null
+        && request.auth.token.email.lower() == 'sinifppusulasi@gmail.com';
+    }
+    // E-postası doğrulanmış ve yönetici tarafından onaylanmış öğretmen
+    function approved() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && exists(/databases/$(db)/documents/accounts/$(request.auth.uid))
+        && get(/databases/$(db)/documents/accounts/$(request.auth.uid)).data.status == 'approved';
+    }
     match /data/users/{uid}/{doc} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if request.auth != null && request.auth.uid == uid && (isAdmin() || approved());
+    }
+    // Üyelik kayıtları: öğretmen kendi kaydını 'pending' olarak açar; durumu yalnız yönetici değiştirir
+    match /accounts/{uid} {
+      allow get: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.keys().hasOnly(['email', 'at', 'status', 'ver']);
+      allow update: if isAdmin()
+        || (request.auth != null && request.auth.uid == uid
+            && request.resource.data.status == resource.data.status
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ver']));
+      allow delete: if isAdmin();
     }
     match /portal/{id} {
       allow get: if true;
       allow list: if false;
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.owner == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid && (isAdmin() || approved());
+      allow update, delete: if request.auth != null && resource.data.owner == request.auth.uid && (isAdmin() || approved());
     }
     match /avreq/{id} {
       allow get: if true;

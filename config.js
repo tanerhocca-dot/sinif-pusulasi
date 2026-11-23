@@ -7,3 +7,6 @@ window.SP_FIREBASE = {
   messagingSenderId: "24576195073",
   appId: "1:24576195073:web:8ff9c83067c4c820ae5e00"
 };
+
+// Site yöneticisi: üyelik onaylarını veren hesap (firestore.rules ile aynı)
+window.SP_ADMIN = "sinifppusulasi@gmail.com";
