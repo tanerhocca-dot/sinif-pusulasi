@@ -12,8 +12,20 @@ service cloud.firestore {
         && exists(/databases/$(db)/documents/accounts/$(request.auth.uid))
         && get(/databases/$(db)/documents/accounts/$(request.auth.uid)).data.status == 'approved';
     }
+    // Bu sistemden önce verisi olan öğretmenler (eski üyeler) çalışmaya devam eder;
+    // yönetici onları da 'rejected' yaparak durdurabilir.
+    function rejected() {
+      return exists(/databases/$(db)/documents/accounts/$(request.auth.uid))
+        && get(/databases/$(db)/documents/accounts/$(request.auth.uid)).data.status == 'rejected';
+    }
+    function legacy() {
+      return exists(/databases/$(db)/documents/data/users/$(request.auth.uid)/main) && !rejected();
+    }
+    function member() {
+      return request.auth != null && (isAdmin() || approved() || legacy());
+    }
     match /data/users/{uid}/{doc} {
-      allow read, write: if request.auth != null && request.auth.uid == uid && (isAdmin() || approved());
+      allow read, write: if request.auth != null && request.auth.uid == uid && member();
     }
     // Üyelik kayıtları: öğretmen kendi kaydını 'pending' olarak açar; durumu yalnız yönetici değiştirir
     match /accounts/{uid} {
@@ -31,8 +43,8 @@ service cloud.firestore {
     match /portal/{id} {
       allow get: if true;
       allow list: if false;
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid && (isAdmin() || approved());
-      allow update, delete: if request.auth != null && resource.data.owner == request.auth.uid && (isAdmin() || approved());
+      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid && member();
+      allow update, delete: if request.auth != null && resource.data.owner == request.auth.uid && member();
     }
     match /avreq/{id} {
       allow get: if true;
