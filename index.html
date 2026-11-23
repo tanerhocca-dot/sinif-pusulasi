@@ -5366,6 +5366,14 @@ function bbCss(){if(document.getElementById('bbcss'))return;var s=document.creat
  '.bbact2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.bbact2 .btn{min-width:0}'+
  BB_LIB_CSS+'.bbedit{margin-top:10px}.bbedit summary{cursor:pointer;font-weight:800;opacity:.8}'+
  '.bbsimb{display:flex;flex-direction:column;align-items:center;gap:1px;border:0;border-radius:10px;background:linear-gradient(135deg,#8A5CC9,#3B7DDD);color:#fff;font:inherit;padding:6px 4px;margin-bottom:6px;cursor:pointer;width:100%}.bbsimb b{font-size:10px;letter-spacing:.12em}.bbsimb span{font-size:11px;font-weight:800;opacity:.9}'+
+ /* yoğun düzen: yan menü tek ekranda, daha küçük yazılar */
+ '.bbside{padding:6px!important;gap:0!important;top:calc(78px + env(safe-area-inset-top,0px))!important;max-height:calc(100vh - 90px)!important}.bbsi{padding:5px 8px!important;font-size:12.5px!important;gap:8px!important;border-radius:9px!important;min-height:28px}.bbsic{width:18px}.bbsic .ico{width:16px!important;height:16px!important}.bbsep{margin:3px 4px!important;height:1px!important}'+
+ '.bbsh{padding:0 4px 4px!important;gap:6px!important}.bbsh .bblg{width:24px;height:24px}.bbsh b{font-size:15px!important}.bbsimb{padding:4px!important;margin-bottom:4px!important}.bbsimb span{font-size:10px!important}.bbside .bbsbtn{margin:1px 0 3px!important;padding:3px 6px 3px 3px!important}.bbside .bbsbtn .bbav{width:26px;height:26px;font-size:10.5px}.bbside .bbsbtn b{font-size:12.5px!important}'+
+ '.bbL.col .bbsi{width:38px!important;padding:6px 0!important}.bbL.col .bbside .bbsbtn{width:34px!important}'+
+ '#view.bbv{font-size:14px}#view.bbv .sec{font-size:13px}#view.bbv .card{padding:9px 11px!important;margin-bottom:8px!important}#view.bbv h2,#view.bbv h3{line-height:1.2}.bbkp b{font-size:18px!important}.bbkp small{font-size:10.5px!important}.bbkp>div{padding:6px 4px!important}.bbg2{gap:8px!important;margin-bottom:8px!important}.bbhb{padding:4px 0!important}.bbhl b{font-size:12.5px!important}.bbhl small{font-size:11px!important}'+
+ '@media(min-width:561px){.bbwg{width:max(100%,840px)}}'+
+ '.bbcol{min-width:0}.bbwg .bbtkm{min-width:0}.bbwg .bbtkm b,.bbwg .bbtkm small{overflow-wrap:anywhere}.bbrtk{min-width:0}.bbrtk span{overflow-wrap:anywhere}'+
+ '.bbtb{margin-bottom:4px!important}.bbwl b{font-size:14px!important}.bbch b{font-size:12.5px!important}.bbch{padding:5px 8px!important}.bbcol{min-height:280px!important}'+
  '#view.bbv>*{max-width:none!important}.bbl2{display:none}'+
  '@media(max-width:560px){.bbl1{display:none}.bbl2{display:inline}.bbtabs2{gap:0}.bbtabs2 button{font-size:9px;letter-spacing:-.03em;padding:5px 0}.bbsb{gap:3px!important}}'+
  '#view.bbv .sec{display:flex;align-items:center;gap:6px;flex-wrap:wrap}'+
@@ -5374,6 +5382,16 @@ function bbCss(){if(document.getElementById('bbcss'))return;var s=document.creat
  '@media(min-width:561px){nav .bbnb{position:static;margin:0 0 0 2px}}';
  document.head.appendChild(s)}
 window.SPBirebir={pull:function(){return bbPull(true)},data:function(i){var s=bbS().st[i||0];return s?JSON.stringify(bbPortalData(s)):null}};
+
+(function(){if(document.getElementById('spcrisp'))return;var st=document.createElement('style');st.id='spcrisp';st.textContent=
+ '@media (hover:hover) and (pointer:fine){'+
+ /* cam efektindeki bulanıklık (backdrop-filter) yazıları ayrı katmana alıp yumuşatıyor: masaüstünde kapat, renkleri koru */
+ '*:not(#md):not(#md *){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}'+
+ 'body{-webkit-font-smoothing:auto!important;-moz-osx-font-smoothing:auto;text-rendering:optimizeLegibility;letter-spacing:0!important}'+
+ /* yapışkan (sticky) bölümler opak arka planla: yazılar ClearType / tam keskinlikle çizilsin */
+ 'nav,.bbside,.bbsb{background:var(--card)!important}'+
+ 'img{image-rendering:auto}'+
+ '}';document.head.appendChild(st)})();
 
 bbCss();
 /* BIREBIR-END */
