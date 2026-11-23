@@ -9,4 +9,4 @@ window.SP_FIREBASE = {
 };
 
 // Site yöneticisi: üyelik onaylarını veren hesap (firestore.rules ile aynı)
-window.SP_ADMIN = "sinifppusulasi@gmail.com";
+window.SP_ADMIN = "sinifppusulasi@gmail.com,tanerhocca@gmail.com";

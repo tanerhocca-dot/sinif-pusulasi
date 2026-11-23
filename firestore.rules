@@ -4,7 +4,7 @@ service cloud.firestore {
     // Site yöneticisi: üyelikleri onaylar (config.js içindeki SP_ADMIN ile aynı adres)
     function isAdmin() {
       return request.auth != null && request.auth.token.email != null
-        && request.auth.token.email.lower() == 'sinifppusulasi@gmail.com';
+        && request.auth.token.email.lower() in ['sinifppusulasi@gmail.com', 'tanerhocca@gmail.com'];
     }
     // E-postası doğrulanmış ve yönetici tarafından onaylanmış öğretmen
     function approved() {
