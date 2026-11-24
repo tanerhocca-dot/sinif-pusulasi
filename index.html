@@ -6019,11 +6019,13 @@ async function rpCanvas(c,st,tk,bw,o,pi,pn){await fontsReady();var MM=1240/210,W
   var sec=0;
   // 1) başlık camı
   var hh=m(25);rrect(x,L,y,Wd,hh,m(5));if(!bw){var g=x.createLinearGradient(L,y,L+Wd,y+hh);g.addColorStop(0,'#C5E3FA');g.addColorStop(1,'#AFD2F5');x.fillStyle=g;x.fill();x.lineWidth=2;x.strokeStyle='#D5E5F8';x.stroke()}else{x.lineWidth=1.5;x.strokeStyle='#000';x.stroke()}
-  var lx=L+m(4);if(my){var ls=bw?m(13):m(16.5);x.drawImage(gray(my),lx+(m(18)-ls)/2,y+m(2),ls,ls)}if(S.set.teacher)txt(S.set.teacher,lx+m(9),y+m(22.4),'700',2.5,MUT,'center');
-  x.fillStyle=NAVY;x.fillRect(lx+m(21),y+m(4),2,hh-m(8));
-  var sbw=m(44),sx=L+Wd-m(3.5)-sbw,sy=y+m(4.2),sh=hh-m(8.4);rrect(x,sx,sy,sbw,sh,m(3.6));if(!bw){var g2=x.createLinearGradient(sx,sy,sx+sbw,sy+sh);g2.addColorStop(0,'#FFEFB3');g2.addColorStop(1,'#FFDC73');x.fillStyle=g2;x.fill();x.lineWidth=3;x.strokeStyle='#9CCBF2';x.stroke()}else{x.lineWidth=1.5;x.strokeStyle='#000';x.stroke()}
-  var tp=tk.split('/');txt(tp[1]+'. DÖNEM',sx+sbw/2,sy+sh/2-m(.3),'900',4.4,NAVY,'center');txt(tp[0]+'  ·  '+new Date().toLocaleDateString('tr-TR'),sx+sbw/2,sy+sh/2+m(4.1),'800',2.6,MUT,'center');
-  var tx=lx+m(25),tw=sx-tx-m(4);txt('SINIF PUSULASI  ·  '+(S.set.school||'VELİ TOPLANTISI').toLocaleUpperCase('tr-TR'),tx,y+m(8.4),'900',2.5,MUT);x.fillStyle=NAVY;fitFont(x,'VELİ TOPLANTISI RAPORU',tw,'900',m(5.4),m(3.2));x.fillText('VELİ TOPLANTISI RAPORU',tx,y+m(14.8));txt('Ders notları  •  Ödev  •  Kitap  •  Rozetler  •  Lig',tx,y+m(19.8),'700',2.9,MUT);
+  var sbw=m(46),sx=L+Wd-m(4)-sbw,sy=y+m(4),sh=hh-m(8);rrect(x,sx,sy,sbw,sh,m(3.6));if(!bw){var g2=x.createLinearGradient(sx,sy,sx+sbw,sy+sh);g2.addColorStop(0,'#FFEFB3');g2.addColorStop(1,'#FFDC73');x.fillStyle=g2;x.fill();x.lineWidth=3;x.strokeStyle='#9CCBF2';x.stroke()}else{x.lineWidth=1.5;x.strokeStyle='#000';x.stroke()}
+  var tp=tk.split('/');txt(tp[1]+'. DÖNEM',sx+sbw/2,sy+sh/2-m(.3),'900',4.6,NAVY,'center');txt(tp[0]+'  ·  '+new Date().toLocaleDateString('tr-TR'),sx+sbw/2,sy+sh/2+m(4.2),'800',2.6,MUT,'center');
+  var tx=L+m(7),tw=sx-tx-m(5);
+  rrect(x,tx,y+m(4.4),m(30),m(5.4),m(2.7));if(!bw){x.fillStyle='#FFFFFF';x.fill();x.lineWidth=1.5;x.strokeStyle='#9CCBF2';x.stroke()}else{x.lineWidth=1;x.strokeStyle='#000';x.stroke()}txt('SINIF PUSULASI',tx+m(15),y+m(8.2),'900',2.5,NAVY,'center');
+  var sub=[S.set.school,c.name].filter(Boolean).join('  ·  ');if(sub){x.fillStyle=MUT;fitFont(x,sub,tw-m(34),'800',m(2.7),m(2));x.fillText(sub,tx+m(33),y+m(8.4))}
+  x.fillStyle=NAVY;fitFont(x,'VELİ TOPLANTISI RAPORU',tw,'900',m(6.2),m(3.4));x.fillText('VELİ TOPLANTISI RAPORU',tx,y+m(15.6));
+  txt('Ders notları  •  Ödev  •  Kitap  •  Rozetler  •  Süper etiketler  •  Lig',tx,y+m(20.8),'700',2.8,MUT);
   y+=hh+m(3);
   // 2) öğrenci şeridi + özet kutuları
   var sh2=m(30);glass(L,y,Wd,sh2,m(5),null);var ar=m(11),acx=L+m(4)+ar,acy=y+sh2/2;x.save();x.beginPath();x.arc(acx,acy,ar,0,7);if(!bw){x.fillStyle='#FFF1C4';x.fill()}x.clip();if(ph)x.drawImage(ph,acx-ar,acy-ar,ar*2,ar*2);else{x.fillStyle=NAVY;x.font='900 '+m(6)+'px '+F;x.textAlign='center';x.textBaseline='middle';x.fillText(ini(st.name),acx,acy+m(.4));x.textBaseline='alphabetic';x.textAlign='left'}x.restore();x.beginPath();x.arc(acx,acy,ar,0,7);x.lineWidth=bw?1.5:m(.9);x.strokeStyle=bw?'#000':'#F3C24F';x.stroke();
