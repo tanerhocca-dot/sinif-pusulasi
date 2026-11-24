@@ -1729,7 +1729,8 @@ function vList(v){
 }
 function vClasses(v){
   var h='<button class="fab" data-a="ncOpen" aria-label="Yeni sınıf" title="Yeni sınıf">+</button>';
-  if(S.classes.length){h+='<div class="seg2 clvseg">'+[['cls','👥 Sınıflar'],['lig','🏆 Ligler']].map(function(t){return '<button class="'+((UI.clV||'cls')===t[0]?'on':'')+'" data-a="clV" data-v="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>';
+  if(S.classes.length){h+='<div class="seg2 clvseg">'+[['cls','👥 Sınıflar'],['lig','🏆 Ligler'],['trn','📝 Türkçe Notları']].map(function(t){return '<button class="'+((UI.clV||'cls')===t[0]?'on':'')+'" data-a="clV" data-v="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>';
+    if(UI.clV==='trn'){v.className='c1';v.innerHTML=h+trnH();return}
     if(UI.clV==='lig'){var lc=cls(UI.lgC)||S.classes[0];UI.lgC=lc.id;h+=(S.classes.length>1?'<div class="cnav awcn">'+S.classes.map(function(x,i){return '<button class="'+(x.id===lc.id?'on':'')+'" data-a="lgC" data-id="'+x.id+'"><span class="ctag c'+(i%6)+'">'+esc(x.name)+'</span></button>'}).join('')+'</div>':'')+'<div class="card lgpage"><div class="row"><p class="big">🏆 '+esc(lc.name)+' Ligi</p><span class="tag">'+lc.students.length+' öğrenci</span></div>'+ligH(lc)+'</div>';v.className='c1';v.innerHTML=h;return}}
   if(!S.classes.length){h+='<div class="card exempty"><div class="exe-i">👥</div><b>Henüz sınıf yok</b><p class="mut">Sağ alttaki <b>+</b> ile ilk sınıfınızı oluşturun; öğrencileri e-Okul listesinden otomatik aktarabilirsiniz.</p><button class="btn y" data-a="ncOpen">＋ Sınıf oluştur</button></div>';v.className='c1';v.innerHTML=h;return}
   h+='<div class="card lst">'+S.classes.map(function(c){var n=S.lists.filter(function(l){return l.cid===c.id}).length,np=c.students.filter(function(s){return phone(s.phone)}).length,ne=exOf(c.id).length;
@@ -5887,6 +5888,94 @@ function lgCeleb(){var q=LGQ.shift();if(!q)return;var c=q.c,x=q.x,d=document.cre
  '.lgct{display:inline-block;background:#FFE08A;border:2px solid #25406B;border-radius:999px;padding:4px 14px;font-weight:900;letter-spacing:.06em;font-size:13px}.lgcb h2{margin:10px 0 4px;font-size:28px;font-weight:900}.lgcb p{margin:0 0 16px;color:#4F6A95;font-weight:700}.lgcb .btn{width:100%}'+
  '@keyframes lgcIn{from{opacity:0}}@keyframes lgcPop{0%{transform:scale(.3) rotate(-8deg);opacity:0}100%{transform:none;opacity:1}}@keyframes lgcCrown{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-8px) rotate(6deg)}}@keyframes lgcFall{to{transform:translateY(110vh) rotate(720deg)}}'+
  '@media (prefers-reduced-motion:reduce){.lgcf{display:none}.lgcb,.lgcc{animation:none}}';document.head.appendChild(st)})();
+
+/* ================= TÜRKÇE DERSİ NOTLARI (Sınıflar › Türkçe Notları) ================= */
+var TRK=[['y1','Yazılı'],['d1','Dinleme'],['k1','Konuşma'],['y2','Yazılı'],['d2','Dinleme'],['k2','Konuşma'],['p1','1. Perf.'],['p2','2. Perf.']];
+var TRSEL=[['y1','1. Sınav · Yazılı'],['d1','1. Sınav · Dinleme'],['k1','1. Sınav · Konuşma'],['s1','1. Sınav · Puan'],['y2','2. Sınav · Yazılı'],['d2','2. Sınav · Dinleme'],['k2','2. Sınav · Konuşma'],['s2','2. Sınav · Puan'],['p1','1. Performans'],['p2','2. Performans'],['o','Ortalama'],['x','Yoksay']];
+function trW(){var w=S.set&&S.set.trW;return Array.isArray(w)&&w.length===3?w:[50,25,25]}
+function trS(cid,tk){S.trn=S.trn||{};var C=S.trn[cid]=S.trn[cid]||{},T=C[tk]=C[tk]||{};T.d=T.d||{};T.c=T.c||{};return T}
+function trTk(){return UI.trT||curTerm()}
+function trNum(x){return typeof x==='number'&&!isNaN(x)}
+function trExam(e,n){if(!e)return null;if(trNum(e['s'+n]))return {v:e['s'+n],full:true};var w=trW(),p=[[e['y'+n],w[0]],[e['d'+n],w[1]],[e['k'+n],w[2]]].filter(function(q){return trNum(q[0])});if(!p.length)return null;
+  var sw=p.reduce(function(a,q){return a+q[1]},0),v=p.reduce(function(a,q){return a+q[0]*q[1]},0)/(sw||1);return {v:v,full:p.length===3}}
+function trAvg(e){if(!e)return null;var L=[trExam(e,1),trExam(e,2)].filter(Boolean).map(function(x){return x.v}).concat(['p1','p2'].map(function(k){return e[k]}).filter(trNum));if(!L.length)return trNum(e.o)?e.o:null;return L.reduce(function(a,b){return a+b},0)/L.length}
+function trF(v){return v==null?'—':(Math.round(v*100)/100).toLocaleString('tr-TR',{maximumFractionDigits:2})}
+function trCls(v){return v==null?'':v<50?' n':v<70?' e':' y'}
+function trCols(T){var has=function(ks){return ks.some(function(k){return Object.keys(T.d).some(function(sid){var e=T.d[sid];return e&&e[k]!=null&&e[k]!==''})})};
+  return {e2:!!T.c.e2||has(['y2','d2','k2','s2']),pf:!!T.c.pf||has(['p1','p2'])}}
+function trnH(){var c=cls(UI.trC)||S.classes[0];UI.trC=c.id;var tk=trTk(),T=trS(c.id,tk),V=trCols(T),w=trW(),L=c.students.slice().sort(byNo);
+  var t1=curTerm(),t2=t1.replace(/\/(\d)$/,function(_,d){return '/'+(d==='1'?2:1)}),terms=[t1,t2].sort();
+  var h=(S.classes.length>1?'<div class="cnav awcn">'+S.classes.map(function(x,i){return '<button class="'+(x.id===c.id?'on':'')+'" data-a="trC" data-id="'+x.id+'"><span class="ctag c'+(i%6)+'">'+esc(x.name)+'</span></button>'}).join('')+'</div>':'');
+  h+='<div class="card trcard"><div class="row"><p class="big">📝 '+esc(c.name)+' · Türkçe</p><span class="tag">'+L.length+' öğrenci</span></div>'+
+   '<div class="chips">'+terms.map(function(t){return '<button class="chip'+(tk===t?' on':'')+'" data-a="trT" data-v="'+t+'">'+termLab(t)+'</button>'}).join('')+'</div>'+
+   '<div class="acts trbar"><label class="btn y" for="ftrn" role="button">📥 e-Okul PDF / Excel yükle</label>'+(V.e2?'':'<button class="btn g" data-a="trAdd" data-v="e2">＋ 2. Sınav</button>')+(V.pf?'':'<button class="btn g" data-a="trAdd" data-v="pf">＋ Performans</button>')+'<button class="btn g" data-a="trClr">🧹 Temizle</button></div><input type="file" id="ftrn" accept=".pdf,.xlsx,.xls,.csv,application/pdf" hidden>';
+  if(!L.length){h+='<p class="mut">Bu sınıfta öğrenci yok.</p></div>';return h}
+  var ex=function(n){return [['y'+n,'Yazılı'],['d'+n,'Dinleme'],['k'+n,'Konuşma'],['s'+n,'Puan']]};
+  var cols=ex(1).concat(V.e2?ex(2):[]).concat(V.pf?[['p1','1.'],['p2','2.']]:[]);
+  var g1='<tr class="trg"><th class="trn0" rowspan="2">Öğrenci</th><th colspan="4" class="tg1">1. Sınav</th>'+(V.e2?'<th colspan="4" class="tg2">2. Sınav</th>':'')+(V.pf?'<th colspan="2" class="tgp">Performans</th>':'')+'<th rowspan="2" class="tgo">Ort.</th></tr>';
+  var g2='<tr class="trh">'+cols.map(function(k){return '<th class="'+(k[0][0]==='s'?'trs':'')+'">'+k[1]+'</th>'}).join('')+'</tr>';
+  var body=L.map(function(st){var e=T.d[st.id]||{};return '<tr><td class="trn0"><span class="trno">'+esc(st.no||'')+'</span>'+esc(st.name)+'</td>'+cols.map(function(k){var kk=k[0];
+      if(kk[0]==='s'){var n=kk[1],x=trExam(e,n);return '<td class="trs'+trCls(x&&x.v)+'" data-trc="'+st.id+'|'+kk+'" title="'+(x&&!x.full?'Eksik bileşen var: mevcut notlarla hesaplandı':'Yazılı %'+w[0]+' · Dinleme %'+w[1]+' · Konuşma %'+w[2])+'">'+(x?trF(x.v)+(x.full?'':'*'):'—')+'</td>'}
+      var v=e[kk];return '<td><input class="trin" data-trn="'+st.id+'|'+kk+'" value="'+(v==null?'':esc(String(v).replace('.',',')))+'" inputmode="decimal" maxlength="5" aria-label="'+esc(st.name)+' '+k[1]+'"></td>'}).join('')+
+    '<td class="tro'+trCls(trAvg(e))+'" data-trc="'+st.id+'|avg"><b>'+trF(trAvg(e))+'</b></td></tr>'}).join('');
+  var foot='<tr class="trf"><td class="trn0">Sınıf ortalaması</td>'+cols.map(function(k){return '<td data-trf="'+k[0]+'">'+trF(trColAvg(c,T,k[0]))+'</td>'}).join('')+'<td data-trf="avg"><b>'+trF(trColAvg(c,T,'avg'))+'</b></td></tr>';
+  h+='<div class="trwrap"><table class="trt"><thead>'+g1+g2+'</thead><tbody>'+body+'</tbody><tfoot>'+foot+'</tfoot></table></div>'+
+   '<div class="trw"><span class="mut">Sınav puanı:</span>'+[[50,25,25],[60,20,20],[70,15,15]].map(function(q){var on=q.join()===w.join();return '<button class="chip'+(on?' on':'')+'" data-a="trWt" data-v="'+q.join(',')+'">Yazılı %'+q[0]+' · Dinleme %'+q[1]+' · Konuşma %'+q[2]+'</button>'}).join('')+'</div>'+
+   '<p class="mut" style="font-size:12.5px">Notu hücreye yazın, kendiliğinden kaydedilir (girmedi: G). <b>Puan</b> sütunu yazılı, dinleme ve konuşmadan hesaplanır; * işareti eksik bileşen olduğunu gösterir. e-Okul dosyasında sınav puanı varsa o kullanılır. <b>Ort.</b> = sınav puanları ve performans notlarının aritmetik ortalaması.</p></div>';
+  return h}
+function trColAvg(c,T,k){var v=c.students.map(function(st){var e=T.d[st.id];if(!e)return null;if(k==='avg')return trAvg(e);if(k[0]==='s'){var x=trExam(e,k[1]);return x?x.v:null}return trNum(e[k])?e[k]:null}).filter(function(x){return x!=null});return v.length?v.reduce(function(a,b){return a+b},0)/v.length:null}
+function trRefresh(sid){var c=cls(UI.trC),T=trS(c.id,trTk()),e=T.d[sid]||{};
+  document.querySelectorAll('[data-trc^="'+sid+'|"]').forEach(function(td){var k=td.dataset.trc.split('|')[1],v;if(k==='avg'){v=trAvg(e);td.innerHTML='<b>'+trF(v)+'</b>';td.className='tro'+trCls(v)}else{var x=trExam(e,k[1]);td.textContent=x?trF(x.v)+(x.full?'':'*'):'—';td.className='trs'+trCls(x&&x.v)}});
+  document.querySelectorAll('[data-trf]').forEach(function(td){var k=td.dataset.trf,v=trColAvg(c,T,k);td.innerHTML=k==='avg'?'<b>'+trF(v)+'</b>':trF(v)})}
+document.addEventListener('change',function(ev){var t=ev.target;if(!t)return;
+  if(t.dataset&&t.dataset.trn){var p=t.dataset.trn.split('|'),c=cls(UI.trC);if(!c)return;var T=trS(c.id,trTk()),raw=String(t.value||'').trim(),e=T.d[p[0]]=T.d[p[0]]||{};
+    if(!raw){delete e[p[1]]}else{var g=gnum(raw);if(g==null){t.classList.add('bad');toast('0–100 arası bir not yazın (girmedi: G)');return}e[p[1]]=g;t.value=String(g).replace('.',',')}
+    t.classList.remove('bad');if(!Object.keys(e).length)delete T.d[p[0]];save();trRefresh(p[0]);return}
+  if(t.id==='ftrn'&&t.files&&t.files.length){var f=t.files[0];t.value='';trImport(f)}});
+document.addEventListener('keydown',function(ev){var t=ev.target;if(ev.key!=='Enter'||!t||!t.dataset||!t.dataset.trn)return;ev.preventDefault();var all=[].slice.call(document.querySelectorAll('[data-trn$="|'+t.dataset.trn.split('|')[1]+'"]')),i=all.indexOf(t);t.blur();if(all[i+1])all[i+1].focus()});
+document.addEventListener('click',function(ev){var b=ev.target.closest('[data-a]');if(!b)return;var a=b.dataset.a;
+  if(a==='trC'){UI.trC=b.dataset.id;renderView();return}
+  if(a==='trT'){UI.trT=b.dataset.v;renderView();return}
+  if(a==='trAdd'){var T=trS(UI.trC,trTk());T.c[b.dataset.v]=1;save();renderView();return}
+  if(a==='trWt'){S.set.trW=b.dataset.v.split(',').map(Number);save();renderView();return}
+  if(a==='trClr'){var c=cls(UI.trC),T2=trS(c.id,trTk()),V=trCols(T2),opt=[['all','Tüm Türkçe notları ('+termLab(trTk())+')']].concat([['1','1. Sınav (yazılı, dinleme, konuşma)']]).concat(V.e2?[['2','2. Sınav']]:[]).concat(V.pf?[['p','Performans notları']]:[]);
+    openM('<h3>🧹 Türkçe notlarını temizle</h3><p class="mut">'+esc(c.name)+' · '+termLab(trTk())+'. Silinen notları hemen ardından “Geri al” ile kurtarabilirsiniz.</p><div class="acts" style="flex-direction:column">'+opt.map(function(o){return '<button class="btn g" data-a="trClrDo" data-v="'+o[0]+'">🗑 '+esc(o[1])+'</button>'}).join('')+'<button class="btn g" data-a="close">Vazgeç</button></div>');return}
+  if(a==='trClrDo'){var bak=clSnap(),c3=cls(UI.trC),T3=trS(c3.id,trTk()),v=b.dataset.v,ks=v==='all'?null:v==='p'?['p1','p2']:['y'+v,'d'+v,'k'+v,'s'+v];
+    Object.keys(T3.d).forEach(function(sid){var e=T3.d[sid];if(!ks){delete T3.d[sid];return}ks.forEach(function(k){delete e[k]});if(!Object.keys(e).length)delete T3.d[sid]});
+    if(!ks)T3.c={};else if(v==='2')delete T3.c.e2;else if(v==='p')delete T3.c.pf;save();closeM();renderView();clUndo(bak,'🧹 Notlar temizlendi',function(){});return}
+  if(a==='trSave'){trSave();return}});
+function trTurOf(lab,tur){var t=tlc(lab),n=(t.match(/(\d)/)||[])[1];if(/ort|başarı|dönem puan/.test(t))return 'o';
+  if(/dinle/.test(t))return 'd'+(n||'?');if(/konuş/.test(t))return 'k'+(n||'?');if(/perf|etkinli|katılım/.test(t))return 'p'+(n||'?');
+  if(/puan/.test(t)&&/sınav|yaz/.test(t))return 's'+(n||'?');if(/yaz|sınav|^y\s?\.?\s?\d/.test(t))return 'y'+(n||'?');
+  if(tur&&/^[yp][12]$/.test(tur))return tur;return 'x'}
+async function trImport(f){var c=cls(UI.trC);if(!c)return;openM('<h3>📥 e-Okul dosyası okunuyor…</h3><div class="spin"></div>');var res=null;
+  try{if(/\.(xlsx|xls|csv)$/i.test(f.name))res=gridParse((await xlsxGrid(f)).pages,c,'left');else{var g=await pdfGrid(f);if(g.chars>40)res=gridParse(g.pages,c,'nearest')}}catch(e){res=null}
+  if(!res||!res.rows.some(function(r){return r.sid})){closeM();openM('<h3>Dosya okunamadı</h3><p>Belgeden not tablosu çıkarılamadı ya da öğrenciler bu sınıfla eşleşmedi.</p><p class="mut">e-Okul’dan <b>PDF</b> ya da <b>Excel</b> olarak indirdiğiniz asıl dosyayı seçin (ekran görüntüsü ya da taranmış kâğıt okunmaz). Doğru sınıfı seçtiğinizden emin olun.</p><div class="acts"><button class="btn g" data-a="close">Tamam</button></div>');return}
+  var cnt={},cols=res.cols.map(function(k){var tr=(k.ders&&k.ders!=='Türkçe')?'x':trTurOf(k.lab,k.tur);return {lab:k.lab,ders:k.ders,tr:tr}});
+  cols.forEach(function(k){if(/\?$/.test(k.tr)){var b=k.tr[0];cnt[b]=(cnt[b]||0)+1;k.tr=cnt[b]<=2?b+cnt[b]:'x'}});
+  var seen={};cols.forEach(function(k){if(k.tr!=='x'){if(seen[k.tr])k.tr='x';seen[k.tr]=1}});
+  UI.tri={cols:cols,rows:res.rows,cid:c.id};trReview()}
+function trReview(){var I=UI.tri,c=cls(I.cid),m=I.rows.filter(function(r){return r.sid}).length,miss=c.students.filter(function(s){return !I.rows.some(function(r){return r.sid===s.id})});
+  openM('<div class="grv"><h3>📥 e-Okul · Türkçe notları</h3><div class="grsum"><span class="pill y">✓ '+m+' öğrenci eşleşti</span>'+(miss.length?'<span class="pill n">'+miss.length+' öğrenci dosyada yok</span>':'')+'<span class="pill p">'+termLab(trTk())+'</span></div>'+
+   '<p class="mut">Her sütunun neye karşılık geldiğini kontrol edin; yanlışsa değiştirin. Altında ilk öğrencilerin değerleri var.</p><div class="grcols">'+I.cols.map(function(k,i){var ex=I.rows.filter(function(r){return r.v[i]!=null}).slice(0,3).map(function(r){return r.v[i]}).join(' · ');
+     return '<div class="grc'+(k.tr==='x'?' off':'')+'"><small title="'+esc(k.lab)+'">'+esc(k.lab||'?')+'</small><select data-trs="'+i+'">'+TRSEL.map(function(t){return '<option value="'+t[0]+'"'+(t[0]===k.tr?' selected':'')+'>'+t[1]+'</option>'}).join('')+'</select><em>'+esc(ex||'—')+'</em></div>'}).join('')+'</div>'+
+   '<div class="acts grbar"><button class="btn y" data-a="trSave" style="flex:1">💾 Notları kaydet</button><button class="btn g" data-a="close">Vazgeç</button></div><p class="mut">Dosyadaki notlar mevcut notların üzerine yazılır; dosyada boş olan hücreler korunur.</p></div>')}
+document.addEventListener('change',function(ev){var t=ev.target;if(t&&t.dataset&&t.dataset.trs!=null&&UI.tri){UI.tri.cols[+t.dataset.trs].tr=t.value;var g=t.closest('.grc');if(g)g.classList.toggle('off',t.value==='x')}});
+function trSave(){var I=UI.tri;if(!I)return;var T=trS(I.cid,trTk()),n=0,bak=clSnap();
+  I.rows.forEach(function(r){if(!r.sid)return;var e=T.d[r.sid]=T.d[r.sid]||{};I.cols.forEach(function(k,i){if(k.tr==='x'||r.v[i]==null)return;var g=gnum(r.v[i]);if(g==null)return;e[k.tr]=g;n++});if(!Object.keys(e).length)delete T.d[r.sid]});
+  if(I.cols.some(function(k){return /2$/.test(k.tr)&&k.tr[0]!=='p'}))T.c.e2=1;if(I.cols.some(function(k){return k.tr[0]==='p'}))T.c.pf=1;
+  UI.tri=null;save();closeM();renderView();clUndo(bak,'💾 '+n+' not kaydedildi',function(){})}
+(function(){var st=document.createElement('style');st.textContent=
+ '.trcard .trbar{flex-wrap:wrap}.trwrap{overflow:auto;margin:10px -4px 8px;border:1.5px solid var(--bd);border-radius:14px;max-height:72vh;background:#fff}'+
+ '.trt{border-collapse:separate;border-spacing:0;width:100%;font-size:13px;min-width:560px}.trt th,.trt td{padding:5px 4px;text-align:center;border-bottom:1px solid #E3ECF8;white-space:nowrap}'+
+ '.trt thead th{position:sticky;background:#25406B;color:#fff;font-weight:800;z-index:2}.trt .trg th{top:0;font-size:12.5px}.trt .trh th{top:27px;font-size:11.5px;background:#3A5A8C}'+
+ '.trt th.tg1{background:#3D7CC9}.trt th.tg2{background:#2E8B6A}.trt th.tgp{background:#B9741F}.trt th.tgo{background:#25406B}.trt .trh th.trs{background:#1E3A66}'+
+ '.trt .trn0{position:sticky;left:0;background:#fff;text-align:left;font-weight:700;z-index:1;max-width:150px;overflow:hidden;text-overflow:ellipsis}.trt thead .trn0{z-index:3;background:#25406B}'+
+ '.trno{display:inline-block;min-width:26px;color:#62789B;font-size:11.5px;font-weight:800;margin-right:4px}'+
+ '.trin{width:46px;padding:5px 2px;text-align:center;border:1.5px solid #D5E5F8;border-radius:9px;font:inherit;font-weight:700;background:#F8FBFF}.trin:focus{border-color:#3D7CC9;outline:0;background:#fff}.trin.bad{border-color:#C4503F;background:#FDECE9}'+
+ '.trt td.trs{background:#F2F7FE;font-weight:800}.trt td.tro{background:#FFF8E1;font-size:14px}.trt td.y{color:#2E8B6A}.trt td.e{color:#B9741F}.trt td.n{color:#C4503F}'+
+ '.trt tfoot td{position:sticky;bottom:0;background:#FFF1B8;font-weight:800;border-top:2px solid #25406B}.trt tfoot .trn0{background:#FFF1B8}'+
+ '.trw{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 6px}.trw .chip{font-size:12px}';document.head.appendChild(st)})();
 load().then(function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500);setTimeout(avPull,4000)},function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500)});
 })();
 
