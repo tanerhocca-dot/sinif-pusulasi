@@ -4830,16 +4830,16 @@ function bbAlerts(st){var sid=st.id,o=[],wk=bbMon(bbTd()),ws=bbWkStat(sid,wk),la
 function bbLogo(n){return '<img class="bblg" src="icons/birebir-128.png" alt="" width="'+n+'" height="'+n+'">'}
 function bbHead(sub){return '<div class="bbhd">'+bbLogo(40)+'<div class="bbht0"><div class="bbtt">Birebir<span class="bbbeta">BETA</span></div><small>'+(sub||'Birebir koçluk')+'</small></div></div>'}
 function vBB(v){bbCss();var b=bbS(),h,foc=document.activeElement&&document.activeElement.id==='bbMt';v.className='bbv';
-  if(BBU.sid&&!bbStu(BBU.sid))BBU.sid=null;if(!BBU.sid&&b.st.length)BBU.sid=b.st[0].id;if(!BBU.tab||(!BBU.sid&&BBU.tab!=='msg'))BBU.tab='dash';
+  if(BBU.sid&&!bbStu(BBU.sid))BBU.sid=null;if(!BBU.sid&&b.st.length)BBU.sid=b.st[0].id;if(!BBU.tab||(!BBU.sid&&BBU.tab!=='msg'&&BBU.tab!=='mh'))BBU.tab='dash';
   var st=BBU.sid&&bbStu(BBU.sid),c;
-  if(BBU.tab==='dash')c=bbDash(b);else if(BBU.tab==='msg')c=bbMsgPage(b);else c=bbDetail(st);
+  if(BBU.tab==='mh')c=dtView();else if(BBU.tab==='dash')c=bbDash(b);else if(BBU.tab==='msg')c=bbMsgPage(b);else c=bbDetail(st);
   v._h=null;v.innerHTML='<div class="bbL'+(bbSideOpen()?'':' col')+'">'+bbSide(b,st)+'<div class="bbmain">'+c+'</div></div>';
   if(foc){var m=$('bbMt');if(m){m.focus();m.setSelectionRange(m.value.length,m.value.length)}}}
 function bbSideOpen(){var v=null;try{v=localStorage.getItem('bb-side')}catch(e){}return v?v==='o':innerWidth>=1100}
 function bbSide(b,st){var u=bbUnreadAll(),T=[['prog','📅','Program'],['lib','📚','Kitaplık'],['log','📋','Kayıtlar'],['dn','📝','Denemeler'],['an','📈','Analiz'],['kn','🧭','Konular'],['lg','🔒','Giriş'],['inf','⚙️','Bilgiler']];
   var it=function(k,ic,lab,extra,dis){return '<button class="bbsi'+(BBU.tab===k?' on':'')+'" data-bb="tab" data-v="'+k+'"'+(dis?' disabled':'')+' title="'+lab+'"><span class="bbsic">'+ic+'</span><span class="bbsl3">'+lab+'</span>'+(extra||'')+'</button>'};
   var h='<aside class="bbside">'+(bbSimOn()?'<button class="bbsimb" data-bb="simTog" title="Sanal öğrenci modundan çık"><b>SANAL</b><span class="bbsl3">15 Mayıs 2027 · çık</span></button>':'')+'<div class="bbsh">'+bbLogo(28)+'<span class="bbsl3"><b>Birebir</b><span class="bbbeta">BETA</span></span></div><button class="bbsi bbtog" data-bb="side" title="'+(bbSideOpen()?'Menüyü daralt':'Menüyü genişlet')+'"><span class="bbsic">'+(bbSideOpen()?'«':'»')+'</span><span class="bbsl3">Daralt</span></button>'+
-   it('dash','📊','Özet')+it('msg','💬','Mesajlar',u?'<span class="bbnc">'+(u>9?'9+':u)+'</span>':'')+'<div class="bbsep"></div>';
+   it('dash','📊','Özet')+it('msg','💬','Mesajlar',u?'<span class="bbnc">'+(u>9?'9+':u)+'</span>':'')+it('mh',dtIcon(),'Muhasebe')+'<div class="bbsep"></div>';
   if(b.st.length){h+='<div class="bbmw bbsel"><button class="bbsbtn" data-bb="menu" title="Öğrenci seç"><span class="bbav sm">'+esc(ini(st?st.name:'?'))+'</span><span class="bbsl3"><b>'+esc(st?st.name:'Öğrenci')+'</b></span><i class="bbsl3">▾</i></button><div class="bbmenu bbsl" hidden>'+
      b.st.map(function(o){var uu=bbUnread(o.id);return '<button data-bb="open" data-keep="1" data-sid="'+o.id+'" class="'+(st&&o.id===st.id?'on':'')+'"><span class="bbav sm">'+esc(ini(o.name))+'</span><span class="bbcn"><b>'+esc(o.name)+(o.demo?' <span class="bbtag">örnek</span>':'')+'</b><small>'+esc([o.gr?o.gr+'. sınıf':'',o.hl||''].filter(Boolean).join(' · '))+'</small></span>'+(uu?'<span class="bbnc">'+uu+'</span>':'')+'</button>'}).join('')+'</div></div>';
     T.forEach(function(t){h+=it(t[0],t[1],t[2])})}
@@ -5392,6 +5392,228 @@ window.SPBirebir={pull:function(){return bbPull(true)},data:function(i){var s=bb
  'nav,.bbside,.bbsb{background:var(--card)!important}'+
  'img{image-rendering:auto}'+
  '}';document.head.appendChild(st)})();
+
+/* ================= BİREBİR · MUHASEBE (Ders Takibi uygulamasından taşındı) =================
+   Veri: S.dt = {students:[{id,name,rate}], lessons:[{id,sid,date,time,status:'planned'|'done'|'cancel',fee,series?}], payments:[{id,sid,date,amount}]}
+   İşleme mantığı Ders Takibi ile birebir aynıdır (ders yapıldı → öğrencinin ücreti işlenir, ödemeler eskiden yeniye derslere dağıtılır).
+   Ana uygulamanın kaydı/bulut eşitlemesi S ile birlikte S.dt'yi de taşır. */
+function dtS(){if(!S.dt||typeof S.dt!=='object'||Array.isArray(S.dt))S.dt={};var d=S.dt;['students','lessons','payments'].forEach(function(k){if(!Array.isArray(d[k]))d[k]=[]});return d}
+var DT={tab:'lessons',payStu:'',rpStu:'',rpMo:'',wk:0,mo:''};
+function dtToday(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+DT.mo=dtToday().slice(0,7);DT.rpMo=DT.mo;
+function dtTL(n){return new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',minimumFractionDigits:0,maximumFractionDigits:2}).format(n||0)}
+function dtFd(s){try{return new Date(s+'T00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'short',weekday:'short'})}catch(e){return s}}
+function dtIso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function dtUid(){return Math.random().toString(36).slice(2,9)}
+function dtStu(id){return dtS().students.find(function(s){return s.id===id})}
+function dtEarned(sid){return dtS().lessons.filter(function(l){return l.sid===sid&&l.status==='done'}).reduce(function(a,l){return a+l.fee},0)}
+function dtPaid(sid){return dtS().payments.filter(function(p){return p.sid===sid}).reduce(function(a,p){return a+p.amount},0)}
+function dtLstat(sid){var D=dtS(),L=D.lessons.filter(function(l){return l.sid===sid&&l.status==='done'}).sort(function(a,b){return (a.date+a.time)<(b.date+b.time)?-1:1}),pd=dtPaid(sid),m={};L.forEach(function(l){if(pd>=l.fee-0.005){m[l.id]='paid';pd-=l.fee}else if(pd>0.005){m[l.id]='part';pd=0}else m[l.id]='unpaid'});return m}
+function dtMlabel(m){return new Date(+m.slice(0,4),+m.slice(5)-1,1).toLocaleDateString('tr-TR',{month:'long',year:'numeric'})}
+function dtDlabel(d){return new Date(d+'T12:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'long'})}
+
+function dtView(){dtCss();var D=dtS(),e=0,p=0;D.students.forEach(function(s){e+=dtEarned(s.id);p+=dtPaid(s.id)});
+  var T=[['lessons','Dersler'],['week','Hafta'],['month','Aylık'],['students','Öğrenci'],['pay','Ödeme'],['report','Rapor']],t=DT.tab;
+  var body=t==='lessons'?dtLessons():t==='week'?dtWeek():t==='month'?dtMonth():t==='report'?dtReport():t==='students'?dtStudents():dtPay();
+  return '<div class="dtw">'+
+   '<div class="dtsum"><div><small>Toplam ücret</small><b>'+dtTL(e)+'</b></div><div><small>Tahsil edilen</small><b class="ok">'+dtTL(p)+'</b></div><div><small>Kalan</small><b class="'+(e-p>0?'warn':'ok')+'">'+dtTL(e-p)+'</b></div></div>'+
+   '<nav class="dtnav">'+T.map(function(x){return '<button data-dtt="'+x[0]+'" class="'+(t===x[0]?'on':'')+'">'+x[1]+'</button>'}).join('')+'</nav>'+
+   '<div class="dtview v-'+t+'">'+body+'</div></div>'}
+
+function dtLessons(){var D=dtS();
+  var opts=D.students.map(function(s){return '<option value="'+s.id+'">'+esc(s.name)+' ('+dtTL(s.rate)+')</option>'}).join('');
+  var h='';
+  if(!D.students.length)h+='<div class="empty">Önce "Öğrenci" sekmesinden öğrenci ekleyin ya da Ders Takibi verinizi aktarın.</div>';
+  else h+='<div class="card fm"><b class="ft">Yeni ders randevusu</b><div class="fr"><div class="fd"><label>Öğrenci</label><select id="dtls">'+opts+'</select></div><div class="fd half"><label>Tarih</label><input type="date" id="dtld" value="'+dtToday()+'"></div><div class="fd half"><label>Saat</label><input type="time" id="dtlt" value="16:00"></div><div class="fd"><label class="ck"><input type="checkbox" id="dtlr"> Her hafta tekrarla</label></div><div class="fd"><label>Tekrar bitiş tarihi</label><input type="date" id="dtle" value="'+dtIso(new Date(Date.now()+90*864e5))+'"></div><button class="btn" data-dt="addLesson">Randevu ekle</button></div></div>';
+  var L=D.lessons.slice().sort(function(a,b){return (a.date+a.time)<(b.date+b.time)?1:-1});
+  var lim=dtIso(new Date(Date.now()+14*864e5)),pl=L.filter(function(l){return l.status==='planned'}),up=pl.filter(function(l){return l.date<=lim}).reverse(),hid=pl.length-up.length,rest=L.filter(function(l){return l.status!=='planned'});
+  function card(l){
+    var s=dtStu(l.sid),nm=s?esc(s.name):'(silinmiş öğrenci)';
+    var rp=l.series?' <span class="mut">🔁</span>':'';var st=l.status==='done'?'<span style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end"><span class="tag ok">Yapıldı '+dtTL(l.fee)+'</span>'+(function(){var ps=dtLstat(l.sid)[l.id];return ps==='paid'?'<span class="tag ok">✓ Ödendi</span>':ps==='part'?'<span class="tag warn">Kısmen ödendi</span>':'<span class="tag warn">Ödenmedi</span>'})()+'</span>':l.status==='cancel'?'<span class="tag bad">İptal</span>':'<span class="tag warn">Planlandı</span>';
+    var a='';
+    if(l.status==='planned')a='<button class="btn s" data-dt="done" data-id="'+l.id+'">✓ Ders yapıldı</button><button class="btn s g" data-dt="cancel" data-id="'+l.id+'">İptal</button>';
+    else a='<button class="btn s g" data-dt="reopen" data-id="'+l.id+'">↩ Geri al</button>';
+    if(l.series&&l.status==='planned')a+='<button class="btn s g" data-dt="delSeries" data-id="'+l.id+'">Bundan sonrakileri sil</button>';a+='<button class="btn s g" data-dt="delLesson" data-id="'+l.id+'">Sil</button>';
+    return '<div class="card"><div class="row"><b>'+nm+rp+'</b>'+st+'</div><div class="mut">'+dtFd(l.date)+(l.time?' · '+l.time:'')+'</div><div class="acts">'+a+'</div></div>';
+  }
+  if(up.length)h+='<p class="mut">Yaklaşan / bekleyen</p>'+up.map(card).join('');
+  if(hid>0)h+='<p class="mut">+ '+hid+' ileri tarihli ders daha var (Hafta sekmesinden görebilirsiniz)</p>';if(rest.length)h+='<p class="mut">Geçmiş</p>'+rest.map(card).join('');
+  return h}
+function dtStudents(){var D=dtS();
+  var h='<div class="card fm"><b class="ft">Yeni öğrenci</b><div class="fr"><div class="fd"><label>Ad soyad</label><input id="dtsn" placeholder="Ad Soyad"></div><div class="fd"><label>Ders ücreti (₺)</label><input id="dtsr" type="number" inputmode="decimal" min="0" placeholder="Örn. 500"></div><button class="btn" data-dt="addStudent">Öğrenci ekle</button></div></div>';
+  h+='<div class="card fm dtimp"><b class="ft">📥 Ders Takibi verisini aktar</b><p class="mut">Ders Takibi uygulamasından aldığınız aktarım dosyasını (.json) seçin. Öğrenciler, dersler ve ödemeler eklenir; aynı kayıt iki kez eklenmez.</p><label class="btn s dtfile"><input type="file" accept="application/json,.json" id="dtImp" hidden>Dosya seç</label></div>';
+  if(!D.students.length)return h;
+  h+=D.students.map(function(s){
+    var e=dtEarned(s.id),p=dtPaid(s.id),n=D.lessons.filter(function(l){return l.sid===s.id&&l.status==='done'}).length,k=e-p;
+    return '<div class="card"><div class="row"><b>'+esc(s.name)+'</b><span class="mut">'+n+' ders</span></div>'
+    +'<div class="row" style="margin:8px 0 4px"><label>Ders ücreti (₺)</label><input type="number" inputmode="decimal" min="0" style="width:96px;text-align:right;padding:6px 10px;margin:0" value="'+s.rate+'" data-dt="rate" data-id="'+s.id+'"></div>'
+    +'<div class="row mut" style="margin-top:6px"><span>Toplam ders ücreti</span><span>'+dtTL(e)+'</span></div><div class="row mut"><span>Ödenen</span><span>'+dtTL(p)+'</span></div>'
+    +'<div class="row" style="margin-top:8px"><b class="'+(k>0?'warn':k<0?'ok':'')+'">'+(k>0?'Borç: ':k<0?'Fazla ödeme: ':'Bakiye: ')+dtTL(Math.abs(k))+'</b><span style="display:flex;gap:6px"><button class="btn s" data-dt="msg" data-id="'+s.id+'">Veli mesajı</button><button class="btn s g" data-dt="delStudent" data-id="'+s.id+'">Sil</button></span></div></div>';
+  }).join('');
+  return h}
+function dtPay(){var D=dtS();
+  if(!D.students.length)return '<div class="empty">Önce "Öğrenci" sekmesinden öğrenci ekleyin.</div>';
+  var sel=DT.payStu&&dtStu(DT.payStu)?DT.payStu:D.students[0].id;
+  var opts=D.students.map(function(s){return '<option value="'+s.id+'"'+(s.id===sel?' selected':'')+'>'+esc(s.name)+'</option>'}).join('');
+  var h='';
+  D.students.forEach(function(s){
+    var k=dtEarned(s.id)-dtPaid(s.id),m=dtLstat(s.id),n=Object.keys(m).filter(function(i){return m[i]!=='paid'}).length;
+    var av='<span class="av">'+esc((s.name.trim().charAt(0)||'?').toLocaleUpperCase('tr-TR'))+'</span>';
+    if(k>0.005)h+='<div class="pc">'+'<div class="ph">'+av+'<div><b>'+esc(s.name)+'</b><div class="mut">'+n+' ders ödenmedi</div></div></div><div class="pamt"><small>Ödenecek tutar</small>'+dtTL(k)+'</div><button class="btn pay" data-dt="payall" data-id="'+s.id+'">✓ Ödendi</button></div>';
+    else h+='<div class="pc done"><div class="ph">'+av+'<div><b>'+esc(s.name)+'</b><div class="mut"><span class="dot'+(k<-0.005?' y':'')+'"></span>'+(k<-0.005?'Avans '+dtTL(-k):'Ödemeler güncel')+'</div></div></div></div>';
+  });
+  h+='<details class="card fm"><summary>Farklı tutarda ödeme kaydet</summary><div class="fr" style="margin-top:8px"><div class="fd"><label>Öğrenci</label><select id="dtps">'+opts+'</select></div><div class="fd"><label>Alınan tutar (₺)</label><input id="dtpa" type="number" inputmode="decimal" min="0" placeholder="Örn. 250"></div><div class="fd"><label>Ödeme tarihi</label><input id="dtpd" type="date" value="'+dtToday()+'"></div><button class="btn" data-dt="addPay">Ödemeyi kaydet</button></div></details>';
+  var P=D.payments.slice().sort(function(a,b){return a.date<b.date?1:-1});
+  h+='<div class="sec">Alınan ödemeler</div>';
+  if(!P.length)return h+'<div class="empty">Henüz ödeme kaydı yok.</div>';
+  return h+'<div class="card pl">'+P.map(function(p){var s=dtStu(p.sid);return '<div class="pr"><div><b>'+(s?esc(s.name):'(silinmiş)')+'</b><div class="mut">'+dtFd(p.date)+'</div></div><div style="display:flex;align-items:center;gap:10px"><b>'+dtTL(p.amount)+'</b><button class="btn s g" data-dt="delPay" data-id="'+p.id+'">Sil</button></div></div>'}).join('')+'</div>'}
+function dtWeek(){var D=dtS();
+  var d=new Date();d.setHours(12);var dow=(d.getDay()+6)%7;d.setDate(d.getDate()-dow+DT.wk*7);
+  var st=new Date(d),en=new Date(d);en.setDate(en.getDate()+6);
+  var h='<div class="row card"><button class="btn s g" data-dt="wkp">‹</button><b>'+dtFd(dtIso(st))+' – '+dtFd(dtIso(en))+'</b><button class="btn s g" data-dt="wkn">›</button></div>';
+  for(var i=0;i<7;i++){
+    var k=dtIso(d),L=D.lessons.filter(function(l){return l.date===k}).sort(function(a,b){return a.time<b.time?-1:1});
+    h+='<div class="card"><div class="row"><b'+(k===dtToday()?' class="ok"':'')+'>'+dtFd(k)+'</b><span class="mut">'+(L.length?L.filter(function(l){return l.status!=='cancel'}).length+' ders':'—')+'</span></div>';
+    L.forEach(function(l){var s=dtStu(l.sid);h+='<div class="row" style="margin-top:6px"><span>'+(l.time||'')+' '+(s?esc(s.name):'?')+'</span>'+(l.status==='planned'?'<button class="btn s" data-dt="done" data-id="'+l.id+'">✓ Yapıldı</button>':'<span style="display:flex;gap:6px;align-items:center"><span class="tag '+(l.status==='done'?'ok':'bad')+'">'+(l.status==='done'?'Yapıldı':'İptal')+'</span><button class="btn s g" data-dt="reopen" data-id="'+l.id+'">↩ Geri al</button></span>')+'</div>'});
+    h+='</div>';d.setDate(d.getDate()+1);
+  }
+  return h}
+function dtMonth(){var D=dtS(),mo=DT.mo;
+  var y=+mo.slice(0,4),m=+mo.slice(5),nm=new Date(y,m-1,1).toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
+  var h='<div class="row card"><button class="btn s g" data-dt="mop">‹</button><b>'+nm+'</b><button class="btn s g" data-dt="mon">›</button></div>',tl=0,tp=0,tn=0;
+  D.students.forEach(function(s){
+    var L=D.lessons.filter(function(l){return l.sid===s.id&&l.status==='done'&&l.date.slice(0,7)===mo});
+    var f=L.reduce(function(a,l){return a+l.fee},0),p=D.payments.filter(function(x){return x.sid===s.id&&x.date.slice(0,7)===mo}).reduce(function(a,x){return a+x.amount},0);
+    tl+=f;tp+=p;tn+=L.length;
+    if(L.length||p)h+='<div class="card"><div class="row"><b>'+esc(s.name)+'</b><span class="mut">'+L.length+' ders</span></div><div class="row"><span class="mut">Ders ücreti</span><span>'+dtTL(f)+'</span></div><div class="row"><span class="mut">Bu ay alınan</span><span class="ok">'+dtTL(p)+'</span></div></div>';
+  });
+  if(!tn&&!tp)h+='<div class="empty">Bu ay için kayıt yok.</div>';
+  else h+='<div class="card"><div class="row"><b>Toplam</b><span class="mut">'+tn+' ders</span></div><div class="row"><span class="mut">Ders ücreti</span><b>'+dtTL(tl)+'</b></div><div class="row"><span class="mut">Alınan ödeme</span><b class="ok">'+dtTL(tp)+'</b></div></div>';
+  return h}
+function dtRepData(sid,m){var D=dtS();
+  var inP=function(d){return m==='all'||d.slice(0,7)===m},srt=function(a,b){return (a.date+a.time)<(b.date+b.time)?-1:1};
+  var Dn=D.lessons.filter(function(l){return l.sid===sid&&l.status==='done'&&inP(l.date)}).sort(srt);
+  var C=D.lessons.filter(function(l){return l.sid===sid&&l.status==='cancel'&&inP(l.date)}).sort(srt);
+  var fee=Dn.reduce(function(a,l){return a+l.fee},0),pay=D.payments.filter(function(x){return x.sid===sid&&inP(x.date)}).reduce(function(a,x){return a+x.amount},0);
+  return {D:Dn,C:C,fee:fee,pay:pay,bal:dtEarned(sid)-dtPaid(sid)}}
+function dtRepText(sid,m){
+  var s=dtStu(sid),d=dtRepData(sid,m),t='📚 Ders Raporu\nÖğrenci: '+(s?s.name:'')+'\nDönem: '+(m==='all'?'Tüm dönem':dtMlabel(m))+'\n\n';
+  if(d.D.length){t+='Yapılan dersler ('+d.D.length+'):\n';d.D.forEach(function(l,i){t+=(i+1)+'. '+dtDlabel(l.date)+(l.time?' · '+l.time:'')+' · '+dtTL(l.fee)+'\n'});t+='\n'}
+  else t+='Bu dönemde yapılan ders yok.\n\n';
+  t+='Toplam: '+d.D.length+' ders · '+dtTL(d.fee)+'\nAlınan ödeme: '+dtTL(d.pay)+'\n'+(d.bal>0.005?'Güncel kalan borç: '+dtTL(d.bal):d.bal<-0.005?'Güncel avans: '+dtTL(-d.bal):'Güncel borç yok');
+  if(d.C.length){t+='\n\nİptal edilen dersler (ücret alınmadı):\n';d.C.forEach(function(l){t+='- '+dtDlabel(l.date)+(l.time?' · '+l.time:'')+'\n'});t=t.replace(/\n$/,'')}
+  return t}
+function dtReport(){var D=dtS();
+  if(!D.students.length)return '<div class="empty">Önce "Öğrenci" sekmesinden öğrenci ekleyin.</div>';
+  var sid=DT.rpStu&&dtStu(DT.rpStu)?DT.rpStu:D.students[0].id;DT.rpStu=sid;var rpMo=DT.rpMo;
+  var d=dtRepData(sid,rpMo),cur=dtToday().slice(0,7),pv=new Date(+cur.slice(0,4),+cur.slice(5)-2,1),prev=pv.getFullYear()+'-'+String(pv.getMonth()+1).padStart(2,'0');
+  var opts=D.students.map(function(x){return '<option value="'+x.id+'"'+(x.id===sid?' selected':'')+'>'+esc(x.name)+'</option>'}).join('');
+  var chip=function(a,l,on){return '<button class="chip'+(on?' on':'')+'" data-dt="'+a+'">'+l+'</button>'};
+  var h='<div class="card"><b class="ft">Rapor hazırla</b><label>Öğrenci</label><select id="dtrs">'+opts+'</select>'
+   +'<label style="display:block;margin-top:6px">Dönem</label><div class="row" style="margin:4px 0 8px"><button class="btn s g" data-dt="rpp">‹</button><b>'+(rpMo==='all'?'Tüm dönem':dtMlabel(rpMo))+'</b><button class="btn s g" data-dt="rpn">›</button></div>'
+   +'<div class="chips">'+chip('rpm','Bu ay',rpMo===cur)+chip('rpl','Geçen ay',rpMo===prev)+chip('rpa','Tümü',rpMo==='all')+'</div>'
+   +'<div class="rsum"><div><small>Ders</small><b>'+d.D.length+'</b></div><div><small>Ders ücreti</small><b>'+dtTL(d.fee)+'</b></div><div><small>Alınan ödeme</small><b>'+dtTL(d.pay)+'</b></div></div>'
+   +'<div class="acts"><button class="btn" data-dt="rpsend" style="flex:1">Veliye gönder</button><button class="btn g" data-dt="rpcopy">Kopyala</button></div></div>';
+  h+='<div class="card pl"><b class="ft">'+esc(dtStu(sid).name)+' · '+(rpMo==='all'?'Tüm dönem':dtMlabel(rpMo))+'</b>';
+  if(!d.D.length)h+='<div class="empty">Bu dönemde yapılan ders yok.</div>';
+  d.D.forEach(function(l){h+='<div class="pr"><div><b>'+dtDlabel(l.date)+'</b><div class="mut">'+(l.time||'Saat girilmedi')+'</div></div><b>'+dtTL(l.fee)+'</b></div>'});
+  if(d.C.length){h+='<div class="sec" style="margin:12px 0 2px">İptal edilenler · ücretlendirilmedi</div>';d.C.forEach(function(l){h+='<div class="pr"><div class="mut">'+dtDlabel(l.date)+(l.time?' · '+l.time:'')+'</div></div>'})}
+  return h+'</div>'}
+
+/* ---- yardımcılar (ana uygulamanın toast ve penceresiyle) ---- */
+function dtShowText(title,t){openM('<h3>'+esc(title)+'</h3><textarea id="dtTx" readonly rows="8" style="width:100%">'+esc(t)+'</textarea><div class="acts"><button class="btn y" data-a="close" style="flex:1">Kapat</button></div>');setTimeout(function(){var x=$('dtTx');if(x){x.focus();x.select()}},60)}
+function dtAsk(msg,yes){openM('<h3>'+esc(msg)+'</h3><div class="acts"><button class="btn y" data-dt="askYes" style="flex:1">Evet, sil</button><button class="btn g" data-a="close">Vazgeç</button></div>');dtAsk.f=yes}
+function dtCopy(t,msg){if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast(msg)}).catch(function(){dtShowText('Metni kopyalayın',t)});else dtShowText('Metni kopyalayın',t)}
+function dtSend(t,msg){if(navigator.share){navigator.share({text:t}).catch(function(e){if(e&&e.name==='AbortError')return;dtCopy(t,msg)})}else dtCopy(t,msg)}
+function dtParentMsg(s){var D=dtS(),mm=dtToday().slice(0,7),n=D.lessons.filter(function(l){return l.sid===s.id&&l.status==='done'&&l.date.slice(0,7)===mm}),f=n.reduce(function(a,l){return a+l.fee},0),k=dtEarned(s.id)-dtPaid(s.id);
+  var t='Merhaba, '+s.name+' için ders özeti:\n• Bu ay yapılan ders: '+n.length+' ('+dtTL(f)+')\n• Toplam ders ücreti: '+dtTL(dtEarned(s.id))+'\n• Ödenen: '+dtTL(dtPaid(s.id))+'\n• '+(k>0?'Kalan borç: '+dtTL(k):k<0?'Fazla ödeme: '+dtTL(-k):'Kalan borç yok')+'\nTeşekkürler.';
+  dtCopy(t,'Mesaj kopyalandı, veliye yapıştırabilirsiniz.')}
+function dtRender(){var y=scrollY;render();scrollTo(0,y)}
+function dtSave(){save()}
+
+/* ---- Ders Takibi'nden aktarım ---- */
+function dtImport(obj){var X=obj&&obj.S?obj.S:obj;if(X&&typeof X.data==='string'){try{X=JSON.parse(X.data)}catch(e){X=null}}
+  if(!X||!Array.isArray(X.students)||!Array.isArray(X.lessons)||!Array.isArray(X.payments))return null;
+  var D=dtS(),n={s:0,l:0,p:0},add=function(arr,list,k,ok){var ids={};arr.forEach(function(o){ids[o.id]=1});list.forEach(function(o){if(!o||!o.id||ids[o.id]||!ok(o))return;arr.push(o);ids[o.id]=1;n[k]++})};
+  add(D.students,X.students,'s',function(o){return typeof o.name==='string'});
+  add(D.lessons,X.lessons,'l',function(o){return /^\d{4}-\d\d-\d\d$/.test(o.date)&&o.sid});
+  add(D.payments,X.payments,'p',function(o){return /^\d{4}-\d\d-\d\d$/.test(o.date)&&o.sid&&+o.amount>0});
+  return n}
+
+document.addEventListener('click',function(e){var t=e.target.closest('[data-dt],[data-dtt]');if(!t||!t.closest('.dtw,#mb'))return;
+  if(t.dataset.dtt){DT.tab=t.dataset.dtt;scrollTo(0,0);render();return}
+  var a=t.dataset.dt,id=t.dataset.id,D=dtS();if(!a||a==='rate')return;
+  if(a==='askYes'){closeM();var f=dtAsk.f;dtAsk.f=null;if(f)f();return}
+  var l=D.lessons.find(function(x){return x.id===id}),um='',un=null;
+  if(a==='rpm'||a==='rpl'||a==='rpa'){var c0=dtToday().slice(0,7),pp=new Date(+c0.slice(0,4),+c0.slice(5)-2,1);DT.rpMo=a==='rpm'?c0:a==='rpa'?'all':pp.getFullYear()+'-'+String(pp.getMonth()+1).padStart(2,'0');dtRender();return}
+  if(a==='rpp'||a==='rpn'){var b0=DT.rpMo==='all'?dtToday().slice(0,7):DT.rpMo,q2=new Date(+b0.slice(0,4),+b0.slice(5)-1+(a==='rpn'?1:-1),1);DT.rpMo=q2.getFullYear()+'-'+String(q2.getMonth()+1).padStart(2,'0');dtRender();return}
+  if(a==='rpsend'){dtSend(dtRepText(DT.rpStu,DT.rpMo),'Rapor kopyalandı, veliye yapıştırabilirsiniz.');return}
+  if(a==='rpcopy'){dtCopy(dtRepText(DT.rpStu,DT.rpMo),'Rapor kopyalandı');return}
+  if(a==='wkp'){DT.wk--;dtRender();return}
+  if(a==='wkn'){DT.wk++;dtRender();return}
+  if(a==='mop'||a==='mon'){var q=new Date(+DT.mo.slice(0,4),+DT.mo.slice(5)-1+(a==='mon'?1:-1),1);DT.mo=q.getFullYear()+'-'+String(q.getMonth()+1).padStart(2,'0');dtRender();return}
+  if(a==='msg'){var ss=dtStu(id);if(ss)dtParentMsg(ss);return}
+  if(a==='addStudent'){var n=$('dtsn').value.trim(),r=parseFloat($('dtsr').value);if(!n||isNaN(r)||r<0){toast('Ad ve geçerli bir ücret girin.');return}D.students.push({id:dtUid(),name:n,rate:r})}
+  else if(a==='addLesson'){var d=$('dtld').value;if(!d)return;var sid=$('dtls').value,tm2=$('dtlt').value;
+    if($('dtlr').checked){var end=$('dtle').value;if(!end||end<d){toast('Bitiş tarihi, ilk dersten sonra olmalı.');return}
+      var sr=dtUid(),c=new Date(d+'T12:00'),k=0;while(dtIso(c)<=end&&k<156){D.lessons.push({id:dtUid(),sid:sid,date:dtIso(c),time:tm2,status:'planned',fee:0,series:sr});c.setDate(c.getDate()+7);k++}}
+    else D.lessons.push({id:dtUid(),sid:sid,date:d,time:tm2,status:'planned',fee:0})}
+  else if(a==='delSeries'&&l){var c2=D.lessons.filter(function(x){return x.series===l.series&&x.status==='planned'&&x.date>=l.date}).length;dtAsk(c2+' planlı ders silinsin mi? (Yapılmış dersler korunur)',function(){D.lessons=D.lessons.filter(function(x){return !(x.series===l.series&&x.status==='planned'&&x.date>=l.date)});dtSave();dtRender()});return}
+  else if(a==='done'&&l){var s=dtStu(l.sid);l.status='done';l.fee=s?s.rate:0;um='Ders yapıldı olarak işlendi';un=function(){l.status='planned';l.fee=0;dtSave();dtRender()}}
+  else if(a==='cancel'&&l){l.status='cancel';l.fee=0;um='Ders iptal edildi';un=function(){l.status='planned';l.fee=0;dtSave();dtRender()}}
+  else if(a==='reopen'&&l){l.status='planned';l.fee=0;um='Ders tekrar planlı duruma alındı, ücreti düşüldü'}
+  else if(a==='delLesson'){D.lessons=D.lessons.filter(function(x){return x.id!==id})}
+  else if(a==='delStudent'){var ds=dtStu(id);dtAsk((ds?ds.name+' ve ':'')+'tüm ders ve ödeme kayıtları silinsin mi? Bu işlem geri alınamaz.',function(){D.students=D.students.filter(function(x){return x.id!==id});D.lessons=D.lessons.filter(function(x){return x.sid!==id});D.payments=D.payments.filter(function(x){return x.sid!==id});dtSave();dtRender()});return}
+  else if(a==='addPay'){var m=parseFloat($('dtpa').value);if(isNaN(m)||m<=0){toast('Geçerli bir tutar girin.');return}var np={id:dtUid(),sid:$('dtps').value,date:$('dtpd').value||dtToday(),amount:m};D.payments.push(np);DT.payStu=np.sid;um='Ödeme kaydedildi';un=function(){D.payments=D.payments.filter(function(x){return x.id!==np.id});dtSave();dtRender()}}
+  else if(a==='delPay'){dtAsk('Bu ödeme kaydı silinsin mi?',function(){D.payments=D.payments.filter(function(x){return x.id!==id});dtSave();dtRender()});return}
+  else if(a==='payall'){var ps0=dtStu(id),kd=dtEarned(id)-dtPaid(id);if(!ps0||kd<=0.005)return;var pn={id:dtUid(),sid:id,date:dtToday(),amount:kd};D.payments.push(pn);um=ps0.name+': '+dtTL(kd)+' ödendi';un=function(){D.payments=D.payments.filter(function(x){return x.id!==pn.id});dtSave();dtRender()}}
+  else return;
+  dtSave();dtRender();if(um)toast(um,un);
+});
+document.addEventListener('change',function(e){var t=e.target;if(!t.closest||!t.closest('.dtw'))return;
+  if(t.id==='dtps'){DT.payStu=t.value;return}
+  if(t.id==='dtrs'){DT.rpStu=t.value;dtRender();return}
+  if(t.id==='dtImp'){var f=t.files&&t.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var o=null;try{o=JSON.parse(rd.result)}catch(x){}var n=o&&dtImport(o);if(!n){toast('Bu dosya Ders Takibi aktarım dosyası değil');return}dtSave();DT.tab='pay';dtRender();toast(n.s+n.l+n.p?'Aktarıldı ✓ '+n.s+' öğrenci · '+n.l+' ders · '+n.p+' ödeme':'Bu veriler zaten aktarılmış ✓')};rd.readAsText(f);return}
+  if(t.dataset.dt==='rate'){var s=dtStu(t.dataset.id),v=parseFloat(t.value);if(s&&!isNaN(v)&&v>=0){s.rate=v;dtSave();dtRender()}}
+});
+(function(){var s=document.querySelector('symbol#i-gift');if(s&&!document.getElementById('i-wallet'))s.insertAdjacentHTML('afterend','<symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M20.5 11.5h-4a2 2 0 0 0 0 4h4"/><circle cx="16.6" cy="13.5" r=".6" fill="currentColor"/></symbol>')})();
+function dtIcon(){return '<i class="ico"><svg><use href="#i-wallet"/></svg></i>'}
+
+function dtCss(){if(document.getElementById('dtcss'))return;var s=document.createElement('style');s.id='dtcss';s.textContent=
+ '.dtw{--ac:#A9CDF6;--acx:#1E3A66;--acb:#7FB0EA;--yl:#FFE08A;--ylx:#25406B;--dbg:rgba(169,205,246,.16);container-type:inline-size}'+
+ '.dtw .dtsum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px}'+
+ '.dtw .dtsum div{background:var(--card);border:1.5px solid var(--bd);border-top:5px solid var(--yl);border-radius:14px;padding:8px 12px;display:flex;flex-direction:column;justify-content:space-between;gap:2px;min-width:0}'+
+ '.dtw .dtsum small{color:var(--mut);font-size:12px;font-weight:700;line-height:1.2}.dtw .dtsum b{font-size:20px;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}'+
+ '.dtw .dtnav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-bottom:10px}'+
+ '.dtw .dtnav button{min-width:0;padding:8px 0;font:inherit;font-size:13px;font-weight:800;border:1.5px solid var(--bd);background:var(--card);color:var(--tx);border-radius:11px;cursor:pointer}.dtw .dtnav button.on{background:var(--yl);color:var(--ylx);border-color:var(--acb)}'+
+ '#view .dtw .card{background:var(--card);border:1.5px solid var(--bd);border-radius:14px;padding:9px 12px!important;margin-bottom:8px!important}'+
+ '.dtw .row{display:flex;justify-content:space-between;align-items:center;gap:8px}.dtw .mut{color:var(--mut);font-size:13px}.dtw p.mut{margin:6px 2px}'+
+ '.dtw .ok{color:var(--ok)}.dtw .warn{color:var(--warn)}.dtw .bad{color:var(--bad)}'+
+ '.dtw input,.dtw select{min-width:0;width:100%;padding:8px 10px;border:1.5px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);font:inherit;margin:3px 0}'+
+ '.dtw input[type=date],.dtw input[type=time]{-webkit-appearance:none;appearance:none;display:block;height:42px}'+
+ '#view .dtw .btn{padding:8px 13px;border:1.5px solid var(--acb);border-radius:11px;background:var(--ac);color:var(--acx);font:inherit;font-weight:800;cursor:pointer}'+
+ '#view .dtw .btn.s{padding:5px 10px;font-size:13px}#view .dtw .btn.g{background:transparent;color:var(--mut);border-color:var(--bd)}'+
+ '.dtw .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.dtw label{font-size:12.5px;color:var(--mut);font-weight:700}'+
+ '.dtw .empty{text-align:center;color:var(--mut);padding:20px 8px}.dtw .tag{font-size:12px;font-weight:800;padding:2px 8px;border-radius:99px;border:1.5px solid var(--bd);white-space:nowrap}'+
+ '.dtw .btn.pay{width:100%;padding:10px;font-size:15px}.dtw details summary{font-weight:800;color:var(--mut);cursor:pointer}'+
+ '.dtw .fr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 8px}.dtw .fr>*{grid-column:1/-1}.dtw .fr>.half{grid-column:auto}.dtw .fd label{display:block}.dtw .ft{display:block;margin-bottom:4px}'+
+ '.dtw .ck{display:flex!important;align-items:center;gap:8px;height:42px;font-size:14px}.dtw .ck input{width:auto;margin:0}.dtw .fr>.btn{width:100%}'+
+ '.dtw .chips{display:flex;gap:6px;flex-wrap:wrap}.dtw .chip.on{background:var(--yl);color:var(--ylx);border-color:var(--acb)}'+
+ '.dtw .rsum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 4px}.dtw .rsum div{background:var(--dbg);border-radius:12px;padding:7px 10px}.dtw .rsum small{display:block;color:var(--mut);font-size:12px}.dtw .rsum b{font-size:16px}'+
+ '.dtw .pc{background:var(--card);border:1.5px solid var(--bd);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px}.dtw .pc.done{background:transparent;padding:10px 14px}.dtw .pc.done b{font-weight:700}'+
+ '.dtw .ph{display:flex;align-items:center;gap:10px}.dtw .av{width:36px;height:36px;border-radius:50%;background:var(--yl);color:var(--ylx);display:grid;place-items:center;font-weight:900;flex:none}'+
+ '.dtw .pamt{font-size:26px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}.dtw .pamt small{display:block;font-size:12px;font-weight:700;color:var(--mut);margin-bottom:5px}'+
+ '.dtw .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:7px}.dtw .dot.y{background:var(--warn)}'+
+ '.dtw .sec{font-size:13px;font-weight:800;color:var(--mut);margin:10px 2px 6px}#view .dtw .pl{padding:2px 14px!important}.dtw .pl>.ft{padding-top:10px;margin-bottom:2px}'+
+ '.dtw .pr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd)}.dtw .pr:last-child{border-bottom:0}'+
+ '.dtw .dtfile{display:inline-block}.dtw .dtimp p{margin:2px 0 8px}'+
+ '@container (min-width:700px){.dtw .dtview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}#view .dtw .dtview>.card{margin:0!important}.dtw .dtview>p,.dtw .dtview>.empty,.dtw .fm,.dtw .dtview>.sec,.dtw .dtview>.pl{grid-column:1/-1}.dtw .dtview>p{margin:2px}.dtw .dtview>.pc{margin:0}'+
+  '.dtw .v-week>.card:first-child,.dtw .v-month>.card:first-child{grid-column:1/-1}.dtw .v-week .row+.row{flex-direction:column;align-items:stretch}.dtw .v-week .row+.row>span[style]{flex-wrap:wrap}.dtw .v-pay{align-items:stretch}'+
+  '.dtw .v-report{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr)}.dtw .v-report>.pl{grid-column:auto}.dtw .pc.done{justify-content:center}'+
+  '.dtw .fm .fr{display:flex;align-items:flex-end;gap:10px}.dtw .fm .fr>*{flex:1;min-width:0}.dtw .fm .fr>.fd:first-child{flex:1.6}.dtw .fm .fr>.btn{flex:none;width:170px;height:42px;margin:0 0 3px}.dtw .dtimp{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}.dtw .dtimp .ft{margin:0}.dtw .dtimp p{flex:1;min-width:240px;margin:0}}'+
+ '@container (min-width:880px){.dtw .dtview{grid-template-columns:repeat(3,minmax(0,1fr))}.dtw .v-week{grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.dtw .v-report{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr)}}'+
+ '@media(max-width:560px){.dtw .dtsum b{font-size:15px}.dtw .dtnav button{font-size:11.5px;padding:7px 0}}';
+ document.head.appendChild(s)}
 
 bbCss();
 /* BIREBIR-END */
