@@ -6137,6 +6137,7 @@ document.addEventListener('click',function(ev){var b=ev.target.closest('[data-a]
 /* Rehberlik kısayolları: birleştirilen bölümlere yönlendir */
 function hubGo(ht,sub){UI.tab='classes';UI.ht=ht;var rg=rgClass();if(rg)UI.hc=rg.id;UI.cls=null;UI._hcLast=null;if(ht==='lig')UI.hl=sub||'lig';if(ht==='not')UI.hn=sub||'tr';UI.rg=null;renderNav();renderView();scrollTo(0,0)}
 (function(){var st=document.createElement('style');st.textContent=
+ 'html body nav#nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}'+
  '.hub{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;margin-bottom:10px;min-width:0}.hub .hubc{margin:0;flex-wrap:nowrap;overflow-x:auto}.hub .hubadd{border:2px dashed var(--bd);background:transparent;border-radius:999px;min-width:40px;font-weight:900;color:var(--mut);cursor:pointer}'+
  '.hub .hubt{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:0}.hub .hubt button{white-space:nowrap;font-size:13.5px;padding-left:2px;padding-right:2px;min-width:0;overflow:hidden;text-overflow:ellipsis}'+
  '.rggh{grid-column:1/-1;font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:14px 4px 6px}.rgmv{grid-column:1/-1;margin:12px 4px;font-size:13px}.lnk{border:0;background:none;color:var(--acx,#1E3A66);font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;padding:0}'+
