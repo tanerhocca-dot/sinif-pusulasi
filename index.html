@@ -1323,8 +1323,8 @@ var t0=Date.now(),done=false;window.SPIntroDone=function(){if(done)return;done=t
 <button id="dice" class="dice" data-a="diceOpen" aria-label="Rastgele öğrenci seç" title="Rastgele öğrenci seç"><span>🎲</span></button>
 <div id="bd" class="board" hidden></div>
 <div id="md" class="md" hidden><div class="mb" id="mb"></div></div>
-<script src="config.js?v=20261126c"></script>
-<script src="cloud.js?v=20261126c"></script>
+<script src="config.js?v=20261127a"></script>
+<script src="cloud.js?v=20261127a"></script>
 <script>
 /* ================= SINIF PUSULASI · AVATAR ÇİZİCİ (fotoğraf kullanmaz) ================= */
 (function(){
@@ -4093,7 +4093,7 @@ function portalData(sid){var o=stuById(sid);if(!o)return null;var st=o.st,c=o.c,
   var EX=stuExams(c.id,sid).map(function(e){var r=(e.r||{})[sid]||{},rr=rankOf(e,sid);return {n:e.name,d:e.date,t:r2(totNet(e,sid)),a:r2(avgTot(e)),r:rr&&rankShare()?rr.r:null,rn:rr&&rankShare()?rr.n:null,p:r.p!=null&&r.p!==''?+r.p:null,s:e.subs.map(function(s){var v=subNet(e,sid,s.n),av=avgSub(e,s.n),x=(r.s||{})[s.n]||{},o={n:s.n,q:s.q||'',v:v==null?null:r2(v),a:av==null?null:r2(av)};if(x.d!==''&&x.d!=null&&!isNaN(x.d)){o.d=+x.d;o.y=+x.y||0}return o})}});
   var ab=absCount(sid);
   return {v:1,av:(S.av&&S.av[sid]&&window.SPAvatar)?SPAvatar.norm(S.av[sid]):null,name:st.name,no:st.no||'',cls:c.name,teacher:S.set.teacherFull||S.set.teacher||'',school:S.set.school||'',term:termLab(tk),at:Date.now(),
-    badges:B,lg:{net:netPts(sid),r:rk&&rankShare()?rk.r:null,n:rk&&rankShare()?rk.n:null,pg:S.set.ptPerf?perfGrade(sid):null,sh:shieldN(sid),h:hist},trk:trk,books:books(sid),bookNames:bookNames(sid).slice(-30),abs:ab,grades:G,ex:EX}}
+    badges:B,lg:{net:netPts(sid),r:rk&&rankShare()?rk.r:null,n:rk&&rankShare()?rk.n:null,pg:S.set.ptPerf?perfGrade(sid):null,sh:shieldN(sid),h:hist},trk:trk,books:books(sid),bookNames:bookNames(sid).slice(-30),abs:ab,grades:G,ex:EX,trn:trPortal(c,sid)}}
 function ptHash(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h>>>0)}
 var ptTm=null,ptBusy=false,ptAgain=false;
 function portalSoon(){if(!ptOn())return;clearTimeout(ptTm);ptTm=setTimeout(portalSync,12000)}
@@ -6244,6 +6244,10 @@ var BKC=[['#E2463B','#B8322A'],['#3D7CC9','#2C5E9E'],['#2E8B6A','#1F6A50'],['#F2
 function bkHash(t){var h=0;for(var i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return Math.abs(h)}
 function bkShelfH(L){var S2=L.slice().sort(function(a,b){return String(a.d||'').localeCompare(String(b.d||''))});return '<div class="bksh"><div class="bksr">'+S2.map(function(b){var c=BKC[bkHash((b.id||'')+(b.t||''))%BKC.length],w=Math.round(Math.max(22,Math.min(40,20+(+b.p||150)/18))),h=Math.round(Math.max(84,Math.min(120,80+bkHash(b.t||'')%40)));return '<span class="bksp" title="'+esc(b.t||'')+'" style="--c1:'+c[0]+';--c2:'+c[1]+';width:'+w+'px;height:'+h+'px"><span>'+esc(b.t||'')+'</span></span>'}).join('')+'</div><div class="bksb"></div></div>'}
 (function(){var st=document.createElement('style');st.textContent='.bksh{background:linear-gradient(180deg,#8B5A2B,#6E4520);border-radius:14px;padding:10px 10px 6px;margin:4px 0 10px;box-shadow:inset 0 0 0 3px #5A3818}.bksr{display:flex;flex-wrap:wrap;align-items:flex-end;gap:2px;min-height:96px;padding:6px 6px 0;background:linear-gradient(180deg,#5E3A1A,#4A2D13);border-radius:6px 6px 0 0}.bksb{height:10px;background:linear-gradient(180deg,#C48A4E,#9A6533);border-radius:2px;box-shadow:0 3px 0 #6B421D}.bksp{display:flex;align-items:center;justify-content:center;border-radius:3px 3px 1px 1px;background:linear-gradient(90deg,var(--c2),var(--c1) 22%,var(--c1) 70%,var(--c2));box-shadow:inset 0 -9px 0 -6px rgba(255,224,138,.85)}.bksp span{writing-mode:vertical-rl;transform:rotate(180deg);color:#fff;font:900 10.5px/1 Nunito,system-ui,sans-serif;max-height:calc(100% - 14px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 0 rgba(0,0,0,.35)}';document.head.appendChild(st)})();
+
+/* Veli/öğrenci sayfası için Türkçe notları özeti */
+function trPortal(c,sid){var C=S.trn&&S.trn[c.id];if(!C)return [];var w=trW();return Object.keys(C).sort().reverse().map(function(tk){var T=C[tk],e=T&&T.d&&T.d[sid];if(!e||!Object.keys(e).length)return null;var V=trCols(T),x1=trExam(e,1),x2=trExam(e,2),r=function(v){return v==null?null:Math.round(v*100)/100};
+  return {lab:termLab(tk),w:w,e2:V.e2,pf:V.pf,d:e,s1:x1?r(x1.v):null,f1:x1?x1.full:true,s2:x2?r(x2.v):null,f2:x2?x2.full:true,avg:r(trAvg(e))}}).filter(Boolean)}
 load().then(function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500);setTimeout(avPull,4000)},function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500)});
 })();
 
