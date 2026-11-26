@@ -1323,8 +1323,8 @@ var t0=Date.now(),done=false;window.SPIntroDone=function(){if(done)return;done=t
 <button id="dice" class="dice" data-a="diceOpen" aria-label="Rastgele öğrenci seç" title="Rastgele öğrenci seç"><span>🎲</span></button>
 <div id="bd" class="board" hidden></div>
 <div id="md" class="md" hidden><div class="mb" id="mb"></div></div>
-<script src="config.js?v=20261123c"></script>
-<script src="cloud.js?v=20261123c"></script>
+<script src="config.js?v=20261126a"></script>
+<script src="cloud.js?v=20261126a"></script>
 <script>
 /* ================= SINIF PUSULASI · AVATAR ÇİZİCİ (fotoğraf kullanmaz) ================= */
 (function(){
@@ -1585,7 +1585,7 @@ function stuCard(c,st){
     return '<div class="pr"><span style="min-width:0"><b style="font-size:14px">'+T.emoji+' '+esc(l.title)+'</b><span class="mut" style="display:block">'+fd(l.date,{day:'numeric',month:'short',weekday:'short'})+(m.n?' · 📌 '+esc(m.n):'')+'</span></span><span class="pill '+s+'">'+lab+'</span></div>'}).join('');
   openM('<div class="row"><div class="row" style="gap:10px"><span class="av avc" data-a="phPick" data-sid="'+st.id+'" title="Fotoğraf ekle / değiştir" style="width:64px;height:64px;font-size:18px">'+avIn(st)+'<i class="avcam">📷</i></span><div><h3 style="margin:0">'+esc(st.name)+'</h3><div class="mut">'+esc(c.name)+(st.parent?' · Veli: '+esc(st.parent):'')+(st.phone?' · '+esc(st.phone):'')+'</div></div></div><button class="x" data-a="close" style="color:var(--mut)">×</button></div>'+
   '<div class="st"><div><b>'+(R.pct==null?'—':'%'+R.pct)+'</b><small>Tamamlama</small></div><div><b>'+books(st.id)+'</b><small>Kitap</small></div><div><b>'+(k?'⭐'+k:'0')+'</b><small>Yıldız</small></div><div><b class="'+(absCount(st.id).n>=AW()?'bad':'')+'">'+absCount(st.id).n+'</b><small>Devamsız</small></div></div>'+
-  bdgCard(st.id)+'<div style="margin-top:8px">'+starH(st.id)+'</div>'+(bookNames(st.id).length?'<div class="sec">📚 Okuduğu kitaplar</div><div class="chips">'+bookNames(st.id).map(function(b){return '<span class="tag">'+esc(b)+'</span>'}).join('')+'</div>':'')+'<div class="sec">Son kayıtlar</div><div>'+(hist||'<p class="mut">Henüz kayıt yok.</p>')+'</div>'+
+  bdgCard(st.id)+'<div style="margin-top:8px">'+starH(st.id)+'</div>'+bkSecH(st.id)+(bookNames(st.id).length?'<div class="sec">📚 Okuduğu kitaplar</div><div class="chips">'+bookNames(st.id).map(function(b){return '<span class="tag">'+esc(b)+'</span>'}).join('')+'</div>':'')+'<div class="sec">Son kayıtlar</div><div>'+(hist||'<p class="mut">Henüz kayıt yok.</p>')+'</div>'+
   '<div class="acts"><a class="btn wa" target="_blank" rel="noopener" href="'+wa(st.phone,repText(st,R,'tüm dönem'))+'">💬 Veliye dönem raporu</a><button class="btn y" data-a="cert1" data-c="'+c.id+'" data-sid="'+st.id+'">🏅 Sertifika</button><button class="btn g" data-a="close">Kapat</button></div>');
 }
 function board(c){
@@ -1745,7 +1745,7 @@ function vClass(v){
   h+='<div class="card"><div class="g2"><div><label>📚 Sınıf okuma hedefi (kitap)</label><input type="number" inputmode="numeric" min="0" data-cf="goal" value="'+esc(c.goal||'')+'" placeholder="ör. 200"></div><div><label>Şu ana kadar okunan</label><p class="big" style="padding-top:8px">'+classBooks(c)+(c.goal?' / '+c.goal:'')+'</p></div></div></div>';
   h+='<div class="card"><div class="srow h"><span>Foto</span><span>No</span><span>Öğrenci</span><span>Veli adı</span><span>Veli tel.</span><span></span></div>';
   c.students.slice().sort(byNo).forEach(function(s){
-    h+='<div class="srow"><span class="av sph" data-a="phPick" data-sid="'+s.id+'" title="Fotoğraf">'+(PH[s.id]?'<img class="avp" src="'+PH[s.id]+'" alt="">':'📷')+'</span><input data-f="no" data-sid="'+s.id+'" value="'+esc(s.no)+'" inputmode="numeric"><input data-f="name" data-sid="'+s.id+'" value="'+esc(s.name)+'"><input data-f="parent" data-sid="'+s.id+'" value="'+esc(s.parent)+'" placeholder="Veli"><input data-f="phone" data-sid="'+s.id+'" value="'+esc(s.phone)+'" placeholder="05xx…" inputmode="tel"><button class="x" data-a="delS" data-sid="'+s.id+'" aria-label="Sil">×</button></div>';
+    h+='<div class="srow"><span class="av sph" data-a="phPick" data-sid="'+s.id+'" title="Fotoğraf">'+(PH[s.id]?'<img class="avp" src="'+PH[s.id]+'" alt="">':'📷')+'</span><input data-f="no" data-sid="'+s.id+'" value="'+esc(s.no)+'" inputmode="numeric"><input data-f="name" data-sid="'+s.id+'" value="'+esc(s.name)+'"><input data-f="parent" data-sid="'+s.id+'" value="'+esc(s.parent)+'" placeholder="Veli"><input data-f="phone" data-sid="'+s.id+'" value="'+esc(s.phone)+'" placeholder="05xx…" inputmode="tel"><button class="btn s g srcard" data-a="card" data-c="'+c.id+'" data-sid="'+s.id+'" title="Öğrenci kartı ve kitaplığı" aria-label="Öğrenci kartı">👤'+(S.sbk&&S.sbk[s.id]&&S.sbk[s.id].b&&S.sbk[s.id].b.length?'<small>'+S.sbk[s.id].b.length+'</small>':'')+'</button><button class="x srdel" data-a="delS" data-sid="'+s.id+'" aria-label="Sil">×</button></div>';
   });
   h+='<div class="srow"><span class="av sph ph0">＋</span><input id="asNo" placeholder="No" inputmode="numeric"><input id="asN" placeholder="Ad Soyad"><input id="asP" placeholder="Veli"><input id="asT" placeholder="05xx…" inputmode="tel"><button class="x" style="color:var(--ok)" data-a="addS" aria-label="Ekle">+</button></div>';
   h+=''+ANDH+'<p class="mut">Değişiklikler otomatik kaydedilir. Telefonu olmayan veliler için WhatsApp kişi seçme ekranı açılır.</p></div>';
@@ -4098,7 +4098,7 @@ function ptHash(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeA
 var ptTm=null,ptBusy=false,ptAgain=false;
 function portalSoon(){if(!ptOn())return;clearTimeout(ptTm);ptTm=setTimeout(portalSync,12000)}
 async function portalSync(force){if(!ptOn())return;if(ptBusy){ptAgain=true;return}ptBusy=true;var n=0;
-  try{try{await avPull()}catch(x){}var db=await claude.use('db'),user=await claude.use('user');if(!db||!user)throw 0;var uid=await user.id();if(!uid)throw 0;var P=ptS();
+  try{try{await avPull()}catch(x){}try{await bkPull()}catch(x){}var db=await claude.use('db'),user=await claude.use('user');if(!db||!user)throw 0;var uid=await user.id();if(!uid)throw 0;var P=ptS();
     for(var sid in P){var e=P[sid];if(!e||!(e.v||e.o))continue;var d=portalData(sid);if(!d){continue}var js=JSON.stringify(d),h=ptHash(js);if(!force&&e.h===h)continue;
       for(var r of ['v','o']){if(e[r]&&e[r].id){await db.collection('portal').doc(e[r].id).set({owner:uid,role:r,d:js,at:Date.now()});n++}}e.h=h;e.at=Date.now()}
     if(n)ptSaveQuiet()}
@@ -6226,6 +6226,19 @@ document.addEventListener('click',function(e){var b=e.target.closest('[data-dtc]
   DTC.cv.toBlob(function(bl){if(!bl)return;var f=null;try{f=new File([bl],DTC.name,{type:'image/png'})}catch(x){}
     if(k==='share'&&f&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return}
     var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=DTC.name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);if(k==='share')toast('Paylaşım desteklenmiyor; kart indirildi')},'image/png')});
+
+/* ---- Öğrencinin kendi kitaplığı (öğrenci sayfasından: bkreq/{öğrenci giriş kimliği}) ---- */
+async function bkPull(only){if(!window.SPCloud||!SPCloud.portal)return 0;var P=S.portal||{},n=0;try{var db=await claude.use('db');if(!db)return 0;S.sbk=S.sbk||{};
+  for(var sid in P){if(only&&sid!==only)continue;var e=P[sid];if(!e||!e.o||!e.o.id)continue;try{var d=await db.collection('bkreq').doc(e.o.id).get();if(!d.exists)continue;var x=d.data();if(!x||!(x.at>((S.sbk[sid]||{}).at||0)))continue;var b=[];try{b=JSON.parse(x.j||'[]')}catch(er){}if(!Array.isArray(b))continue;S.sbk[sid]={at:x.at,b:b.slice(0,300)};n++}catch(er){}}
+  if(n)save()}catch(er){}return n}
+function bkSecH(sid){var E=S.sbk&&S.sbk[sid],L=E&&E.b||[],has=S.portal&&S.portal[sid]&&S.portal[sid].o;
+  if(!L.length)return '<div class="sec">📖 Kitaplığı <small class="mut">(öğrencinin kendi eklediği)</small></div><p class="mut" id="bk_'+sid+'" style="font-size:13px">'+(has?'Öğrenci henüz kitap eklemedi. Öğrenci kendi şifresiyle girip “Kitaplığım”dan ekler.':'Öğrenci girişi oluşturulunca öğrenci kendi kitaplarını ekleyebilir (Veli ve öğrenci girişi).')+'</p>';
+  var S2=L.slice().sort(function(a,b){return String(b.d||'').localeCompare(String(a.d||''))}),pg=L.reduce(function(a,b){return a+(+b.p||0)},0);
+  return '<div class="sec">📖 Kitaplığı <small class="mut">(öğrencinin kendi eklediği · '+L.length+' kitap'+(pg?' · '+pg.toLocaleString('tr-TR')+' sayfa':'')+')</small></div><div class="bkl" id="bk_'+sid+'">'+S2.map(function(b){return '<details class="bki"><summary><b>'+esc(b.t||'')+'</b><small>'+[b.a,b.p?b.p+' sayfa':'',b.d?fd(b.d,{day:'numeric',month:'short',year:'numeric'}):''].filter(Boolean).map(esc).join(' · ')+(b.r?' · <span class="bkst">'+'★★★★★'.slice(0,b.r)+'</span>':'')+'</small></summary>'+(b.o?'<p>'+esc(b.o)+'</p>':'<p class="mut">Özet yazılmamış.</p>')+'</details>'}).join('')+'</div>'}
+var _stuCard0=stuCard;stuCard=function(c,st){_stuCard0(c,st);if(!st)return;bkPull(st.id).then(function(n){if(n&&!$('md').hidden){var el=document.getElementById('bk_'+st.id);if(el){_stuCard0(c,st)}}})};
+(function(){var st=document.createElement('style');st.textContent=
+ '.srow:not(.h){grid-template-areas:"av no nm nm x" "av pa pa ph y"!important}.srow:not(.h)>.srcard{grid-area:x;padding:0;min-height:0;height:38px;width:38px;font-size:17px;position:relative}.srow:not(.h)>.srdel{grid-area:y}.srcard small{position:absolute;top:-6px;right:-6px;background:#2E8B6A;color:#fff;border-radius:99px;font-size:10.5px;font-weight:900;padding:1px 5px}'+
+ '.bkl{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}.bki{border:1.5px solid var(--bd);border-radius:12px;padding:8px 10px;background:var(--card)}.bki summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:2px}.bki summary::-webkit-details-marker{display:none}.bki summary small{color:var(--mut);font-weight:700}.bki p{margin:8px 0 2px;font-size:13.5px;white-space:pre-wrap;overflow-wrap:anywhere}.bkst{color:#E9A800;letter-spacing:1px}';document.head.appendChild(st)})();
 load().then(function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500);setTimeout(avPull,4000)},function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500)});
 })();
 
