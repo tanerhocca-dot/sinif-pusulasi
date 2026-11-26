@@ -6177,11 +6177,14 @@ async function dtCard(sid,m){await fontsReady();var s=dtStu(sid),d=dtRepData(sid
   var txt=function(t,X,Y,wt,sz,col,al){x.font=wt+' '+sz+'px '+F;x.fillStyle=col||NAVY;x.textAlign=al||'left';x.fillText(t,X,Y);x.textAlign='left'};
   var glass=function(X,Y,w,h,r,a,b,bd){rrect(x,X,Y,w,h,r);var g=x.createLinearGradient(X,Y,X+w,Y+h);g.addColorStop(0,a);g.addColorStop(1,b||'#fff');x.fillStyle=g;x.fill();x.lineWidth=3;x.strokeStyle=bd||'#D5E5F8';x.stroke()};
   x.fillStyle='#fff';x.fillRect(0,0,W,H);
+  var bbI=await ldImg('icons/birebir-192.png'),spI=await ldImg((document.querySelector('link[rel="apple-touch-icon"]')||{}).href||'icons/apple-touch-icon.png');
   var L=48,Wd=W-2*L,y=44;
   // başlık camı
   glass(L,y,Wd,190,40,'#C5E3FA','#AFD2F5','#BFD9F3');
-  rrect(x,L+40,y+34,250,46,23);x.fillStyle='#fff';x.fill();x.lineWidth=2.5;x.strokeStyle='#9CCBF2';x.stroke();txt('BİREBİR DERS',L+165,y+65,'900',22,NAVY,'center');
-  x.fillStyle=NAVY;fitFont(x,'Ders ve Ödeme Durumu',Wd-380,'900',58,36);x.fillText('Ders ve Ödeme Durumu',L+40,y+142);
+  var lx0=L+36;if(bbI){x.save();x.beginPath();x.arc(lx0+60,y+95,60,0,7);x.fillStyle='#fff';x.fill();x.clip();x.drawImage(bbI,lx0,y+35,120,120);x.restore();x.beginPath();x.arc(lx0+60,y+95,60,0,7);x.lineWidth=4;x.strokeStyle='#FFFFFF';x.stroke()}
+  var tx0=bbI?lx0+148:L+40;
+  rrect(x,tx0,y+34,250,46,23);x.fillStyle='#fff';x.fill();x.lineWidth=2.5;x.strokeStyle='#9CCBF2';x.stroke();txt('BİREBİR DERS',tx0+125,y+65,'900',22,NAVY,'center');
+  x.fillStyle=NAVY;fitFont(x,'Ders ve Ödeme Durumu',L+Wd-330-tx0,'900',56,30);x.fillText('Ders ve Ödeme Durumu',tx0,y+142);
   var bx=L+Wd-300,by=y+34;glass(bx,by,260,122,28,'#FFEFB3','#FFDC73','#9CCBF2');txt(all?'TÜM DÖNEM':dtMlabel(m).toLocaleUpperCase('tr-TR'),bx+130,by+58,'900',all?30:26,NAVY,'center');txt(new Date().toLocaleDateString('tr-TR'),bx+130,by+96,'800',22,MUT,'center');
   y+=222;
   // öğrenci + borç
@@ -6212,7 +6215,9 @@ async function dtCard(sid,m){await fontsReady();var s=dtStu(sid),d=dtRepData(sid
   if(d.C.length){glass(L,y,Wd,70,24,'#FFF8E6','#FFFFFF','#F3DC8F');txt('İptal edilen ders: '+d.C.length+' (ücretlendirilmedi)',L+36,y+45,'800',25,'#8A6A1E');y+=96}
   // alt bilgi
   var fy=H-100;rrect(x,L,fy,Wd,72,36);var g3=x.createLinearGradient(L,fy,L+Wd,fy);g3.addColorStop(0,'#F4F9FE');g3.addColorStop(1,'#fff');x.fillStyle=g3;x.fill();x.lineWidth=2.5;x.strokeStyle='#D5E5F8';x.stroke();
-  txt((S.set.teacherFull||S.set.teacher||'Öğretmen')+'  ·  Birebir ders',L+36,fy+46,'900',26,NAVY);txt('Sınıf Pusulası',L+Wd-36,fy+46,'800',22,GR,'right');
+  if(bbI){x.save();x.beginPath();x.arc(L+40,fy+36,24,0,7);x.clip();x.drawImage(bbI,L+16,fy+12,48,48);x.restore()}
+  txt((S.set.teacherFull||S.set.teacher||'Öğretmen')+'  ·  Birebir ders',L+(bbI?78:36),fy+46,'900',26,NAVY);
+  txt('Sınıf Pusulası',L+Wd-(spI?84:36),fy+46,'900',24,NAVY,'right');if(spI){x.save();rrect(x,L+Wd-70,fy+12,48,48,12);x.clip();x.drawImage(spI,L+Wd-70,fy+12,48,48);x.restore()}
   return cv}
 var DTC=null;
 async function dtCardOpen(sid,m){if(!dtStu(sid))return;openM('<h3>🖼 Kart hazırlanıyor…</h3><div class="spin"></div>');try{var cv=await dtCard(sid,m),url=cv.toDataURL('image/png'),s=dtStu(sid);DTC={cv:cv,name:fname((s?s.name:'ogrenci')+'_ders_odeme_'+(m==='all'?'tum':m))+'.png'};
