@@ -242,6 +242,13 @@ export function renderPortal(D, role, at, onOut, onRefresh, onAvatar, lib) {
   <div class="pp-hero"><div class="pp-av${av && AV ? ' pp-avi' : ''}">${av && AV ? `<img src="${AV.url(av)}" alt="">` : esc(ini)}</div><div style="flex:1;min-width:200px"><h1>${veli ? esc(D.name) : 'Merhaba ' + esc(first) + '! 👋'}</h1><p>${esc(D.cls)}${D.no ? ' · No ' + esc(D.no) : ''} · ${esc(D.school)}</p><p>${esc(D.teacher)} · ${esc(D.term || '')}</p>${!veli && AV && onAvatar ? '<button class="pp-ave" data-pp="av">🎨 Avatarımı düzenle</button>' : ''}<span class="pp-chip">Son güncelleme: ${at ? new Date(at).toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : '—'}</span></div></div>
   <div class="pp-kp"><div class="pp-k"><b>${nb}</b><small>🏅 Rozet</small></div><div class="pp-k"><b class="${(lg.net || 0) >= 0 ? 'pp-pos' : 'pp-neg'}">${(lg.net || 0) > 0 ? '+' : ''}${lg.net || 0}</b><small>🏆 Lig puanı${lg.r ? ' · ' + lg.r + '/' + lg.n : ''}</small></div><div class="pp-k"><b>${hwN ? '%' + pct(hwY, hwN) : '—'}</b><small>📝 Ödev tamamlama</small></div><div class="pp-k"><b>${lastEx ? fmt(lastEx.t) : '—'}</b><small>📊 Son deneme neti</small></div></div>`;
 
+  // Türkçe notları
+  if ((D.trn || []).length) h += `<div class="pp-card"><h2>📝 Türkçe notları</h2>` + D.trn.map(T => {
+    const e = T.d || {}, cell = (k, lab, cls) => `<div class="pp-tn${cls ? ' ' + cls : ''}"><small>${lab}</small><b class="${gcl(e[k])}">${e[k] ?? '—'}</b></div>`;
+    const ex = n => { const s = T['s' + n], f = T['f' + n]; return `<div class="pp-te"><div class="pp-teh">${n}. Sınav</div><div class="pp-tg">${cell('y' + n, 'Yazılı')}${cell('d' + n, 'Dinleme')}${cell('k' + n, 'Konuşma')}<div class="pp-tn pp-tns"><small>Sınav puanı</small><b class="${gcl(s)}">${s == null ? '—' : fmt(s) + (f ? '' : '*')}</b></div></div></div>`; };
+    return `<div class="pp-mut" style="margin:4px 0 8px;font-weight:900">${esc(T.lab)}</div>${ex(1)}${T.e2 ? ex(2) : ''}${T.pf ? `<div class="pp-te"><div class="pp-teh pp-tep">Performans</div><div class="pp-tg pp-tg2">${cell('p1', '1. Performans')}${cell('p2', '2. Performans')}</div></div>` : ''}<div class="pp-tav"><span>Türkçe ortalaması</span><b class="${gcl(T.avg)}">${fmt(T.avg)}</b></div><p class="pp-mut" style="margin:6px 0 4px;font-size:12px">Sınav puanı: Yazılı %${T.w[0]} · Dinleme %${T.w[1]} · Konuşma %${T.w[2]}${(T.f1 && T.f2) ? '' : ' · * eksik notla hesaplandı'}. Ortalama: sınav puanları ve performans notlarının ortalaması.</p>`;
+  }).join('') + `</div>`;
+
   // Kitaplığım (yalnız öğrenci)
   if (!veli && lib) h += `<div class="pp-card" id="ppLib"><h2>📚 Kitaplığım</h2><p class="pp-empty">Yükleniyor…</p></div>`;
   // Rozetler
@@ -262,13 +269,6 @@ export function renderPortal(D, role, at, onOut, onRefresh, onAvatar, lib) {
   }).join('') : '<p class="pp-empty">Henüz kontrol kaydı yok.</p>') +
     `<div class="pp-row"><span style="font-size:22px">📚</span><span class="pp-rt"><b>Okunan kitap: ${D.books || 0}</b>${(D.bookNames || []).length ? `<div class="pp-books">${D.bookNames.map(b => `<span>${esc(b)}</span>`).join('')}</div>` : ''}</span></div>` +
     (D.abs && (D.abs.n || D.abs.e) ? `<div class="pp-row"><span style="font-size:22px">🗓</span><span class="pp-rt"><b>Devamsızlık</b><small>Gelmedi ${D.abs.n} gün · İzinli ${D.abs.e} gün</small></span></div>` : '') + `</div>`;
-
-  // Türkçe notları
-  if ((D.trn || []).length) h += `<div class="pp-card"><h2>📝 Türkçe notları</h2>` + D.trn.map(T => {
-    const e = T.d || {}, cell = (k, lab, cls) => `<div class="pp-tn${cls ? ' ' + cls : ''}"><small>${lab}</small><b class="${gcl(e[k])}">${e[k] ?? '—'}</b></div>`;
-    const ex = n => { const s = T['s' + n], f = T['f' + n]; return `<div class="pp-te"><div class="pp-teh">${n}. Sınav</div><div class="pp-tg">${cell('y' + n, 'Yazılı')}${cell('d' + n, 'Dinleme')}${cell('k' + n, 'Konuşma')}<div class="pp-tn pp-tns"><small>Sınav puanı</small><b class="${gcl(s)}">${s == null ? '—' : fmt(s) + (f ? '' : '*')}</b></div></div></div>`; };
-    return `<div class="pp-mut" style="margin:4px 0 8px;font-weight:900">${esc(T.lab)}</div>${ex(1)}${T.e2 ? ex(2) : ''}${T.pf ? `<div class="pp-te"><div class="pp-teh pp-tep">Performans</div><div class="pp-tg pp-tg2">${cell('p1', '1. Performans')}${cell('p2', '2. Performans')}</div></div>` : ''}<div class="pp-tav"><span>Türkçe ortalaması</span><b class="${gcl(T.avg)}">${fmt(T.avg)}</b></div><p class="pp-mut" style="margin:6px 0 4px;font-size:12px">Sınav puanı: Yazılı %${T.w[0]} · Dinleme %${T.w[1]} · Konuşma %${T.w[2]}${(T.f1 && T.f2) ? '' : ' · * eksik notla hesaplandı'}. Ortalama: sınav puanları ve performans notlarının ortalaması.</p>`;
-  }).join('') + `</div>`;
 
   // Notlar
   h += `<div class="pp-card"><h2>📑 Notlar</h2>` + ((D.grades || []).length ? D.grades.slice().reverse().map(T => {
