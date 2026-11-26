@@ -1685,7 +1685,7 @@ function renderView0(){
   var v=$('view');v.className='';v.style.height='';
   if(UI.tab==='lists'){if(UI.list&&lst(UI.list))return vList(v);UI.list=null;if(UI.trk&&trkById(UI.trk))return vTrk(v);UI.trk=null;return vLists(v)}
   if(UI.tab==='classes'){if(!S.classes.length)return vClasses(v);return vHub(v)}
-  if(UI.tab==='home'){vHome(v);try{homeSimp(v)}catch(e){console.warn(e)}return}
+  if(UI.tab==='home')return vHome(v);
   if(UI.tab==='guide')return vGuide(v);
   if(UI.tab==='bb')return vBB(v);
   if(UI.tab==='report'){if(!S.classes.length)return vReport(v);hubSync();vReport(v);return hubWrap(v,'rep')}
