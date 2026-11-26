@@ -1323,8 +1323,8 @@ var t0=Date.now(),done=false;window.SPIntroDone=function(){if(done)return;done=t
 <button id="dice" class="dice" data-a="diceOpen" aria-label="Rastgele öğrenci seç" title="Rastgele öğrenci seç"><span>🎲</span></button>
 <div id="bd" class="board" hidden></div>
 <div id="md" class="md" hidden><div class="mb" id="mb"></div></div>
-<script src="config.js?v=20261127a"></script>
-<script src="cloud.js?v=20261127a"></script>
+<script src="config.js?v=20261127b"></script>
+<script src="cloud.js?v=20261127b"></script>
 <script>
 /* ================= SINIF PUSULASI · AVATAR ÇİZİCİ (fotoğraf kullanmaz) ================= */
 (function(){
@@ -6248,6 +6248,9 @@ function bkShelfH(L){var S2=L.slice().sort(function(a,b){return String(a.d||'').
 /* Veli/öğrenci sayfası için Türkçe notları özeti */
 function trPortal(c,sid){var C=S.trn&&S.trn[c.id];if(!C)return [];var w=trW();return Object.keys(C).sort().reverse().map(function(tk){var T=C[tk],e=T&&T.d&&T.d[sid];if(!e||!Object.keys(e).length)return null;var V=trCols(T),x1=trExam(e,1),x2=trExam(e,2),r=function(v){return v==null?null:Math.round(v*100)/100};
   return {lab:termLab(tk),w:w,e2:V.e2,pf:V.pf,d:e,s1:x1?r(x1.v):null,f1:x1?x1.full:true,s2:x2?r(x2.v):null,f2:x2?x2.full:true,avg:r(trAvg(e))}}).filter(Boolean)}
+
+/* Açılışta veli/öğrenci sayfalarını bir kez güncelle (yeni alanlar, ör. Türkçe notları, bekletmeden yansısın) */
+setTimeout(function(){try{if(ptOn())portalSync()}catch(e){}},9000);
 load().then(function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500);setTimeout(avPull,4000)},function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500)});
 })();
 
