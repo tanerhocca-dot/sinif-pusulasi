@@ -5540,7 +5540,7 @@ function dtReport(){var D=dtS();
    +'<label style="display:block;margin-top:6px">Dönem</label><div class="row" style="margin:4px 0 8px"><button class="btn s g" data-dt="rpp">‹</button><b>'+(rpMo==='all'?'Tüm dönem':dtMlabel(rpMo))+'</b><button class="btn s g" data-dt="rpn">›</button></div>'
    +'<div class="chips">'+chip('rpm','Bu ay',rpMo===cur)+chip('rpl','Geçen ay',rpMo===prev)+chip('rpa','Tümü',rpMo==='all')+'</div>'
    +'<div class="rsum"><div><small>Ders</small><b>'+d.D.length+'</b></div><div><small>Ders ücreti</small><b>'+dtTL(d.fee)+'</b></div><div><small>Alınan ödeme</small><b>'+dtTL(d.pay)+'</b></div></div>'
-   +'<div class="acts"><button class="btn" data-dt="rpsend" style="flex:1">Veliye gönder</button><button class="btn g" data-dt="rpcopy">Kopyala</button></div></div>';
+   +'<div class="acts"><button class="btn y" data-dt="rppng" style="flex:1">🖼 Kart (PNG)</button><button class="btn" data-dt="rpsend">Metin gönder</button><button class="btn g" data-dt="rpcopy">Kopyala</button></div></div>';
   h+='<div class="card pl"><b class="ft">'+esc(dtStu(sid).name)+' · '+(rpMo==='all'?'Tüm dönem':dtMlabel(rpMo))+'</b>';
   if(!d.D.length)h+='<div class="empty">Bu dönemde yapılan ders yok.</div>';
   d.D.forEach(function(l){h+='<div class="pr"><div><b>'+dtDlabel(l.date)+'</b><div class="mut">'+(l.time||'Saat girilmedi')+'</div></div><b>'+dtTL(l.fee)+'</b></div>'});
@@ -5574,7 +5574,7 @@ document.addEventListener('click',function(e){var t=e.target.closest('[data-dt],
   var l=D.lessons.find(function(x){return x.id===id}),um='',un=null;
   if(a==='rpm'||a==='rpl'||a==='rpa'){var c0=dtToday().slice(0,7),pp=new Date(+c0.slice(0,4),+c0.slice(5)-2,1);DT.rpMo=a==='rpm'?c0:a==='rpa'?'all':pp.getFullYear()+'-'+String(pp.getMonth()+1).padStart(2,'0');dtRender();return}
   if(a==='rpp'||a==='rpn'){var b0=DT.rpMo==='all'?dtToday().slice(0,7):DT.rpMo,q2=new Date(+b0.slice(0,4),+b0.slice(5)-1+(a==='rpn'?1:-1),1);DT.rpMo=q2.getFullYear()+'-'+String(q2.getMonth()+1).padStart(2,'0');dtRender();return}
-  if(a==='rpsend'){dtSend(dtRepText(DT.rpStu,DT.rpMo),'Rapor kopyalandı, veliye yapıştırabilirsiniz.');return}
+  if(a==='rppng'){dtCardOpen(DT.rpStu,DT.rpMo);return}if(a==='rpsend'){dtSend(dtRepText(DT.rpStu,DT.rpMo),'Rapor kopyalandı, veliye yapıştırabilirsiniz.');return}
   if(a==='rpcopy'){dtCopy(dtRepText(DT.rpStu,DT.rpMo),'Rapor kopyalandı');return}
   if(a==='wkp'){DT.wk--;dtRender();return}
   if(a==='wkn'){DT.wk++;dtRender();return}
@@ -6165,6 +6165,62 @@ function setSimp(v){UI.sgo=UI.sgo||{};var cols=v.querySelectorAll('.scol');if(!c
   cols.forEach(function(col){var kids=[].slice.call(col.children),cur=null;kids.forEach(function(e){if(e.classList.contains('sgh')){var raw=e.textContent.replace(/^[^A-Za-zÇĞİÖŞÜçğıöşü]+/,'').trim(),nm=SGN[raw]||raw;cur=document.createElement('details');cur.className='sgd';cur.open=!!UI.sgo[nm];var su=document.createElement('summary');su.textContent=nm;cur.appendChild(su);col.insertBefore(cur,e);e.remove();cur.addEventListener('toggle',(function(n,d){return function(){UI.sgo[n]=d.open}})(nm,cur));return}if(cur)cur.appendChild(e)})});
   try{infoize(v)}catch(e){}}
 (function(){var st=document.createElement('style');st.textContent='.sgd{margin:0 0 10px}.sgd>summary{list-style:none;cursor:pointer;font-weight:900;font-size:15px;color:var(--tx);background:var(--card);border:1.5px solid var(--bd);border-radius:16px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}.sgd>summary::-webkit-details-marker{display:none}.sgd>summary::after{content:"›";font-size:22px;line-height:1;color:var(--mut);transition:transform .2s}.sgd[open]>summary::after{transform:rotate(90deg)}.sgd[open]>summary{margin-bottom:8px}';document.head.appendChild(st)})();
+
+/* ---- Birebir muhasebe: veliye PNG kart ---- */
+async function dtCard(sid,m){await fontsReady();var s=dtStu(sid),d=dtRepData(sid,m),D=dtS(),st=dtLstat(sid),F='Nunito,system-ui,sans-serif';
+  var all=m==='all',inP=function(x){return all||x.slice(0,7)===m};
+  var P=D.payments.filter(function(x){return x.sid===sid&&inP(x.date)}).sort(function(a,b){return a.date<b.date?-1:1});
+  var MAXL=14,MAXP=8,Ls=d.D.slice(-MAXL),Ps=P.slice(-MAXP);
+  var W=1080,rowH=62,H=916+Math.max(1,Ls.length)*rowH+(d.D.length>MAXL?44:0)+(P.length?114+Ps.length*rowH+(P.length>MAXP?44:0):0)+(d.C.length?96:0);
+  var cv=document.createElement('canvas');cv.width=W;cv.height=H;var x=cv.getContext('2d');
+  var NAVY='#25406B',MUT='#4F6A95',GR='#62789B';
+  var txt=function(t,X,Y,wt,sz,col,al){x.font=wt+' '+sz+'px '+F;x.fillStyle=col||NAVY;x.textAlign=al||'left';x.fillText(t,X,Y);x.textAlign='left'};
+  var glass=function(X,Y,w,h,r,a,b,bd){rrect(x,X,Y,w,h,r);var g=x.createLinearGradient(X,Y,X+w,Y+h);g.addColorStop(0,a);g.addColorStop(1,b||'#fff');x.fillStyle=g;x.fill();x.lineWidth=3;x.strokeStyle=bd||'#D5E5F8';x.stroke()};
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);
+  var L=48,Wd=W-2*L,y=44;
+  // başlık camı
+  glass(L,y,Wd,190,40,'#C5E3FA','#AFD2F5','#BFD9F3');
+  rrect(x,L+40,y+34,250,46,23);x.fillStyle='#fff';x.fill();x.lineWidth=2.5;x.strokeStyle='#9CCBF2';x.stroke();txt('BİREBİR DERS',L+165,y+65,'900',22,NAVY,'center');
+  x.fillStyle=NAVY;fitFont(x,'Ders ve Ödeme Durumu',Wd-380,'900',58,36);x.fillText('Ders ve Ödeme Durumu',L+40,y+142);
+  var bx=L+Wd-300,by=y+34;glass(bx,by,260,122,28,'#FFEFB3','#FFDC73','#9CCBF2');txt(all?'TÜM DÖNEM':dtMlabel(m).toLocaleUpperCase('tr-TR'),bx+130,by+58,'900',all?30:26,NAVY,'center');txt(new Date().toLocaleDateString('tr-TR'),bx+130,by+96,'800',22,MUT,'center');
+  y+=222;
+  // öğrenci + borç
+  glass(L,y,Wd,210,36,'#FFFFFF','#FFFFFF');txt('Öğrenci',L+40,y+58,'800',24,GR);x.fillStyle=NAVY;fitFont(x,s?s.name:'',Wd*0.5,'900',52,30);x.fillText(s?s.name:'',L+40,y+118);
+  if(s&&s.rate)txt('Ders ücreti: '+dtTL(s.rate),L+40,y+168,'800',26,MUT);
+  var bal=d.bal,bk=bal>0.005?['GÜNCEL BORÇ',dtTL(bal),'#C4503F','#F9DED9']:bal<-0.005?['AVANS (ÖDENMİŞ FAZLA)',dtTL(-bal),'#2E8B6A','#DDF3E9']:['BORÇ YOK','✓ Ödemeler tamam','#2E8B6A','#DDF3E9'];
+  var kx=L+Wd-420,ky=y+26,kw=390,kh=158;glass(kx,ky,kw,kh,30,bk[3],'#FFFFFF',bk[2]);txt(bk[0],kx+kw/2,ky+46,'900',22,bk[2],'center');x.fillStyle=bk[2];fitFont(x,bk[1],kw-40,'900',58,30);x.textAlign='center';x.fillText(bk[1],kx+kw/2,ky+118);x.textAlign='left';
+  y+=242;
+  // özet kutuları
+  var bxs=[['Yapılan ders',String(d.D.length),'#3D7CC9','#DCEBFB'],['Ders ücreti',dtTL(d.fee),'#B9741F','#FCEBCF'],['Alınan ödeme',dtTL(d.pay),'#2E8B6A','#DDF3E9']],gw=(Wd-2*24)/3;
+  bxs.forEach(function(q,i){var X=L+i*(gw+24);glass(X,y,gw,140,28,q[3],'#FFFFFF');txt(q[0].toLocaleUpperCase('tr-TR'),X+gw/2,y+44,'900',20,q[2],'center');x.fillStyle=NAVY;fitFont(x,q[1],gw-30,'900',46,26);x.textAlign='center';x.fillText(q[1],X+gw/2,y+108);x.textAlign='left'});
+  y+=172;
+  // dersler listesi
+  var lh=86+Math.max(1,Ls.length)*rowH+(d.D.length>MAXL?44:0);glass(L,y,Wd,lh,32,'#F2F7FE','#FFFFFF');
+  txt('Yapılan dersler'+(all?'':' · '+dtMlabel(m)),L+36,y+56,'900',32,'#3D7CC9');
+  var ly=y+86;if(!Ls.length)txt('Bu dönemde yapılan ders yok.',L+36,ly+40,'700',26,GR);
+  if(d.D.length>MAXL){txt('… önceki '+(d.D.length-MAXL)+' ders',L+36,ly+30,'700',22,GR);ly+=44}
+  Ls.forEach(function(l,i){var Y=ly+i*rowH;if(i){x.strokeStyle='#DCE7F5';x.lineWidth=1.5;x.beginPath();x.moveTo(L+30,Y);x.lineTo(L+Wd-30,Y);x.stroke()}
+    var lab=new Date(l.date+'T12:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'short'});txt(lab,L+36,Y+40,'800',26,NAVY);if(l.time)txt(l.time,L+390,Y+40,'700',24,GR);
+    var ps=st[l.id],pc=ps==='paid'?['Ödendi','#2E8B6A','#DDF3E9']:ps==='part'?['Kısmen','#B9741F','#FCEBCF']:['Ödenmedi','#C4503F','#F9DED9'];
+    rrect(x,L+Wd-370,Y+12,140,38,19);x.fillStyle=pc[2];x.fill();txt(pc[0],L+Wd-300,Y+39,'900',20,pc[1],'center');txt(dtTL(l.fee),L+Wd-36,Y+40,'900',28,NAVY,'right')});
+  y+=lh+28;
+  // ödemeler
+  if(P.length){var ph=86+Ps.length*rowH+(P.length>MAXP?44:0);glass(L,y,Wd,ph,32,'#EAF7F0','#FFFFFF');txt('Alınan ödemeler',L+36,y+56,'900',32,'#2E8B6A');var py=y+86;
+    if(P.length>MAXP){txt('… önceki '+(P.length-MAXP)+' ödeme',L+36,py+30,'700',22,GR);py+=44}
+    Ps.forEach(function(q,i){var Y=py+i*rowH;if(i){x.strokeStyle='#D7EEE2';x.lineWidth=1.5;x.beginPath();x.moveTo(L+30,Y);x.lineTo(L+Wd-30,Y);x.stroke()}txt(new Date(q.date+'T12:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'short'}),L+36,Y+40,'800',26,NAVY);txt('+ '+dtTL(q.amount),L+Wd-36,Y+40,'900',28,'#2E8B6A','right')});
+    y+=ph+28}
+  if(d.C.length){glass(L,y,Wd,70,24,'#FFF8E6','#FFFFFF','#F3DC8F');txt('İptal edilen ders: '+d.C.length+' (ücretlendirilmedi)',L+36,y+45,'800',25,'#8A6A1E');y+=96}
+  // alt bilgi
+  var fy=H-100;rrect(x,L,fy,Wd,72,36);var g3=x.createLinearGradient(L,fy,L+Wd,fy);g3.addColorStop(0,'#F4F9FE');g3.addColorStop(1,'#fff');x.fillStyle=g3;x.fill();x.lineWidth=2.5;x.strokeStyle='#D5E5F8';x.stroke();
+  txt((S.set.teacherFull||S.set.teacher||'Öğretmen')+'  ·  Birebir ders',L+36,fy+46,'900',26,NAVY);txt('Sınıf Pusulası',L+Wd-36,fy+46,'800',22,GR,'right');
+  return cv}
+var DTC=null;
+async function dtCardOpen(sid,m){if(!dtStu(sid))return;openM('<h3>🖼 Kart hazırlanıyor…</h3><div class="spin"></div>');try{var cv=await dtCard(sid,m),url=cv.toDataURL('image/png'),s=dtStu(sid);DTC={cv:cv,name:fname((s?s.name:'ogrenci')+'_ders_odeme_'+(m==='all'?'tum':m))+'.png'};
+  openM('<h3>🖼 Veliye gönderilecek kart</h3><div style="max-height:62vh;overflow:auto;border:1.5px solid var(--bd);border-radius:16px;background:#fff"><img src="'+url+'" alt="Kart önizleme" style="width:100%;display:block"></div><div class="acts"><button class="btn y" data-dtc="share" style="flex:1">📤 Paylaş</button><button class="btn g" data-dtc="dl">⬇︎ İndir</button><button class="btn g" data-a="close">Kapat</button></div><p class="mut">Paylaş ile WhatsApp’tan veliye doğrudan gönderebilirsiniz.</p>')}catch(e){closeM();toast('Kart oluşturulamadı')}}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-dtc]');if(!b||!DTC)return;var k=b.dataset.dtc;
+  DTC.cv.toBlob(function(bl){if(!bl)return;var f=null;try{f=new File([bl],DTC.name,{type:'image/png'})}catch(x){}
+    if(k==='share'&&f&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return}
+    var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=DTC.name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);if(k==='share')toast('Paylaşım desteklenmiyor; kart indirildi')},'image/png')});
 load().then(function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500);setTimeout(avPull,4000)},function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500)});
 })();
 
