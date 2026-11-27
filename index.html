@@ -2724,8 +2724,9 @@ function vHome(v){
     (abs?'<div class="row hr" data-a="tab" data-t="report"><span class="el">🚨 Devamsızlık</span><span class="pill n">'+abs+'</span></div>':'')+
     (lastEx?'<div class="row hr" data-a="xOpen" data-id="'+lastEx.id+'"><span class="el">📝 '+esc(lastEx.name)+'</span><span class="pill p">'+fmt(avgTot(lastEx))+'</span></div>':'')+
     (nop?'<div class="row hr" data-a="tab" data-t="classes"><span class="el">📵 Telefonu eksik</span><span class="pill e">'+nop+'</span></div>':'')+bdHomeRow()+nbHomeRow()+(function(){var u=upcoming()[0];return u?'<div class="row hr hupc"><span class="el">⏳ '+esc(u.t)+'</span><span class="pill p">'+(u.n===0?'Bugün':u.n+' gün')+'</span></div>':''})()+'</div></div>';
+  h+=hbbCard();
   h+='<div class="card hc hcd"><span class="ft">⏳ Yaklaşan</span><div class="cd">'+upcoming().map(function(u){return '<div class="cdi"><span class="cde">'+u.e+'</span><span><b>'+(u.n===0?'Bugün':u.n+' gün')+'</b><small>'+esc(u.t)+'</small></span></div>'}).join('')+'</div></div>';
-  v.className='home';v.innerHTML=h;requestAnimationFrame(function(){fitHome();requestAnimationFrame(clipRows)});
+  v.className='home'+(h.indexOf('class="card hc hbb')>=0?' hasbb':'');v.innerHTML=h;hbbRun();requestAnimationFrame(function(){fitHome();requestAnimationFrame(clipRows)});
   clearInterval(BTM);if(HB.length>1)BTM=setInterval(function(){var el=$('bshow');if(!el||UI.tab!=='home'){clearInterval(BTM);return}UI.bi=((UI.bi||0)+1)%HB.length;el.classList.remove('bfade');void el.offsetWidth;el.innerHTML=bshowH(HB[UI.bi]);el.classList.add('bfade')},4200);
 }
 function clipRows(){document.querySelectorAll('#view.home .hl').forEach(function(hl){var rows=hl.querySelectorAll('.hr');rows.forEach(function(r){r.style.display=''});var bot=hl.getBoundingClientRect().bottom+1;rows.forEach(function(r){if(r.getBoundingClientRect().bottom>bot)r.style.display='none'})})}window.SPclip=clipRows;
@@ -6727,6 +6728,45 @@ addEventListener('resize',function(){clearTimeout(bbFit.t);bbFit.t=setTimeout(bb
  'html body:not(.ishome):not(.tbon) #cmp,html body:not(.ishome):not(.tbon) #fmenu{display:none!important}'+
  'html body.tbon #cmp{display:block!important;z-index:9600!important}html body.tbon #fmenu{display:block!important;z-index:9599!important}'+
  'html body #supFab{display:none!important}';document.head.appendChild(c)})();
+
+/* ---- Ana sayfa: Birebir kartı (lig lideri ve rozet kazananlar sırayla) ---- */
+var HBB=[],HBBT=null;
+function hbbItems(){var B;try{B=bbS()}catch(e){return []}if(!B||!B.st||!B.st.length)return [];var td=bbTd(),o=[];
+  try{var R=bbLegRank(bbMon(td),td);if(R[0]&&R[0].pts>0){var ti=bbLegTier((bbLegRank(bbLegPer('s').f,td).find(function(x){return x.sid===R[0].sid})||{}).pts||0);o.push({sid:R[0].sid,nm:R[0].st.name,tag:'🏆 Lig lideri · bu hafta',big:R[0].pts.toLocaleString('tr-TR')+' puan',sub:(R[1]?'2. '+esc(R[1].st.name.split(' ')[0])+' · '+R[1].pts.toLocaleString('tr-TR'):''),col:'#E9C454',meds:'<b>👑</b>'})}}catch(e){}
+  try{var P=bbLegRank(bbLegPer('pw').f,bbLegPer('pw').t);if(P[0]&&P[0].pts>0&&(!o[0]||o[0].sid!==P[0].sid))o.push({sid:P[0].sid,nm:P[0].st.name,tag:'🥇 Geçen haftanın şampiyonu',big:P[0].pts.toLocaleString('tr-TR')+' puan',sub:'',col:'#E9C454',meds:'<b>🏆</b>'})}catch(e){}
+  try{var pre=bbLegPre(),L=[];Object.keys(pre).forEach(function(sid){var p=pre[sid];if(!p||!p.st)return;var BD=bbLegBadges(p).filter(function(x){return x.lv>=0}).sort(function(a,b){return b.lv-a.lv});if(BD.length)L.push({p:p,BD:BD,sc:BD.reduce(function(a,x){return a+x.lv+1},0)})});
+    L.sort(function(a,b){return b.sc-a.sc});L.slice(0,8).forEach(function(x){var top=x.BD[0];o.push({sid:x.p.st.id,nm:x.p.st.name,tag:'🎖 Rozet sahibi',big:BBLEG_TN[top.lv]+' '+top.b[2],sub:x.BD.length+' rozet · '+x.sc+' seviye',col:BBLEG_TC[top.lv],meds:x.BD.slice(0,4).map(function(b){return '<b style="--mc:'+BBLEG_TC[b.lv]+'" title="'+esc(BBLEG_TN[b.lv]+' '+b.b[2])+'">'+b.b[1]+'</b>'}).join('')})})}catch(e){}
+  return o}
+function hbbSlide(x){return '<div class="hbbs"><span class="hbbav" style="--c:'+x.col+'">'+esc(ini(x.nm))+'<i class="hbbmd">'+x.meds+'</i></span><span class="hbbt"><small>'+x.tag+'</small><b>'+esc(x.nm)+'</b><em style="color:'+x.col+'">'+esc(x.big)+'</em>'+(x.sub?'<small class="hbbsub">'+x.sub+'</small>':'')+'</span></div>'}
+function hbbCard(){HBB=hbbItems();if(!HBB.length)return '';return '<div class="card hc hbb" data-a="hbbGo" role="button" tabindex="0"><div class="row"><span class="ft"><img class="hbbl" src="icons/birebir-128.png" alt="">Birebir</span><span class="hbbdots">'+HBB.map(function(_,i){return '<i'+(i===0?' class="on"':'')+'></i>'}).join('')+'</span></div><div class="hbbw" id="hbbw">'+hbbSlide(HBB[0])+'</div></div>'}
+function hbbRun(){clearInterval(HBBT);UI.hbi=0;if(HBB.length<2)return;HBBT=setInterval(function(){var el=$('hbbw');if(!el||UI.tab!=='home'){clearInterval(HBBT);return}UI.hbi=(UI.hbi+1)%HBB.length;el.classList.remove('hbbin');void el.offsetWidth;el.innerHTML=hbbSlide(HBB[UI.hbi]);el.classList.add('hbbin');var d=el.parentNode.querySelectorAll('.hbbdots i');d.forEach(function(x,i){x.classList.toggle('on',i===UI.hbi)})},3800)}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-a="hbbGo"]');if(!b)return;e.preventDefault();e.stopPropagation();try{BBU.tab='lig';BBU.sid=null}catch(x){}goTab('bb')},true);
+(function(){var c=document.createElement('style');c.textContent=
+ /* renkli kartlar */
+ 'html body #view.home .card.hc{position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}html body #view.home .card.hc:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(37,64,107,.14)}'+
+ 'html body #view.home .card.hc::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--acc,transparent);opacity:.9}'+
+ 'html body #view.home .card.hc .ft{color:var(--acx,inherit)}'+
+ 'html body #view.home .hk{--acc:linear-gradient(90deg,#34C38F,#2E8B6A);--acx:#1F6B4A;background:linear-gradient(160deg,#E4F8EE,#FFFFFF 70%)!important;border-color:#BFE6D2!important}'+
+ 'html body #view.home .hr2{--acc:linear-gradient(90deg,#A27BF0,#7B5CC9);--acx:#5B3A9E;background:linear-gradient(160deg,#F1EAFE,#FFFFFF 72%)!important;border-color:#DCCFF6!important}'+
+ 'html body #view.home .hf{--acc:linear-gradient(90deg,#5AA9F0,#3D7CC9);--acx:#2A5E9E;background:linear-gradient(160deg,#E2F0FD,#FFFFFF 70%)!important;border-color:#C6DDF5!important}'+
+ 'html body #view.home .hrise{--acc:linear-gradient(90deg,#FFA65C,#E07A2E);--acx:#A4511A;background:linear-gradient(160deg,#FFEEDF,#FFFFFF 72%)!important;border-color:#F6D3B5!important}'+
+ 'html body #view.home .hal{--acc:linear-gradient(90deg,#F27C8F,#D2485D);--acx:#A42F43;background:linear-gradient(160deg,#FDE7EB,#FFFFFF 72%)!important;border-color:#F4C9D1!important}'+
+ 'html body #view.home .hcd{--acc:linear-gradient(90deg,#3CC6BF,#1F8E8A);--acx:#156B67;background:linear-gradient(160deg,#DFF6F4,#FFFFFF 72%)!important;border-color:#BCE5E1!important}'+
+ 'html body #view.home .hq{--acc:linear-gradient(90deg,#FFD24D,#F0A81E)}html body #view.home .cal{--acc:none}'+
+ /* birebir kartı: siyah-altın */
+ 'html body #view.home .hbb{grid-area:hbb;cursor:pointer;background:radial-gradient(120% 90% at 85% 0%,#4A3A10 0%,#1B1B1E 55%,#121214 100%)!important;border:1.5px solid #6B5718!important;color:#F7E7B0;--acc:linear-gradient(90deg,#F7D774,#C9A227,#F7D774)}'+
+ 'html body #view.home .hbb::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,230,150,.16) 45%,transparent 60%);transform:translateX(-100%);animation:hbbSh 5s ease-in-out infinite;pointer-events:none}@keyframes hbbSh{0%,60%{transform:translateX(-100%)}85%,100%{transform:translateX(100%)}}'+
+ 'html body #view.home .hbb .ft{display:flex;align-items:center;gap:7px;color:#F7D774!important;font-weight:900}.hbbl{width:22px;height:22px;border-radius:50%;box-shadow:0 0 0 1.5px #C9A227}'+
+ '.hbbdots{display:flex;gap:4px}.hbbdots i{width:6px;height:6px;border-radius:3px;background:rgba(247,215,116,.3);transition:width .3s,background .3s}.hbbdots i.on{width:16px;background:#F7D774}'+
+ '.hbbw{flex:1;display:flex;align-items:center;min-height:0}.hbbw.hbbin .hbbs{animation:hbbIn .5s cubic-bezier(.2,1.2,.4,1)}@keyframes hbbIn{from{opacity:0;transform:translateY(10px) scale(.97)}}'+
+ '.hbbs{display:flex;align-items:center;gap:14px;width:100%;min-width:0}.hbbav{position:relative;flex:0 0 auto;width:clamp(58px,6.2vw,84px);height:clamp(58px,6.2vw,84px);border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:clamp(20px,2vw,28px);color:#1B1B1E;background:radial-gradient(circle at 35% 30%,#FFF3C4,var(--c));box-shadow:0 0 0 3px rgba(247,215,116,.35),0 0 24px rgba(247,215,116,.25)}'+
+ '.hbbmd{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);display:flex;gap:2px;font-style:normal}.hbbmd b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#1B1B1E;border:1.5px solid var(--mc,#C9A227);font-size:12px}'+
+ '.hbbmd b i.ico,.hbbt i.ico{color:#F7D774!important;width:13px;height:13px;margin:0}.hbbt{min-width:0;display:flex;flex-direction:column;gap:1px}.hbbt small{font-size:11.5px;font-weight:800;color:#C9B26A;letter-spacing:.02em}.hbbt b{font-size:clamp(16px,1.5vw,21px);font-weight:900;color:#FFF6D6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hbbt em{font-style:normal;font-weight:900;font-size:clamp(13px,1.1vw,15px)}.hbbt .hbbsub{color:#A99A6A;font-weight:700}'+
+ 'html body #view.home .hbb{display:flex;flex-direction:column}'+
+ /* yerleşim */
+ '@media(min-width:900px){html body #view.home.hasbb{grid-template-areas:"cal hq hq hk" "hr2 hf hbb hk" "hr2 hrise hal hcd"!important}}'+
+ '@media(min-width:600px) and (max-width:899px){html body #view.home.hasbb{grid-template-areas:"cal hr2" "hq hq" "hk hbb" "hrise hal" "hcd hcd"!important;grid-template-rows:auto auto minmax(150px,auto) minmax(0,1fr) auto!important}html body #view.home.hasbb .hf{display:none!important}}'+
+ '@media(max-width:599px){html body #view.home.hasbb{grid-template-areas:"cal hr2" "hq hq" "hk hk" "hbb hal"!important}html body #view.home.hasbb .hrise,html body #view.home.hasbb .hcd{display:none!important}.hbbs{flex-direction:column;gap:8px;text-align:center}.hbbt{align-items:center}.hbbt b{font-size:15px}.hbbt .hbbsub{display:none}}';document.head.appendChild(c)})();
 load().then(function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500);setTimeout(avPull,4000)},function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500)});
 })();
 
