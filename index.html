@@ -6509,7 +6509,7 @@ function bkSecH(sid){var E=S.sbk&&S.sbk[sid],L=E&&E.b||[],has=S.portal&&S.portal
   return '<div class="sec">📖 Kitaplığı <small class="mut">(öğrencinin kendi eklediği · '+L.length+' kitap'+(pg?' · '+pg.toLocaleString('tr-TR')+' sayfa':'')+')</small></div>'+bkShelfH(L)+'<div class="bkl" id="bk_'+sid+'">'+S2.map(function(b){return '<details class="bki"><summary><b>'+esc(b.t||'')+'</b><small>'+[b.a,b.p?b.p+' sayfa':'',b.d?fd(b.d,{day:'numeric',month:'short',year:'numeric'}):''].filter(Boolean).map(esc).join(' · ')+(b.r?' · <span class="bkst">'+'★★★★★'.slice(0,b.r)+'</span>':'')+'</small></summary>'+(b.o?'<p>'+esc(b.o)+'</p>':'<p class="mut">Özet yazılmamış.</p>')+'</details>'}).join('')+'</div>'}
 var _stuCard0=stuCard;stuCard=function(c,st){_stuCard0(c,st);if(!st)return;bkPull(st.id).then(function(n){if(n&&!$('md').hidden){var el=document.getElementById('bk_'+st.id);if(el){_stuCard0(c,st)}}})};
 (function(){var st=document.createElement('style');st.textContent=
- '.srow:not(.h){grid-template-areas:"av no nm nm x" "av pa pa ph y"!important}.srow:not(.h)>.srcard{grid-area:x;padding:0;min-height:0;height:38px;width:38px;font-size:17px;position:relative}.srow:not(.h)>.srdel{grid-area:y}.srcard small{position:absolute;top:-6px;right:-6px;background:#2E8B6A;color:#fff;border-radius:99px;font-size:10.5px;font-weight:900;padding:1px 5px}'+
+ '@media(max-width:599px){.srow:not(.h){grid-template-areas:"av no nm nm x" "av pa pa ph y"!important}.srow:not(.h)>.srdel{grid-area:y}}@media(min-width:600px){.srow{grid-template-columns:40px 52px minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) 38px 36px!important}}.srow:not(.h)>.srcard{padding:0;min-height:0;height:38px;width:38px;font-size:17px;position:relative}.srcard small{position:absolute;top:-6px;right:-6px;background:#2E8B6A;color:#fff;border-radius:99px;font-size:10.5px;font-weight:900;padding:1px 5px}'+
  '.bkl{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}.bki{border:1.5px solid var(--bd);border-radius:12px;padding:8px 10px;background:var(--card)}.bki summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:2px}.bki summary::-webkit-details-marker{display:none}.bki summary small{color:var(--mut);font-weight:700}.bki p{margin:8px 0 2px;font-size:13.5px;white-space:pre-wrap;overflow-wrap:anywhere}.bkst{color:#E9A800;letter-spacing:1px}';document.head.appendChild(st)})();
 
 var BKC=[['#E2463B','#B8322A'],['#3D7CC9','#2C5E9E'],['#2E8B6A','#1F6A50'],['#F2B705','#C99400'],['#8E5BC7','#6C3FA3'],['#E8771E','#BF5C10'],['#1FA3A3','#157E7E'],['#D94C8A','#B0346C'],['#5B6FD6','#4152B0'],['#7A9A2E','#5C7720']];
@@ -6523,6 +6523,15 @@ function trPortal(c,sid){var C=S.trn&&S.trn[c.id];if(!C)return [];var w=trW();re
 
 /* Açılışta veli/öğrenci sayfalarını bir kez güncelle (yeni alanlar, ör. Türkçe notları, bekletmeden yansısın) */
 setTimeout(function(){try{if(ptOn())portalSync()}catch(e){}},9000);
+
+/* Geniş ekran: tüm genişliği kullan (masaüstü) */
+(function(){var st=document.createElement('style');st.id='spWide';st.textContent=
+ '@media(min-width:600px){html body main{max-width:none!important;padding-left:clamp(14px,2.4vw,44px)!important;padding-right:clamp(14px,2.4vw,44px)!important}'+
+ 'html body .hd div.in{max-width:none!important;padding-left:clamp(14px,2.4vw,44px)!important;padding-right:clamp(14px,2.4vw,44px)!important}}'+
+ '@media(min-width:900px){'+
+ 'html body #view>*,html body #view.c1>*,html body #view.rep>*,html body #view.exw>*,html body #view:not([class])>*,html body #view .lst,html body #view .fbar,html body #view .cnav,html body #view>.sec,html body #view>.empty,html body #view>.card,html body #view>.savebar,html body #view.exw .cnav,html body #view.exw .exempty,html body #view.exw .ovw,html body #view.exw>.sec{max-width:none!important}'+
+ 'html body #view.setv,html body #view.rgv{max-width:none!important}'+
+ 'html body #view.rgv .rgtiles{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))!important}}';document.head.appendChild(st)})();
 load().then(function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500);setTimeout(avPull,4000)},function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500)});
 })();
 
