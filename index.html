@@ -6602,6 +6602,33 @@ document.addEventListener('click',function(e){var b=e.target.closest('[data-a="n
 setTimeout(async function(){if(!window.SPPush)return;var uid=await ntUid();if(uid)SPPush.refresh({role:'t',owner:uid})},8000);
 
 (function(){var c=document.createElement('style');c.textContent='.bbadd{flex:0 0 auto;height:40px;display:inline-flex;align-items:center;gap:6px;padding:0 14px 0 10px;border-radius:12px;border:1.5px solid #EBCB6B;background:linear-gradient(160deg,#FFFBEA,#FFF1C2);color:#6E5200;font:800 13.5px/1 Nunito,system-ui,sans-serif;cursor:pointer;white-space:nowrap;transition:background .2s,transform .12s,border-color .2s}.bbadd b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#FFE08A;color:#6E5200;font-size:15px;font-weight:900}.bbadd:hover{border-color:#E0B53E;background:linear-gradient(160deg,#FFF8DA,#FFEAA8)}.bbadd:active{transform:scale(.97)}@media(max-width:700px){html body .bbtb2 .bbadd{width:100%;justify-content:center}}';document.head.appendChild(c)})();
+
+/* ---- Üst bar: logo + başlık ve kullanıcı, sekmelerle aynı camda (tek satır) ---- */
+(function(){
+  function mount(){var hd=document.querySelector('header.hd'),inn=hd&&hd.querySelector('.in'),nav=document.getElementById('nav');if(!inn||!nav||document.querySelector('.sptl'))return;
+    var L=document.createElement('div');L.className='sptl';var R=document.createElement('div');R.className='sptr';
+    var cmp=inn.querySelector('.hcomp'),h1=inn.querySelector('h1'),h1w=h1&&h1.parentNode!==inn?h1.parentNode:h1;
+    if(cmp)L.appendChild(cmp);if(h1w)L.appendChild(h1w);
+    [].slice.call(inn.children).forEach(function(e){R.appendChild(e)});
+    inn.appendChild(L);inn.appendChild(nav);inn.appendChild(R);
+    new MutationObserver(function(ms){ms.forEach(function(m){[].forEach.call(m.addedNodes,function(n){if(n.nodeType===1&&n!==L&&n!==R&&n!==nav)R.appendChild(n)})})}).observe(inn,{childList:true});
+    document.body.classList.add('sptop')}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
+  var c=document.createElement('style');c.textContent=
+  'html body.sptop header.hd{display:block!important;width:100%!important;max-width:none!important;box-sizing:border-box;position:sticky!important;top:0;z-index:60;background:transparent!important;padding:calc(8px + env(safe-area-inset-top,0px)) 12px 10px!important;margin:0!important}'+
+  '@media(min-width:600px){html body.sptop header.hd{padding-left:clamp(14px,2.4vw,44px)!important;padding-right:clamp(14px,2.4vw,44px)!important}}'+
+  'html body.sptop header.hd div.in{--tbw:46px;display:grid!important;width:100%!important;box-sizing:border-box;grid-template-columns:var(--tbw) minmax(0,1fr) var(--tbw);align-items:center;gap:6px;max-width:none!important;margin:0!important;padding:5px!important;background:linear-gradient(180deg,#FFFFFF,#FBFDFF)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border:1px solid var(--glb)!important;box-shadow:var(--gls),var(--glh);border-radius:20px!important;flex-wrap:nowrap!important}'+
+  'html body.sptop nav#nav{position:static!important;background:none!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;padding:0!important;margin:0!important;min-width:0;top:auto}'+
+  '.sptop .sptl,.sptop .sptr{display:flex;align-items:center;min-width:0;height:100%}.sptop .sptl{gap:9px;padding-left:4px}.sptop .sptr{justify-content:flex-end;gap:8px;padding-right:4px}'+
+  'html body.sptop .hd nav img.bbni{width:22px!important;height:22px!important;border-radius:50%!important;filter:none!important;flex:none}'+'html body.sptop .hd .hcomp.hlead{width:38px!important;height:38px!important;flex:0 0 auto;order:0;margin:0}'+
+  'html body.sptop .hd .sptl>div{min-width:0}html body.sptop .hd h1{font-size:18px!important;line-height:1.1;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}html body.sptop .hd .sptl .eb,html body.sptop .hd .sptl small{display:none!important}'+
+  'html body.sptop .hd .hun{margin:0!important;font-size:14px!important;max-width:none!important;flex:0 1 auto;min-width:0}'+
+  'html body.sptop .hd .sptr img.hul,html body.sptop .hd .sptr .spab{width:38px!important;height:38px!important;flex:0 0 auto;margin:0!important;border-radius:50%}'+
+  /* masaüstü: başlık ve ad yazılı, iki yan eşit genişlik */
+  '@media(min-width:1100px){html body.sptop header.hd div.in{--tbw:clamp(190px,17vw,250px)}}'+
+  /* tablet ve telefon: yalnız simgeler */
+  '@media(max-width:1099px){html body.sptop .hd .sptl>div,html body.sptop .hd .hun{display:none!important}.sptop .sptl,.sptop .sptr{justify-content:center;padding:0}}'+
+  '@media(max-width:599px){html body.sptop header.hd div.in{--tbw:34px;gap:3px;padding:4px!important;border-radius:18px}html body.sptop .hd .hcomp.hlead,html body.sptop .hd .sptr img.hul,html body.sptop .hd .sptr .spab{width:32px!important;height:32px!important}}';document.head.appendChild(c)})();
 load().then(function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500);setTimeout(avPull,4000)},function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500)});
 })();
 
