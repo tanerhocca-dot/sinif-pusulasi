@@ -6629,6 +6629,12 @@ setTimeout(async function(){if(!window.SPPush)return;var uid=await ntUid();if(ui
   /* tablet ve telefon: yalnız simgeler */
   '@media(max-width:1099px){html body.sptop .hd .sptl>div,html body.sptop .hd .hun{display:none!important}.sptop .sptl,.sptop .sptr{justify-content:center;padding:0}}'+
   '@media(max-width:599px){html body.sptop header.hd div.in{--tbw:34px;gap:3px;padding:4px!important;border-radius:18px}html body.sptop .hd .hcomp.hlead,html body.sptop .hd .sptr img.hul,html body.sptop .hd .sptr .spab{width:32px!important;height:32px!important}}';document.head.appendChild(c)})();
+
+/* iPad ana ekran uygulaması: üstteki durum çubuğu alanı barı örtmesin diye barı biraz aşağı al (yalnız iPad) */
+(function(){var ua=navigator.userAgent||'',ipad=/iPad/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),sa=!!((window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone);
+  if(!(ipad&&sa))return;document.documentElement.classList.add('ipadpwa');var c=document.createElement('style');c.textContent=
+  'html.ipadpwa body.sptop header.hd{padding-top:calc(env(safe-area-inset-top,0px) + 26px)!important}'+
+  'html.ipadpwa .bbside{top:calc(104px + env(safe-area-inset-top,0px))!important}html.ipadpwa .bbsb{top:calc(84px + env(safe-area-inset-top,0px))!important}';document.head.appendChild(c)})();
 load().then(function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500);setTimeout(avPull,4000)},function(){window.SPIntroDone&&SPIntroDone();setTimeout(welcomeMaybe,500)});
 })();
 
