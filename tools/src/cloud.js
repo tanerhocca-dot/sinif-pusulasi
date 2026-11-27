@@ -434,14 +434,14 @@ function askOut() {
 }
 if (CFG && !PS) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', acctBtn); else acctBtn(); }
 
-window.SPCloud = { panel, showLogin, portal: !!(CFG && fs), portalId, renderPortal, askOut, openMenu: () => { const b = document.getElementById("spAB"); if (b) openMenu(b); } };
+window.SPCloud = { panel, showLogin, portal: !!(CFG && fs), portalId, renderPortal, askOut, idToken: async () => { try { return auth && auth.currentUser ? await auth.currentUser.getIdToken() : null; } catch (e) { return null; } }, openMenu: () => { const b = document.getElementById("spAB"); if (b) openMenu(b); } };
 
 // ---- veli / öğrenci sayfası ----
 if (PS) {
   const out = () => { try { localStorage.removeItem(PKEY); localStorage.removeItem(PCACHE); localStorage.removeItem('sp-portal-lib'); } catch (e) {} location.reload(); };
   const saveAv = async spec => { await setDoc(doc(fs, 'avreq', PS.id), { av: spec, at: Date.now() }); };
   const lib = { load: async () => { const s = await getDoc(doc(fs, 'bkreq', PS.id)); if (!s.exists()) return null; try { const v = JSON.parse(s.data().j || '[]'); return Array.isArray(v) ? v : null; } catch (e) { return null; } }, save: async L => { await setDoc(doc(fs, 'bkreq', PS.id), { j: JSON.stringify(L), at: Date.now() }); } };
-  const show = x => { try { const ro = x.role || PS.role; renderPortal(JSON.parse(x.d), ro, x.at, out, refresh, ro === 'o' ? saveAv : null, ro === 'o' ? lib : null); } catch (e) { console.warn(e); } };
+  const show = x => { try { const ro = x.role || PS.role; window.SPPushCtx = { pid: PS.id, role: ro }; renderPortal(JSON.parse(x.d), ro, x.at, out, refresh, ro === 'o' ? saveAv : null, ro === 'o' ? lib : null); } catch (e) { console.warn(e); } };
   const refresh = async () => {
     try {
       const s = await getDoc(doc(fs, 'portal', PS.id));
@@ -450,7 +450,7 @@ if (PS) {
     } catch (e) { console.warn('portal', e); }
   };
   const alertGone = () => { const el = document.getElementById('spP'); if (el) el.remove(); document.body.classList.remove('spport'); showLogin(); setTimeout(() => { const pe = document.getElementById('spPEr'), b = document.querySelector('#spL [data-tab="' + (PS.role || 'v') + '"]'); if (b) b.click(); if (pe) pe.textContent = 'Giriş bilgileriniz değişmiş. Öğretmeninizden yenisini isteyin.'; }, 50); };
-  const start = () => { try { const c = JSON.parse(localStorage.getItem(PCACHE) || 'null'); if (c) show(c); } catch (e) {} refresh(); };
+  const start = () => { setTimeout(() => { try { if (window.SPPush) SPPush.refresh({ pid: PS.id, role: PS.role || 'v' }); } catch (e) {} }, 4000); try { const c = JSON.parse(localStorage.getItem(PCACHE) || 'null'); if (c) show(c); } catch (e) {} refresh(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refresh(); });
 }

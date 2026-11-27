@@ -74,5 +74,29 @@ service cloud.firestore {
         && request.resource.data.j is string && request.resource.data.j.size() < 900000
         && request.resource.data.at is int;
     }
+    // Bildirim abonelikleri: her cihaz kendi aboneliğini yazar; yalnız gönderici (sunucu) okur
+    match /push/{id} {
+      allow get, list: if false;
+      allow delete: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['pid', 'role', 'owner', 's', 'off', 'q', 'at', 'dev'])
+        && request.resource.data.s is string && request.resource.data.s.size() < 4000
+        && request.resource.data.off is string && request.resource.data.off.size() < 400
+        && request.resource.data.pid is string && request.resource.data.owner is string
+        && (
+          (request.resource.data.role in ['v', 'o', 'b']
+            && exists(/databases/$(db)/documents/portal/$(request.resource.data.pid))
+            && get(/databases/$(db)/documents/portal/$(request.resource.data.pid)).data.role == request.resource.data.role)
+          || (request.resource.data.role == 't' && request.auth != null && request.resource.data.owner == request.auth.uid)
+        );
+    }
+    // Bildirim gönderici için herkese açık ayar (yalnız açık anahtar)
+    match /pubcfg/{id} {
+      allow get: if true;
+      allow list, write: if false;
+    }
+    // Göndericinin iç kayıtları: istemciye tamamen kapalı
+    match /pushst/{id} {
+      allow read, write: if false;
+    }
   }
 }

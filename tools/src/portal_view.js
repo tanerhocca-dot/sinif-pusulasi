@@ -25,7 +25,7 @@ const fd = (d, o) => { try { return new Date(d + 'T12:00').toLocaleDateString('t
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
 
 const CSS = `
-body.spport > *:not(#spP):not(#spL):not(#ppAvO):not(script):not(style){display:none!important}
+body.spport > *:not(#spP):not(#spL):not(#ppAvO):not(#sppO):not(script):not(style){display:none!important}
 body.spport,html.spport{background:#FFF7D9;overflow:hidden!important}
 #spP{position:fixed;inset:0;z-index:9000;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:linear-gradient(180deg,#BFE0FA,#DCEBFB 220px,#FFF7D9 520px);color:#25406B;font-family:Nunito,system-ui,-apple-system,sans-serif;padding:calc(14px + env(safe-area-inset-top,0px)) 14px calc(30px + env(safe-area-inset-bottom,0px))}
 #spP *{box-sizing:border-box}#spP svg,#spP img{max-width:100%}#spP .pp-hero>div{min-width:0!important}#spP .pp-hero h1,#spP .pp-hero p{overflow-wrap:anywhere}
@@ -33,7 +33,7 @@ body.spport,html.spport{background:#FFF7D9;overflow:hidden!important}
 #spP .pp-top{display:flex;align-items:center;gap:12px}
 #spP .pp-top img{width:44px;height:44px;border-radius:12px}
 #spP .pp-top .pp-tt{flex:1;min-width:0}#spP .pp-top small{display:block;font-size:11px;font-weight:900;letter-spacing:.12em;color:#4F6A95}#spP .pp-top b{font-size:18px;font-weight:900}
-#spP .pp-tb{display:flex;gap:6px}#spP .pp-tb button{font:inherit;font-weight:800;font-size:13px;border:2px solid #25406B;background:#fff;color:#25406B;border-radius:12px;padding:6px 10px;cursor:pointer}
+#spP .pp-tb{display:flex;gap:6px}#spP .pp-nt span{margin-left:4px}@media(max-width:520px){#spP .pp-nt span{display:none}}#spP .pp-tb button{font:inherit;font-weight:800;font-size:13px;border:2px solid #25406B;background:#fff;color:#25406B;border-radius:12px;padding:6px 10px;cursor:pointer}
 #spP .pp-hero{background:#fff;border:2.5px solid #25406B;border-radius:24px;box-shadow:0 4px 0 #25406B;padding:18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 #spP .pp-av{width:64px;height:64px;border-radius:50%;background:#FFE08A;border:2.5px solid #25406B;display:grid;place-items:center;font-weight:900;font-size:24px;flex:none}
 #spP .pp-hero h1{margin:0;font-size:24px;font-weight:900;line-height:1.15}#spP .pp-hero p{margin:3px 0 0;font-weight:700;color:#5E7598;font-size:14px}
@@ -238,7 +238,7 @@ export function renderPortal(D, role, at, onOut, onRefresh, onAvatar, lib) {
   const hwT = (D.trk || []).filter(t => t.mode === 'status'), hwY = hwT.reduce((a, t) => a + (t.c.y || 0), 0), hwN = hwT.reduce((a, t) => a + t.tot, 0);
   const nb = (D.badges || []).reduce((a, b) => a + b.got.length, 0);
   let h = `<div class="pp-w">
-  <div class="pp-top">${ic ? `<img src="${ic}" alt="">` : ''}<div class="pp-tt"><small>${veli ? 'VELİ SAYFASI' : 'ÖĞRENCİ SAYFASI'}</small><b>Sınıf Pusulası</b></div><div class="pp-tb"><button data-pp="re">⟳ Yenile</button><button data-pp="out">Çıkış</button></div></div>
+  <div class="pp-top">${ic ? `<img src="${ic}" alt="">` : ''}<div class="pp-tt"><small>${veli ? 'VELİ SAYFASI' : 'ÖĞRENCİ SAYFASI'}</small><b>Sınıf Pusulası</b></div><div class="pp-tb">${window.SPPush ? `<button data-pp="nt" class="pp-nt" aria-label="Bildirimler">🔔<span>Bildirimler</span></button>` : ''}<button data-pp="re">⟳ Yenile</button><button data-pp="out">Çıkış</button></div></div>
   <div class="pp-hero"><div class="pp-av${av && AV ? ' pp-avi' : ''}">${av && AV ? `<img src="${AV.url(av)}" alt="">` : esc(ini)}</div><div style="flex:1;min-width:200px"><h1>${veli ? esc(D.name) : 'Merhaba ' + esc(first) + '! 👋'}</h1><p>${esc(D.cls)}${D.no ? ' · No ' + esc(D.no) : ''} · ${esc(D.school)}</p><p>${esc(D.teacher)} · ${esc(D.term || '')}</p>${!veli && AV && onAvatar ? '<button class="pp-ave" data-pp="av">🎨 Avatarımı düzenle</button>' : ''}<span class="pp-chip">Son güncelleme: ${at ? new Date(at).toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : '—'}</span></div></div>
   <div class="pp-kp"><div class="pp-k"><b>${nb}</b><small>🏅 Rozet</small></div><div class="pp-k"><b class="${(lg.net || 0) >= 0 ? 'pp-pos' : 'pp-neg'}">${(lg.net || 0) > 0 ? '+' : ''}${lg.net || 0}</b><small>🏆 Lig puanı${lg.r ? ' · ' + lg.r + '/' + lg.n : ''}</small></div><div class="pp-k"><b>${hwN ? '%' + pct(hwY, hwN) : '—'}</b><small>📝 Ödev tamamlama</small></div><div class="pp-k"><b>${lastEx ? fmt(lastEx.t) : '—'}</b><small>📊 Son deneme neti</small></div></div>`;
 
@@ -291,6 +291,7 @@ export function renderPortal(D, role, at, onOut, onRefresh, onAvatar, lib) {
     const b = ev.target.closest('[data-pp]'); if (!b) return;
     if (b.dataset.pp === 'av') return openAv(av, async spec => { await onAvatar(spec); try { localStorage.setItem('sp-portal-av', JSON.stringify({ av: spec, at: Date.now() })); } catch (e) {} renderPortal(D, role, at, onOut, onRefresh, onAvatar, lib); });
     if (b.dataset.pp && b.dataset.pp.indexOf('lb') === 0) return;
+    if (b.dataset.pp === 'nt') { const c = window.SPPushCtx || {}; return window.SPPush && SPPush.open({ pid: c.pid, role: c.role || role, np: D.np || [] }); }
     if (b.dataset.pp === 'out') onOut(); else onRefresh();
   };
 }

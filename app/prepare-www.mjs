@@ -6,7 +6,7 @@ const root = path.resolve(import.meta.dirname, '..');
 const www = path.resolve(import.meta.dirname, 'www');
 fs.rmSync(www, { recursive: true, force: true });
 fs.mkdirSync(www, { recursive: true });
-for (const f of ['config.js', 'cloud.js', 'manifest.webmanifest']) fs.copyFileSync(path.join(root, f), path.join(www, f));
+for (const f of ['config.js', 'push.js', 'cloud.js', 'manifest.webmanifest']) fs.copyFileSync(path.join(root, f), path.join(www, f));
 fs.cpSync(path.join(root, 'icons'), path.join(www, 'icons'), { recursive: true });
 let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 // Uygulama içinde olduğumuzu sayfaya bildir

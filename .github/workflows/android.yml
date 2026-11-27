@@ -8,6 +8,7 @@ on:
       - 'app/**'
       - 'index.html'
       - 'cloud.js'
+      - 'push.js'
       - 'config.js'
       - '.github/workflows/android.yml'
 
