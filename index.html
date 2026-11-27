@@ -1676,7 +1676,7 @@ function renderTop(){
 }
 function renderNav(){
   var T=[['home','🏠','Ana Sayfa','Ana'],['classes','👥','Sınıflar','Sınıf'],['lists','📋','Listeler','Liste'],['guide','🫶','Rehberlik','Rehber'],['bb','<img class="bbni" src="icons/birebir-128.png" alt="">','Birebir','Birebir'],['settings','⚙️','Ayarlar','Ayar']],at=navOf(UI.tab);
-  setH($('nav'),T.map(function(t){return '<button data-a="tab" data-t="'+t[0]+'" class="'+(at===t[0]?'on':'')+'"><span class="ni">'+t[1]+'</span><span class="nl">'+t[2]+'</span><span class="ns">'+t[3]+'</span>'+(t[0]==='bb'?'<span class="bbnb">BETA</span>'+bbNavBadge():'')+'</button>'}).join(''));
+  setH($('nav'),T.map(function(t){return '<button data-a="tab" data-t="'+t[0]+'" class="'+(at===t[0]?'on':'')+'"><span class="ni">'+t[1]+'</span><span class="nl">'+t[2]+'</span><span class="ns">'+t[3]+'</span>'+(t[0]==='bb'?''+bbNavBadge():'')+'</button>'}).join(''));
 }
 var LASTV='';var VDIR=0,RM=false;try{RM=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
 function renderView(){var v=$('view'),k=[UI.tab,UI.list,UI.trk,UI.cls,UI.ex,UI.exStu,UI.rg,UI.rgs].join('|'),ch=k!==LASTV&&LASTV!=='';LASTV=k;renderView0();
@@ -4852,7 +4852,7 @@ function bbAlerts(st){var sid=st.id,o=[],wk=bbW0(st),ws=bbWkStat(sid,wk),last=bb
 
 /* ---------- ana görünüm ---------- */
 function bbLogo(n){return '<img class="bblg" src="icons/birebir-128.png" alt="" width="'+n+'" height="'+n+'">'}
-function bbHead(sub){return '<div class="bbhd">'+bbLogo(40)+'<div class="bbht0"><div class="bbtt">Birebir<span class="bbbeta">BETA</span></div><small>'+(sub||'Birebir koçluk')+'</small></div></div>'}
+function bbHead(sub){return '<div class="bbhd">'+bbLogo(40)+'<div class="bbht0"><div class="bbtt">Birebir</div><small>'+(sub||'Birebir koçluk')+'</small></div></div>'}
 function vBB(v){bbCss();var b=bbS(),h,foc=document.activeElement&&document.activeElement.id==='bbMt';v.className='bbv';
   if(BBU.sid&&!bbStu(BBU.sid))BBU.sid=null;if(!BBU.sid&&b.st.length)BBU.sid=b.st[0].id;if(!BBU.tab||(!BBU.sid&&BBU.tab!=='msg'&&BBU.tab!=='mh'&&BBU.tab!=='lig'))BBU.tab='dash';
   var st=BBU.sid&&bbStu(BBU.sid),c;
@@ -4865,7 +4865,7 @@ function bbSideFit(){var sd=document.querySelector('.bbside');if(!sd)return;var 
 function bbSideOpen(){var v=null;try{v=localStorage.getItem('bb-side')}catch(e){}return v?v==='o':innerWidth>=1100}
 function bbSide(b,st){var u=bbUnreadAll(),T=[['prog','📅','Program'],['lib','📚','Kitaplık'],['log','📋','Kayıtlar'],['dn','📝','Denemeler'],['an','📈','Analiz'],['kn','🧭','Konular'],['lg','🔒','Giriş'],['inf','⚙️','Bilgiler']];
   var it=function(k,ic,lab,extra,dis){return '<button class="bbsi'+(BBU.tab===k?' on':'')+'" data-bb="tab" data-v="'+k+'"'+(dis?' disabled':'')+' title="'+lab+'"><span class="bbsic">'+ic+'</span><span class="bbsl3">'+lab+'</span>'+(extra||'')+'</button>'};
-  var h='<aside class="bbside">'+(bbSimOn()?'<button class="bbsimb" data-bb="simTog" title="Sanal öğrenci modundan çık"><b>SANAL</b><span class="bbsl3">6 Mayıs 2027 · çık</span></button>':'')+'<div class="bbsh">'+bbLogo(28)+'<span class="bbsl3"><b>Birebir</b><span class="bbbeta">BETA</span></span></div><button class="bbsi bbtog" data-bb="side" title="'+(bbSideOpen()?'Menüyü daralt':'Menüyü genişlet')+'"><span class="bbsic">'+(bbSideOpen()?'«':'»')+'</span><span class="bbsl3">Daralt</span></button>'+
+  var h='<aside class="bbside">'+(bbSimOn()?'<button class="bbsimb" data-bb="simTog" title="Sanal öğrenci modundan çık"><b>SANAL</b><span class="bbsl3">6 Mayıs 2027 · çık</span></button>':'')+'<div class="bbsh">'+bbLogo(28)+'<span class="bbsl3"><b>Birebir</b></span></div><button class="bbsi bbtog" data-bb="side" title="'+(bbSideOpen()?'Menüyü daralt':'Menüyü genişlet')+'"><span class="bbsic">'+(bbSideOpen()?'«':'»')+'</span><span class="bbsl3">Daralt</span></button>'+
    it('dash','📊','Özet')+it('lig','🏆','Lig')+it('msg','💬','Mesajlar',u?'<span class="bbnc">'+(u>9?'9+':u)+'</span>':'')+it('mh',dtIcon(),'Muhasebe')+'<div class="bbsep"></div>';
   if(b.st.length){
     T.forEach(function(t){h+=it(t[0],t[1],t[2])})}
@@ -6628,7 +6628,7 @@ setTimeout(async function(){if(!window.SPPush)return;var uid=await ntUid();if(ui
   '@media(min-width:1100px){html body.sptop header.hd div.in{--tbw:clamp(190px,17vw,250px)}}'+
   /* tablet ve telefon: yalnız simgeler */
   '@media(max-width:1099px){html body.sptop .hd .sptl>div,html body.sptop .hd .hun{display:none!important}.sptop .sptl,.sptop .sptr{justify-content:center;padding:0}}'+
-  '@media(max-width:599px){html body.sptop header.hd div.in{--tbw:34px;gap:3px;padding:4px!important;border-radius:18px}html body.sptop .hd .hcomp.hlead,html body.sptop .hd .sptr img.hul,html body.sptop .hd .sptr .spab{width:32px!important;height:32px!important}}';document.head.appendChild(c)})();
+  '@media(min-width:600px) and (max-width:719px){html body.sptop nav#nav .nl{display:none!important}html body.sptop nav#nav .ns{display:inline!important}}'+'@media(max-width:599px){html body.sptop header.hd div.in{--tbw:34px;gap:3px;padding:4px!important;border-radius:18px}html body.sptop .hd .hcomp.hlead,html body.sptop .hd .sptr img.hul,html body.sptop .hd .sptr .spab{width:32px!important;height:32px!important}}';document.head.appendChild(c)})();
 
 /* iPad ana ekran uygulaması: üstteki durum çubuğu alanı barı örtmesin diye barı biraz aşağı al (yalnız iPad) */
 (function(){var ua=navigator.userAgent||'',ipad=/iPad/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),sa=!!((window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone);
