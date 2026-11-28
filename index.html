@@ -4853,20 +4853,20 @@ function bbAlerts(st){var sid=st.id,o=[],wk=bbW0(st),ws=bbWkStat(sid,wk),last=bb
 
 /* ---------- ana görünüm ---------- */
 function bbLogo(n){return '<img class="bblg" src="icons/birebir-128.png" alt="" width="'+n+'" height="'+n+'">'}
-function bbHead(sub){return '<div class="bbhd">'+bbLogo(40)+'<div class="bbht0"><div class="bbtt">Birebir</div><small>'+(sub||'Birebir koçluk')+'</small></div></div>'}
+function bbHead(sub){return '<div class="bbhd">'+bbLogo(40)+'<div class="bbht0"><div class="bbtt">Birebir<span class="bbbeta">BETA</span></div><small>'+(sub||'Birebir koçluk')+'</small></div></div>'}
 function vBB(v){bbCss();var b=bbS(),h,foc=document.activeElement&&document.activeElement.id==='bbMt';v.className='bbv';
   if(BBU.sid&&!bbStu(BBU.sid))BBU.sid=null;if(!BBU.sid&&b.st.length)BBU.sid=b.st[0].id;if(!BBU.tab||(!BBU.sid&&BBU.tab!=='msg'&&BBU.tab!=='mh'&&BBU.tab!=='lig'))BBU.tab='dash';
   var st=BBU.sid&&bbStu(BBU.sid),c;
-  if(BBU.tab==='mh')c=dtView();else if(BBU.tab==='lig')c=bbLegV();else if(BBU.tab==='dash')c=bbDash2(b);else if(BBU.tab==='msg')c=bbMsgPage(b);else c=bbDetail(st);
+  if(BBU.tab==='mh')c=dtView();else if(BBU.tab==='lig')c=bbLegV();else if(BBU.tab==='dash')c=bbDash(b);else if(BBU.tab==='msg')c=bbMsgPage(b);else c=bbDetail(st);
   v._h=null;v.innerHTML='<div class="bbL'+(bbSideOpen()?'':' col')+'">'+bbSide(b,st)+'<div class="bbmain">'+c+'</div></div>';bbSideFit();
   if(foc){var m=$('bbMt');if(m){m.focus();m.setSelectionRange(m.value.length,m.value.length)}}}
 /* yan menü: ekranın altına kadar uzanır, öğeler eşit aralıklı */
 function bbSideFit(){var sd=document.querySelector('.bbside');if(!sd)return;var r=sd.getBoundingClientRect(),cs=getComputedStyle(sd),st=parseFloat(cs.top)||78,t=Math.max(r.top,st),h=Math.round(innerHeight-t-12);if(h<360){sd.classList.remove('fit');sd.style.height='';return}sd.classList.add('fit');sd.style.height=h+'px'}
 (function(){var q=0,f=function(){if(q)return;q=requestAnimationFrame(function(){q=0;if(UI.tab==='bb')bbSideFit()})};addEventListener('scroll',f,{passive:true});addEventListener('resize',f)})();
 function bbSideOpen(){var v=null;try{v=localStorage.getItem('bb-side')}catch(e){}return v?v==='o':innerWidth>=1100}
-function bbSide(b,st){var u=bbUnreadAll(),T=[['prog','📅','Program'],['lib','📚','Kitaplık'],['log','📋','Kayıtlar'],['dn','📝','Denemeler'],['an','📈','Analiz'],['kn','🧭','Konular'],['lg','🔒','Giriş'],['inf','⚙️','Bilgiler']];
+function bbSide(b,st){var u=bbUnreadAll(),T=[['prog','📅','Program'],['lib','📚','Kitaplık'],['log','📋','Kayıtlar'],['dn','📝','Denemeler'],['an','📈','Analiz'],['kn','🧭','Konular'],['lg','🔒','Üyelik'],['inf','⚙️','Bilgiler']];
   var it=function(k,ic,lab,extra,dis){return '<button class="bbsi'+(BBU.tab===k?' on':'')+'" data-bb="tab" data-v="'+k+'"'+(dis?' disabled':'')+' title="'+lab+'"><span class="bbsic">'+ic+'</span><span class="bbsl3">'+lab+'</span>'+(extra||'')+'</button>'};
-  var h='<aside class="bbside">'+(bbSimOn()?'<button class="bbsimb" data-bb="simTog" title="Sanal öğrenci modundan çık"><b>SANAL</b><span class="bbsl3">6 Mayıs 2027 · çık</span></button>':'')+'<div class="bbsh">'+bbLogo(28)+'<span class="bbsl3"><b>Birebir</b></span></div><button class="bbsi bbtog" data-bb="side" title="'+(bbSideOpen()?'Menüyü daralt':'Menüyü genişlet')+'"><span class="bbsic">'+(bbSideOpen()?'«':'»')+'</span><span class="bbsl3">Daralt</span></button>'+
+  var h='<aside class="bbside">'+(bbSimOn()?'<button class="bbsimb" data-bb="simTog" title="Sanal öğrenci modundan çık"><b>SANAL</b><span class="bbsl3">6 Mayıs 2027 · çık</span></button>':'')+'<div class="bbsh">'+bbLogo(28)+'<span class="bbsl3"><b>Birebir</b><span class="bbbeta">BETA</span></span></div><button class="bbsi bbtog" data-bb="side" title="'+(bbSideOpen()?'Menüyü daralt':'Menüyü genişlet')+'"><span class="bbsic">'+(bbSideOpen()?'«':'»')+'</span><span class="bbsl3">Daralt</span></button>'+
    it('dash','📊','Özet')+it('lig','🏆','Lig')+it('msg','💬','Mesajlar',u?'<span class="bbnc">'+(u>9?'9+':u)+'</span>':'')+it('mh',dtIcon(),'Muhasebe')+'<div class="bbsep"></div>';
   if(b.st.length){
     T.forEach(function(t){h+=it(t[0],t[1],t[2])})}
@@ -4875,10 +4875,10 @@ function bbSide(b,st){var u=bbUnreadAll(),T=[['prog','📅','Program'],['lib','�
    (b.st.some(function(s){return s.demo})?'':'<button class="bbsi" data-bb="demo" title="Örnek öğrenci"><span class="bbsic">✨</span><span class="bbsl3">Örnek öğrenci</span></button>')+'</aside>';
   return h}
 function bbMsgPage(b){var L=b.st;if(!L.length)return '<div class="card bbempty"><p class="mut">Önce bir öğrenci ekleyin.</p></div>';
-  var R=L.map(function(st){var M=bbMsgs(st.id);return {st:st,m:M[M.length-1],u:bbUnread(st.id)}}).sort(function(a,b){return (b.u?1:0)-(a.u?1:0)||((b.m?b.m.at:0)-(a.m?a.m.at:0))});
+  var R=L.map(function(st){var M=bbMsgs(st.id);return {st:st,m:M[M.length-1],u:bbUnread(st.id)+bbUnreadV(st.id)}}).sort(function(a,b){return (b.u?1:0)-(a.u?1:0)||((b.m?b.m.at:0)-(a.m?a.m.at:0))});
   var st=bbStu(BBU.sid)||R[0].st;BBU.sid=st.id;
   var list='<div class="card bbcv"><div class="sec">💬 Sohbetler</div>'+R.map(function(x){return '<button class="bbib'+(x.u?' u':'')+(x.st.id===st.id?' on':'')+'" data-bb="openMsg" data-sid="'+x.st.id+'"><span class="bbav sm">'+esc(ini(x.st.name))+'</span><span class="bbcn"><b>'+esc(x.st.name)+'</b><small>'+(x.m?(x.m.f==='t'?'Siz: ':'')+esc(x.m.t.slice(0,60)):'Henüz mesaj yok')+'</small></span><span class="bbit">'+(x.m?'<small>'+bbTime(x.m.at)+'</small>':'')+(x.u?'<i>'+x.u+'</i>':'')+'</span></button>'}).join('')+'</div>';
-  return '<div class="bbmsgl'+(BBU.mlist?' showlist':'')+'">'+list+'<div class="bbchatw"><div class="bbchd"><button class="bbbk" data-bb="mlist" aria-label="Sohbetler">‹</button><span class="bbav sm">'+esc(ini(st.name))+'</span><b>'+esc(st.name)+'</b></div>'+bbMsgV(st)+'</div></div>'}
+  return '<div class="bbmsgl'+(BBU.mlist?' showlist':'')+'">'+list+'<div class="bbchatw"><div class="bbchd"><button class="bbbk" data-bb="mlist" aria-label="Sohbetler">‹</button><span class="bbav sm">'+esc(ini(st.name))+'</span><b>'+esc(st.name)+'</b></div>'+bbMthChips(st)+(BBU.mth==='v'?bbVMsgV(st):bbMsgV(st))+'</div></div>'}
 var BB_LGS='2027-06-13';
 function bbLgsCard(){var d=Math.ceil((new Date(BB_LGS+'T09:30:00')-bbNowMs())/864e5);if(d<0)return '';return '<div class="bblgs"><b>'+d+'</b><small>gün kaldı · LGS</small><em>13 Haziran 2027</em></div>'}
 function bbDash(b){var wk=bbMon(bbTd()),L=b.st,from=bbAdd(bbTd(),-27);
@@ -4900,14 +4900,14 @@ function bbDash(b){var wk=bbMon(bbTd()),L=b.st,from=bbAdd(bbTd(),-27);
   return h+'<p class="mut bbfoot">Öğrenci sayfası: <b>'+esc(bbUrl().replace(/^https?:\/\//,''))+'</b></p>'}
 function bbStuChip(st){var u=0;bbS().st.forEach(function(o){if(o.id!==st.id)u+=bbUnread(o.id)});return '<button class="bbstc" data-bb="pickStu" title="Öğrenci değiştir"><b>'+esc(st.name)+'</b><i>▾</i>'+(u?'<span class="bbnc">'+(u>9?'9+':u)+'</span>':'')+'</button>'}
 function bbDetail(st){if(!st)return '<div class="card bbempty"><p class="mut">Önce bir öğrenci ekleyin.</p></div>';var h='';if(BBU.tab!=='prog')h='<div class="bbstb">'+bbStuChip(st)+'</div>';
-  var f={lib:bbLibV,prog:bbProg,log:bbLogV,dn:bbDnV,an:bbAnV,kn:bbKnV,lg:bbLgV,inf:bbInfV}[BBU.tab]||bbProg;
+  var f={lib:bbLibV,prog:bbProg,log:bbLogV,dn:bbDnV,an:bbAnV,kn:bbKnV,lg:bbUyeV,inf:bbInfV}[BBU.tab]||bbProg;
   return h+f(st)}
 
 /* ---------- program (haftalık ızgara) ---------- */
 function bbProg(st){var sid=st.id,cw=bbW0(st),wk=BBU.wk&&BBU.wkS===sid?bbW0(st,BBU.wk):cw,T=bbTasks(sid,wk),L=bbLogs(sid),ws=bbWkStat(sid,wk),td=bbTd();BBU.wk=wk;BBU.wkS=sid;
   var fb=function(a,ic,lab,c,tip,r){return '<button class="bbfb'+(r?' tr':'')+'" data-bb="'+a+'" style="--fb:'+c[0]+';--ft:'+c[1]+';--fe:'+c[2]+'" data-tip="'+tip+'" aria-label="'+tip+'">'+ic+'<span>'+lab+'</span></button>'};
-  var h='<div class="bbtb2">'+bbStuChip(st)+'<div class="bbdt"><button class="bbnv" data-bb="wk" data-v="-7" aria-label="Önceki hafta">‹</button><div class="bbwl"><b>'+bbWkLab(wk)+'</b><small>'+(wk===cw?'Bu hafta':'<a data-bb="wkNow">Bu haftaya dön</a>')+' · '+T.length+' görev'+(ws.t?' · %'+ws.pct:'')+'</small></div><button class="bbnv" data-bb="wk" data-v="7" aria-label="Sonraki hafta">›</button></div>'+'<button class="bbadd" data-bb="taskNew" aria-label="Görev ekle"><b>＋</b><span>Görev ekle</span></button>'+
-   '<div class="bbfx bbfan"><button class="bbfant" data-bbx="fan" aria-label="Program araçları" aria-expanded="false"><svg class="tbx" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7V5.6A1.6 1.6 0 0 1 10.6 4h2.8A1.6 1.6 0 0 1 15 5.6V7"/><rect x="3" y="11" width="18" height="9" rx="2.2"/><g class="tbxl"><rect x="2.5" y="7" width="19" height="4.5" rx="1.8"/></g><path d="M10.5 11v2.2h3V11" stroke="#E0A526"/></svg><span>Araçlar</span></button>'+fb('taskNew','＋','Ekle',['#FFF1C2','#6E5200','#E9C454'],'Yeni görev ekle')+'<button class="bbfb bbrmpin" data-bbr="pin" style="--fb:#FDE2DE;--ft:#9A2E22;--fe:#EBA79D" data-tip="Raptiyeyi bir görevin üstüne sürükle (ya da dokun, sonra göreve dokun)" aria-label="Hatırlatma ekle">📌<span>Hatırlatma</span></button>'+fb('wkCopy','📋','Kopyala',['#E3EEFB','#1E4E8C','#A9C8EE'],'Geçen haftanın programını bu haftaya kopyala')+fb('wkLoop','🔄','Tekrarla',['#DFF3E8','#1F6B4A','#9ED3B7'],'Bu haftanın programını sonraki haftalara tekrarla (haftalık döngü)')+
+  var h='<div class="bbtb2">'+bbStuChip(st)+'<div class="bbdt"><button class="bbnv" data-bb="wk" data-v="-7" aria-label="Önceki hafta">‹</button><div class="bbwl"><b>'+bbWkLab(wk)+'</b><small>'+(wk===cw?'Bu hafta':'<a data-bb="wkNow">Bu haftaya dön</a>')+' · '+T.length+' görev'+(ws.t?' · %'+ws.pct:'')+'</small></div><button class="bbnv" data-bb="wk" data-v="7" aria-label="Sonraki hafta">›</button></div>'+
+   '<div class="bbfx">'+fb('taskNew','＋','Ekle',['#FFF1C2','#6E5200','#E9C454'],'Yeni görev ekle')+fb('wkCopy','📋','Kopyala',['#E3EEFB','#1E4E8C','#A9C8EE'],'Geçen haftanın programını bu haftaya kopyala')+fb('wkLoop','🔄','Tekrarla',['#DFF3E8','#1F6B4A','#9ED3B7'],'Bu haftanın programını sonraki haftalara tekrarla (haftalık döngü)')+
    fb('tplSave','💾','Kaydet',['#EEE6FA','#5B3A9E','#C6B2EC'],'Bu haftanın programını şablon olarak kaydet')+fb('tplLoad','🗂','Yükle',['#FBE5EF','#8E2C5E','#EDB3CE'],'Kayıtlı bir şablonu bu haftaya yükle')+fb('wsSet','📅','Başlangıç',['#FCEBD7','#8A4E10','#EBC08D'],'Programın başlangıç gününü seç · şu an '+BBD.gunL[+st.ws||0],1)+fb('pdf','📄','PDF',['#DDF1F2','#145E63','#9CCFD2'],'Haftalık programı PDF olarak al (tek sayfa)',1)+
    '<div class="bbmw"><button class="bbfb bbfm tr" data-bb="menu" aria-label="Diğer işlemler" data-tip="Diğer işlemler: bitmeyenleri taşı, metin olarak kopyala, haftayı temizle" style="--fb:#EEF1F5;--ft:#4A5568;--fe:#CBD3DE">⋯<span>Diğer</span></button><div class="bbmenu" hidden>'+(wk!==cw?'<button data-bb="wkNow">📌 Bu haftaya git</button>':'')+'<button data-bb="wkCarry">📤 Bitmeyenleri bu haftaya taşı</button><button data-bb="wkTxt">📋 Programı metin olarak kopyala</button>'+(T.length?'<button data-bb="wkClr" class="bad">🗑 Haftayı temizle</button>':'')+'</div></div></div></div>'+
    (ws.t?'<div class="bbbar thin"><i style="width:'+(ws.pct||0)+'%"></i></div>':'');
@@ -4916,9 +4916,9 @@ function bbProg(st){var sid=st.id,cw=bbW0(st),wk=BBU.wk&&BBU.wkS===sid?bbW0(st,B
      '<button class="bbadd" data-bb="taskNew" data-g="'+g+'" aria-label="'+bbGunL(wk,g)+' için görev ekle">＋ Görev</button></div></div>'}).join('')+'</div></div>';
   return h}
 function bbTaskRow(t,l){var d=bbDers(t.ds),tp=bbTp(t.tp),s=l?l.s:'',q=l?(+l.D||0)+(+l.Y||0)+(+l.B||0):0;
-  return '<div class="bbtk s-'+(s||'p')+(t.rm?' hasrm':'')+'" data-tid="'+t.id+'" style="--dc:'+d.col+'"><button class="bbtkm" data-bb="taskEdit" data-id="'+t.id+'"><span class="bbtd">'+esc(d.s)+'</span><b>'+(t.kn?esc(t.kn):esc(tp[1]))+'</b><small>'+esc([t.kn?tp[1]:'',t.q?t.q+' soru':'',t.dk?t.dk+' dk':''].filter(Boolean).join(' · '))+'</small>'+(t.src?'<small>📖 '+esc(t.src)+'</small>':'')+(t.nt?'<small class="bbnt">'+esc(t.nt)+'</small>':'')+
+  return '<div class="bbtk s-'+(s||'p')+'" data-tid="'+t.id+'" style="--dc:'+d.col+'"><button class="bbtkm" data-bb="taskEdit" data-id="'+t.id+'"><span class="bbtd">'+esc(d.s)+'</span><b>'+(t.kn?esc(t.kn):esc(tp[1]))+'</b><small>'+esc([t.kn?tp[1]:'',t.q?t.q+' soru':'',t.dk?t.dk+' dk':''].filter(Boolean).join(' · '))+'</small>'+(t.src?'<small>📖 '+esc(t.src)+'</small>':'')+(t.nt?'<small class="bbnt">'+esc(t.nt)+'</small>':'')+
    (l?'<small class="bbres">'+({y:'✓ Yaptı',e:'½ Yarım',n:'✗ Yapmadı'}[s]||'')+(q?' · D'+(+l.D||0)+' Y'+(+l.Y||0)+' · %'+bbPct(l.D,l.Y,l.B):'')+'</small>':'')+'</button>'+
-   '<button class="bbtkc" data-bb="taskLog" data-id="'+t.id+'" aria-label="Sonuç gir">'+(s==='y'?'✓':s==='e'?'½':s==='n'?'✗':'○')+'</button>'+(t.rm?bbTkRmH(t):'')+'</div>'}
+   '<button class="bbtkc" data-bb="taskLog" data-id="'+t.id+'" aria-label="Sonuç gir">'+(s==='y'?'✓':s==='e'?'½':s==='n'?'✗':'○')+'</button></div>'}
 
 /* ---------- program PDF (yatay A4, renkli + siyah-beyaz) ---------- */
 function bbWrap(x,t,w){var W=String(t||'').split(/\s+/),L=[],c='';W.forEach(function(wd){var n=c?c+' '+wd:wd;if(x.measureText(n).width>w&&c){L.push(c);c=wd}else c=n});if(c)L.push(c);return L}
@@ -4929,11 +4929,11 @@ async function bbPdf(st,wk){var T=bbTasks(st.id,wk);if(!T.length&&!bbBooks(st.id
     var items=BBD.gun.map(function(_,g){return bbDayItems(T.filter(function(t){return t.g===g}),bbBooks(st.id),bbRls(st.id),bbAdd(wk,g)).map(function(x){return x.r?{id:'r'+x.r.id,g:g,ds:'__kitap',kn:x.r.t,tp:'kitap',src:x.r.a||'',nt:'Günde '+x.r.g+' sayfa'}:x.t})});
     /* ölçek k ile kart düzeni: sığana kadar küçült (tek sayfa) */
     var layout=function(k){var lim=k>=.8?[3,2,2,2]:k>=.62?[2,1,1,1]:[2,1,1,0],tw=cw-30*Math.max(k,.7);
-      return items.map(function(arr){return arr.map(function(t){var d=bbDers(t.ds),tp=bbTp(t.tp);meas.font='800 '+(21*k)+'px '+F;var tl=bbWrap(meas,(t.rm?'📌 ':'')+(t.kn||tp[1]),tw).slice(0,lim[0]);meas.font='700 '+(16.5*k)+'px '+F;
+      return items.map(function(arr){return arr.map(function(t){var d=bbDers(t.ds),tp=bbTp(t.tp);meas.font='800 '+(21*k)+'px '+F;var tl=bbWrap(meas,t.kn||tp[1],tw).slice(0,lim[0]);meas.font='700 '+(16.5*k)+'px '+F;
         var meta=[d.n,t.kn?tp[1]:'',t.q?t.q+' soru':'',t.dk?t.dk+' dk':''].filter(function(v,i,a){return v&&a.indexOf(v)===i}).join(' · '),ml=bbWrap(meas,meta,tw).slice(0,lim[1]),sl=t.src?bbWrap(meas,'Kaynak: '+t.src,tw).slice(0,lim[2]):[],nl=t.nt&&lim[3]?bbWrap(meas,t.nt,tw).slice(0,lim[3]):[];
         if(tl.length===lim[0]&&bbWrap(meas,t.kn||tp[1],tw).length>lim[0])tl[tl.length-1]=tl[tl.length-1].replace(/\s*\S*$/,'')+'…';
         return {t:t,d:d,tl:tl,ml:ml,sl:sl,nl:nl,h:(14+tl.length*25+(ml.length+sl.length+nl.length)*21+40)*k}})})};
-    var RMT=T.filter(function(t){return t.rm}).sort(function(a,b){return a.g-b.g||(a.o||0)-(b.o||0)}).slice(0,12),rmRows=Math.ceil(RMT.length/2),rmH=RMT.length?44+rmRows*28:0,colTop=st.msg?236:186,bottom=H-64-rmH,avail=bottom-(colTop+56),k=1,cards,colH=function(C,k){return C.reduce(function(a,c){return a+c.h},0)+Math.max(0,C.length-1)*8*k};
+    var colTop=st.msg?236:186,bottom=H-64,avail=bottom-(colTop+56),k=1,cards,colH=function(C,k){return C.reduce(function(a,c){return a+c.h},0)+Math.max(0,C.length-1)*8*k};
     for(;k>=.5;k=Math.round((k-.04)*100)/100){cards=layout(k);if(Math.max.apply(0,cards.map(function(C){return colH(C,k)}))<=avail)break}
     if(k<.5){k=.5;cards=layout(k)}
     var fits=Math.max.apply(0,cards.map(function(C){return colH(C,k)}))<=avail;
@@ -4946,8 +4946,7 @@ async function bbPdf(st,wk){var T=bbTasks(st.id,wk);if(!T.length&&!bbBooks(st.id
           var sub=bbWkLab(wk)+(st.gr?' · '+st.gr+'. sınıf':'')+(st.hl?' · Hedef: '+st.hl:'')+(st.hp?' ('+st.hp+' puan)':'');x.fillStyle=MUT;fitFont(x,sub,W-2*M-640,'700',20,14);x.fillText(sub,M+136,146);
           var tq=T.reduce(function(a,t){return a+(+t.q||0)},0),tdk=T.reduce(function(a,t){return a+(+t.dk||0)},0),bx=[[T.length,'görev'],[tq,'hedef soru'],[Math.round(tdk/60*10)/10,'saat']];
           bx.forEach(function(b,i){var X=W-M-3*140-2*10+i*150,Y=40;x.save();rrect(x,X,Y,140,92,20);if(!bw){x.fillStyle='#EEF5FD';x.fill()}x.lineWidth=bw?1.3:2;x.strokeStyle=bw?'#000':'#BFD8F5';x.stroke();x.restore();x.textAlign='center';x.fillStyle=NAVY;x.font='900 34px '+F;x.fillText(String(b[0]).replace('.',','),X+70,Y+46);x.fillStyle=MUT;x.font='800 16px '+F;x.fillText(b[1],X+70,Y+74)});
-          if(st.msg){x.textAlign='left';x.save();rrect(x,M,172,W-2*M,48,16);if(!bw){x.fillStyle='#FFF6D8';x.fill()}x.lineWidth=bw?1.3:2;x.strokeStyle=bw?'#000':'#F1D58A';x.stroke();x.restore();x.fillStyle=INK;var mt='Koçun notu: '+(bw?st.msg.replace(/\p{Extended_Pictographic}|\uFE0F/gu,'').trim():st.msg);fitFont(x,mt,W-2*M-40,'800',20,13);x.fillText(mt,M+20,203)}
-}
+          if(st.msg){x.textAlign='left';x.save();rrect(x,M,172,W-2*M,48,16);if(!bw){x.fillStyle='#FFF6D8';x.fill()}x.lineWidth=bw?1.3:2;x.strokeStyle=bw?'#000':'#F1D58A';x.stroke();x.restore();x.fillStyle=INK;var mt='Koçun notu: '+(bw?st.msg.replace(/\p{Extended_Pictographic}|\uFE0F/gu,'').trim():st.msg);fitFont(x,mt,W-2*M-40,'800',20,13);x.fillText(mt,M+20,203)}}
         else{x.textAlign='left';x.fillStyle=NAVY;x.font='900 28px '+F;x.fillText(st.name+' · '+bbWkLab(wk)+' (devam)',M,64)}
         BBD.gun.forEach(function(_,g){var X=M+g*(cw+G),day=bbAdd(wk,g);x.save();rrect(x,X,top,cw,44,13);if(!bw){x.fillStyle='#25406B';x.fill()}else{x.lineWidth=1.3;x.strokeStyle='#000';x.stroke()}x.restore();
           x.textAlign='left';x.fillStyle=bw?'#000':'#fff';x.font='900 20px '+F;x.fillText(bbGunL(wk,g),X+13,top+29);x.textAlign='right';x.font='700 15px '+F;x.fillStyle=bw?'#000':'#DCEBFB';x.fillText(fd(day,{day:'numeric',month:'short'}),X+cw-11,top+29);
@@ -4957,8 +4956,6 @@ async function bbPdf(st,wk){var T=bbTasks(st.id,wk);if(!T.length&&!bbBooks(st.id
             x.font='700 '+(16.5*k)+'px '+F;x.fillStyle=bw?'#000':col;c.ml.forEach(function(l){x.fillText(l,lx,ty-2*k);ty+=21*k});x.fillStyle=MUT;c.sl.concat(c.nl).forEach(function(l){x.fillText(l,lx,ty-2*k);ty+=21*k});
             var bs=19*k,by=y+c.h-bs-9*k;x.strokeStyle=bw?'#000':'#9DB3D3';x.lineWidth=1.3;x.strokeRect(lx,by,bs,bs);x.fillStyle=MUT;x.font='800 '+(15*k)+'px '+F;x.fillText('D ____  Y ____',lx+bs+9*k,by+bs*.8);y+=c.h+8*k});
           if(!page[g].length&&!pi){x.fillStyle=MUT;x.font='700 17px '+F;x.textAlign='center';x.fillText('Dinlenme / serbest',X+cw/2,top+92)}});
-        if(RMT.length&&!pi){var ry=bottom+14,cw2=(W-2*M-20)/2;x.save();rrect(x,M,ry,W-2*M,rmH-10,16);if(!bw){x.fillStyle='#FFF8E6';x.fill()}x.lineWidth=bw?1.3:2;x.strokeStyle=bw?'#000':'#F1D58A';x.stroke();x.restore();x.textAlign='left';x.fillStyle=bw?'#000':'#9A2E22';x.font='900 18px '+F;x.fillText((bw?'':'📌 ')+'Hatırlatmalar',M+16,ry+26);
-          RMT.forEach(function(t,i){var cx=M+16+(i%2)*(cw2+10),cy=ry+52+Math.floor(i/2)*28,d=bbDers(t.ds),lab=bbGunS(wk,t.g)+' · '+(t.kn||bbTp(t.tp)[1])+': ',cc=BBRMC[t.rc]||BBRMC.y;if(!bw){x.fillStyle=cc[2];x.beginPath();x.arc(cx+5,cy-6,5,0,7);x.fill()}x.fillStyle=bw?'#000':NAVY;x.font='900 15.5px '+F;var lw=Math.min(x.measureText(lab).width,cw2*.45);fitFont(x,lab,cw2*.45,'900',15.5,11);x.fillText(lab,cx+16,cy);x.fillStyle=INK;var nt=bw?String(t.rm).replace(/\p{Extended_Pictographic}|\uFE0F/gu,'').trim():String(t.rm);fitFont(x,nt,cw2-lw-26,'700',15.5,10.5);x.fillText(nt,cx+18+lw,cy)})}
         x.textAlign='left';x.fillStyle=MUT;x.font='700 15px '+F;x.fillText('□ yaptığın görevi işaretle · D: doğru  Y: yanlış · sonuçlarını Birebir sayfana da gir',M,H-30);x.textAlign='right';x.fillText('Birebir'+(pages.length>1?' · '+(pi+1)+' / '+pages.length:''),W-M,H-30);
         pv.push(pvImg(cv));if(pi)pdf.addPage('a4','landscape');pdf.addImage(cv.toDataURL('image/jpeg',.93),'JPEG',0,0,297,210)});
       out[bw?'b':'c']={blob:pdf.output('blob'),pv:pv,n:pages.length}}
@@ -5109,12 +5106,15 @@ function bbDemo(){var b=bbS();if(b.st.some(function(s){return s.demo}))return;va
 
 /* ---------- bulut: öğrenci sayfası özeti + öğrenci girişlerini alma ---------- */
 function bbPortalData(st){var b=bbS(),sid=st.id,w0=bbW0(st),W={};[-7,0,7].forEach(function(o){var w=bbAdd(w0,o),T=bbTasks(sid,w);if(T.length)W[w]=T});
-  var hn=st.hn||{};return {v:1,bb:1,ws:+st.ws||0,name:st.name,gr:st.gr||'',sc:st.sc||'',teacher:S.set.teacherFull||S.set.teacher||'',hl:st.hl||'',hp:st.hp||'',hn:hn,msg:st.msg||'',wk:W,log:(b.log[sid]||[]).slice(-600),dn:b.dn[sid]||[],kt:b.kt[sid]||{},bk:b.bk[sid]||[],rl:(b.rl[sid]||[]).slice(-1500),ch:(b.ch[sid]||[]).slice(-300),mr:st.mr||0,lg:bbLegPortal(sid),np:npOff(),at:Date.now()}}
+  var hn=st.hn||{};return {v:1,bb:1,ws:+st.ws||0,name:st.name,gr:st.gr||'',sc:st.sc||'',teacher:S.set.teacherFull||S.set.teacher||'',hl:st.hl||'',hp:st.hp||'',hn:hn,msg:st.msg||'',wk:W,log:(b.log[sid]||[]).slice(-600),dn:b.dn[sid]||[],kt:b.kt[sid]||{},bk:b.bk[sid]||[],rl:(b.rl[sid]||[]).slice(-1500),ch:(b.ch[sid]||[]).slice(-300),mr:st.mr||0,lg:bbLegPortal(sid),at:Date.now()}}
 var bbTm=null,bbBusy=false,bbAgain=false,bbQuiet=false;
-function bbSoon(){if(!ptOn()||!bbS().st.some(function(s){return s.lg}))return;clearTimeout(bbTm);bbTm=setTimeout(bbSync,10000)}
-async function bbSync(force){if(!ptOn()||bbSimOn())return;if(bbBusy){bbAgain=true;return}bbBusy=true;var n=0;
+function bbSoon(){if(!ptOn()||!bbHasAcc())return;clearTimeout(bbTm);bbTm=setTimeout(bbSync,10000)}
+function bbHasAcc(){return bbS().st.some(function(s){return (s.lg&&s.lg.id)||(s.acc&&((s.acc.v||[]).length||(s.acc.inv||[]).length))})}
+async function bbSync(force){if(!ptOn()||bbSimOn())return;if(bbBusy){bbAgain=true;return}bbBusy=true;var n=0,b=bbS();
   try{var db=await claude.use('db'),user=await claude.use('user');if(!db||!user)throw 0;var uidv=await user.id();if(!uidv)throw 0;
-    for(var st of bbS().st){if(!st.lg||!st.lg.id||st.demo)continue;var js=JSON.stringify(bbPortalData(st)),h=ptHash(js.replace(/"at":\d+\}$/,''));if(!force&&st.h===h)continue;await db.collection('portal').doc(st.lg.id).set({owner:uidv,role:'b',d:js,at:Date.now()});st.h=h;st.at=Date.now();n++}
+    var D=bbDocs(),H=b.hs=b.hs||{};
+    for(var id in D){var d=D[id],h=ptHash(JSON.stringify(Object.assign({},d,{at:0})));if(!force&&H[id]===h)continue;d.at=Date.now();await db.collection('portal').doc(id).set({owner:uidv,role:'b',d:JSON.stringify(d),at:Date.now()});H[id]=h;n++;b.st.forEach(function(st){if(st.lg&&st.lg.id===id)st.at=Date.now()})}
+    for(var id2 of Object.keys(H)){if(D[id2])continue;try{await db.collection('portal').doc(id2).delete()}catch(x){}delete H[id2];n++}
     if(n){bbQuiet=true;save();bbQuiet=false}}
   catch(er){if(er)console.warn('birebir',er);if(force)toast('Öğrenci sayfası güncellenemedi · bağlantıyı kontrol edin')}
   bbBusy=false;if(bbAgain){bbAgain=false;bbSync()}return n}
@@ -5132,20 +5132,20 @@ function bbMerge(sid,J){var b=bbS(),n=0;var put=function(arr,e){var i=arr.findIn
   return n}
 var bbPulling=false;
 async function bbPull(manual){if(bbPulling)return 0;if(bbSimOn()){if(manual)toast('Sanal öğrenci modunda bulut kapalı');return 0}if(!ptOn()||!window.claude){if(manual)toast('Öğrenci girişleri için hesabınızla giriş yapın');return 0}bbPulling=true;var n=0;
-  try{var db=await claude.use('db');if(!db)throw 0;for(var st of bbS().st){if(!st.lg||!st.lg.id)continue;try{var d=await db.collection('bbreq').doc(st.lg.id).get();if(!d.exists)continue;var x=d.data();if(!x||!x.j||!(x.at>(st.rq||0)))continue;n+=bbMerge(st.id,JSON.parse(x.j));st.rq=x.at}catch(er){}}}catch(er){}
+  try{var db=await claude.use('db');if(!db)throw 0;for(var st of bbS().st){if(!st.lg||!st.lg.id)continue;try{var d=await db.collection('bbreq').doc(st.lg.id).get();if(!d.exists)continue;var x=d.data();if(!x||!x.j||!(x.at>(st.rq||0)))continue;n+=bbMerge(st.id,JSON.parse(x.j));st.rq=x.at}catch(er){}}try{n+=await bbUyePull(db)}catch(er){}}catch(er){}
   bbPulling=false;var NW=BBNEW.splice(0);if(n){var chatOpen=UI.tab==='bb'&&BBU.tab==='msg'&&!BBU.mlist&&document.visibilityState==='visible';NW.forEach(function(x){if(chatOpen&&BBU.sid===x.sid){var s0=bbStu(x.sid);if(s0)s0.mr=Date.now()}});save();if(UI.tab==='bb'&&$('md').hidden)render();else renderNav();
     var shown=NW.filter(function(x){return !(chatOpen&&BBU.sid===x.sid)});if(shown.length)bbNotify(shown);else if(!NW.length||manual)toast('📥 Yeni öğrenci kaydı alındı');bbSync()}else if(manual)toast('Yeni öğrenci kaydı yok · hepsi güncel ✓');return n}
-var bbTick=0;setInterval(function(){bbTick++;if(!bbS().st.some(function(s){return s.lg}))return;var chat=UI.tab==='bb'&&BBU.tab==='msg'&&BBU.sid;if(chat&&document.visibilityState==='visible'){bbPull();return}if(bbTick%4===0)bbPull()},12000);
+var bbTick=0;setInterval(function(){bbTick++;if(!bbHasAcc())return;var chat=UI.tab==='bb'&&BBU.tab==='msg'&&BBU.sid;if(chat&&document.visibilityState==='visible'){bbPull();return}if(bbTick%4===0)bbPull()},12000);
 
 
 /* ---------- mesajlaşma ---------- */
 var BBNEW=[];
 function bbMsgs(sid){return (bbS().ch[sid]||[]).slice().sort(function(a,b){return (a.at||0)-(b.at||0)})}
 function bbUnread(sid){var st=bbStu(sid);if(!st)return 0;return (bbS().ch[sid]||[]).filter(function(m){return m.f==='o'&&(m.at||0)>(st.mr||0)}).length}
-function bbUnreadAll(){var n=0;try{bbS().st.forEach(function(s){n+=bbUnread(s.id)})}catch(e){}return n}
+function bbUnreadAll(){var n=0;try{bbS().st.forEach(function(s){n+=bbUnread(s.id)+bbUnreadV(s.id)})}catch(e){}return n}
 function bbNavBadge(){var n=bbUnreadAll();return n?'<span class="bbnc">'+(n>9?'9+':n)+'</span>':''}
 function bbTime(t){var d=new Date(t),td=new Date();return d.toDateString()===td.toDateString()?d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):d.toLocaleString('tr-TR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
-function bbInbox(L){var R=L.map(function(st){var M=bbMsgs(st.id);return {st:st,m:M[M.length-1],u:bbUnread(st.id)}}).filter(function(x){return x.m}).sort(function(a,b){return (b.u?1:0)-(a.u?1:0)||b.m.at-a.m.at});if(!R.length)return '';
+function bbInbox(L){var R=L.map(function(st){var M=bbMsgs(st.id);return {st:st,m:M[M.length-1],u:bbUnread(st.id)+bbUnreadV(st.id)}}).filter(function(x){return x.m}).sort(function(a,b){return (b.u?1:0)-(a.u?1:0)||b.m.at-a.m.at});if(!R.length)return '';
   return '<div class="card bbinbox"><div class="sec">💬 Mesajlar'+(bbUnreadAll()?' <span class="bbnc st">'+bbUnreadAll()+' yeni</span>':'')+'</div>'+R.slice(0,6).map(function(x){return '<button class="bbib'+(x.u?' u':'')+'" data-bb="openMsg" data-sid="'+x.st.id+'"><span class="bbav">'+esc(ini(x.st.name))+'</span><span class="bbcn"><b>'+esc(x.st.name)+'</b><small>'+(x.m.f==='t'?'Siz: ':'')+esc(x.m.t.slice(0,80))+'</small></span><span class="bbit"><small>'+bbTime(x.m.at)+'</small>'+(x.u?'<i>'+x.u+'</i>':'')+'</span></button>'}).join('')+'</div>'}
 function bbMsgV(st){var sid=st.id,M=bbMsgs(sid),had=bbUnread(sid);if(had){st.mr=Date.now();setTimeout(function(){save();renderNav()},0)}
   var h='';if(!st.lg&&!st.demo)h+='<p class="bbwarn">🚨 Öğrenci mesajlarınızı görebilmesi için önce <b>🔒 Giriş</b> sekmesinden giriş oluşturun.</p>';
@@ -5449,7 +5449,7 @@ function bbCss(){if(document.getElementById('bbcss'))return;var s=document.creat
  BB_DN_CSS+
  '.bbanh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}.bbanh .chips{flex:1;margin:0}'+
  '.bbact2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}.bbact2 .btn{min-width:0}'+
- BB_LIB_CSS+'.bbedit{margin-top:10px}.bbedit summary{cursor:pointer;font-weight:800;opacity:.8}'+
+ BB_LIB_CSS+bbUyeCss()+'.bbedit{margin-top:10px}.bbedit summary{cursor:pointer;font-weight:800;opacity:.8}'+
  '.bbsimb{display:flex;flex-direction:column;align-items:center;gap:1px;border:0;border-radius:10px;background:linear-gradient(135deg,#8A5CC9,#3B7DDD);color:#fff;font:inherit;padding:6px 4px;margin-bottom:6px;cursor:pointer;width:100%}.bbsimb b{font-size:10px;letter-spacing:.12em}.bbsimb span{font-size:11px;font-weight:800;opacity:.9}'+
  /* yoğun düzen: yan menü tek ekranda, daha küçük yazılar */
  '.bbside{padding:6px!important;gap:0!important;top:calc(78px + env(safe-area-inset-top,0px))!important;max-height:calc(100vh - 90px)!important}.bbsi{padding:5px 8px!important;font-size:12.5px!important;gap:8px!important;border-radius:9px!important;min-height:28px}.bbsic{width:18px}.bbsic .ico{width:16px!important;height:16px!important}.bbsep{margin:3px 4px!important;height:1px!important}'+
@@ -5616,9 +5616,9 @@ function bbLegV(){bbLegCss();var B=bbS();if(!B.st.length)return '<div class="car
   var top=R.slice(0,3),pod=[top[1],top[0],top[2]];
   h+='<div class="bblqg"><div class="card bblqpod"><div class="bblqps">'+pod.map(function(r,i){if(!r)return '<div class="bblqpc e"></div>';var pl=[2,1,3][i],ti=bbLegTier(sp[r.sid]||0);return '<button class="bblqpc p'+pl+'" data-bb="legCard" data-sid="'+r.sid+'">'+(pl===1?'<span class="bblqcr noico">👑</span>':'')+'<span class="bblqav" style="--tc:'+ti[2]+'">'+esc(ini(r.st.name))+'</span><b>'+esc(r.st.name.split(' ')[0])+'</b><small>'+r.pts.toLocaleString('tr-TR')+' puan</small><span class="bblqstep"><i>'+pl+'</i></span></button>'}).join('')+'</div>';
   var wk=bbLegRank(bbMon(bbTd()),bbTd()),tq=wk.reduce(function(a,r){return a+r.q},0),goal=B.st.length*900,gp=Math.min(100,Math.round(tq/goal*100));
-  h+='<div class="bblqteam" data-bb="dmod" data-v="team" role="button" tabindex="0"><div class="bblqring" style="--p:'+gp+'"><b>%'+gp+'</b></div><div><b>Takım hedefi · bu hafta</b><small>Grup olarak '+goal.toLocaleString('tr-TR')+' soru: <b>'+tq.toLocaleString('tr-TR')+'</b> çözüldü'+(gp>=100?' · hedef tamam! 🎉':' · '+(goal-tq).toLocaleString('tr-TR')+' kaldı')+'</small></div></div></div>';
+  h+='<div class="bblqteam"><div class="bblqring" style="--p:'+gp+'"><b>%'+gp+'</b></div><div><b>Takım hedefi · bu hafta</b><small>Grup olarak '+goal.toLocaleString('tr-TR')+' soru: <b>'+tq.toLocaleString('tr-TR')+'</b> çözüldü'+(gp>=100?' · hedef tamam! 🎉':' · '+(goal-tq).toLocaleString('tr-TR')+' kaldı')+'</small></div></div></div>';
   /* kupalar */
-  var A=bbLegAwards(R,PR);h+='<div class="card bblqaw"><div class="sec">🏅 '+P.lab+' kupaları</div><div class="bblqawg">'+A.map(function(a){return '<div class="bblqac'+(a.r?'':' none')+'" style="--ac:'+a.col+'"'+(a.r?' data-bb="legCard" data-sid="'+a.r.sid+'" role="button" tabindex="0"':'')+'><span class="bblqai noico">'+a.ic+'</span><div class="bblqat"><b>'+a.t+'</b><small>'+a.sub+'</small>'+(a.r?'<em>'+esc(a.r.st.name)+'</em><strong>'+a.val+'</strong>':'<em class="mut">henüz yok</em>')+'</div>'+(a.r?'<button class="bblqcert" data-bb="legCert" data-sid="'+a.r.sid+'" data-a2="'+esc(a.t)+'" data-v="'+esc(a.val)+'" data-tip="Sertifika (PNG)" aria-label="Sertifika">🎓</button>':'')+'</div>'}).join('')+'</div></div></div>';
+  var A=bbLegAwards(R,PR);h+='<div class="card bblqaw"><div class="sec">🏅 '+P.lab+' kupaları</div><div class="bblqawg">'+A.map(function(a){return '<div class="bblqac'+(a.r?'':' none')+'" style="--ac:'+a.col+'"><span class="bblqai noico">'+a.ic+'</span><div class="bblqat"><b>'+a.t+'</b><small>'+a.sub+'</small>'+(a.r?'<em>'+esc(a.r.st.name)+'</em><strong>'+a.val+'</strong>':'<em class="mut">henüz yok</em>')+'</div>'+(a.r?'<button class="bblqcert" data-bb="legCert" data-sid="'+a.r.sid+'" data-a2="'+esc(a.t)+'" data-v="'+esc(a.val)+'" data-tip="Sertifika (PNG)" aria-label="Sertifika">🎓</button>':'')+'</div>'}).join('')+'</div></div></div>';
   /* sıralama */
   var mxp=Math.max(1,R[0]?R[0].pts:1),SEG=[['soru','#E0574F','Soru'],['gorev','#3D7CC9','Görev'],['deneme','#2E8B6A','Deneme'],['kitap','#8A5CC9','Kitap'],['seri','#E9873B','Seri']];
   h+='<div class="card bblqtab"><div class="bblqthd"><span>#</span><span>Oyuncu</span><span>Puan dağılımı</span><span>Son 8 hafta</span><span>Puan</span></div>'+R.map(function(r,i){var ch=pr[r.sid]?pr[r.sid]-r.rank:0,ti=bbLegTier(sp[r.sid]||0),up=R[i-1],sk=bbLegSpark(pre[r.sid]),smx=Math.max.apply(0,sk.concat([1]));
@@ -5628,7 +5628,7 @@ function bbLegV(){bbLegCss();var B=bbS();if(!B.st.length)return '<div class="car
       '<span class="bblqsp">'+sk.map(function(v,k){return '<i style="height:'+Math.max(6,v/smx*100)+'%"'+(k===7?' class="on"':'')+'></i>'}).join('')+'</span>'+
       '<span class="bblqpt"><b>'+r.pts.toLocaleString('tr-TR')+'</b><small>'+r.q.toLocaleString('tr-TR')+' soru</small></span></button>'}).join('')+
    '<div class="bblqlg">'+SEG.map(function(s){return '<span><i style="background:'+s[1]+'"></i>'+s[2]+'</span>'}).join('')+'<span class="mut">Satıra dokununca oyuncu kartı açılır</span></div></div>';
-  setTimeout(bbLegCelebrate,350);setTimeout(bbFit,0);return '<div class="bblqfit">'+h+'</div>'}
+  setTimeout(bbLegCelebrate,350);return h}
 function bbLegCelebrate(){var P=bbLegPer('pw'),k='bb-legcel-'+(bbSimOn()?'s':'r')+P.f;try{if(localStorage.getItem(k))return}catch(e){return}var R=bbLegRank(P.f,P.t);if(!R[0]||!R[0].pts)return;try{localStorage.setItem(k,'1')}catch(e){}
   bbCelebrate('Geçen haftanın şampiyonu','<b>'+esc(R[0].st.name)+'</b> · '+R[0].pts.toLocaleString('tr-TR')+' puan'+(R[1]?'<br><small>2. '+esc(R[1].st.name.split(' ')[0])+(R[2]?' · 3. '+esc(R[2].st.name.split(' ')[0]):'')+'</small>':''),'<span class="bbcbk noico">🏆</span>')}
 function bbLegCardM(sid){var pre=bbLegPre(),p=pre[sid];if(!p)return;var se=bbLegRank(bbLegPer('s').f,bbTd()),me=se.find(function(r){return r.sid===sid}),ti=bbLegTier(me.pts),nx=BBLEG_TIER.find(function(x){return x[0]>me.pts}),BD=bbLegBadges(p),got=BD.reduce(function(a,b){return a+(b.lv+1)},0);
@@ -5696,6 +5696,153 @@ function bbLegCss(){if(document.getElementById('bblqcss'))return;var s=document.
  '@media(max-width:1000px){.bblqg{grid-template-columns:1fr}.bblqawg{grid-template-columns:repeat(2,minmax(0,1fr))}.bblqthd,.bblqr{grid-template-columns:38px minmax(0,1.6fr) minmax(0,1fr) 70px}.bblqthd span:nth-child(4),.bblqr .bblqsp{display:none}}'+
  '@media(max-width:560px){.bblqper{overflow-x:auto;width:100%}.bblqper{order:2;overflow:visible}.bblqper .chip{padding:6px 4px;font-size:12.5px;flex:1 1 0}.bblqact .bbfb{flex-direction:row!important;gap:4px;padding:5px 9px;min-height:0}.bblqact .bbfb span{display:inline!important}.bblqthd,.bblqr{grid-template-columns:32px minmax(0,1fr) 64px}.bblqthd span:nth-child(3),.bblqr .bblqbr{display:none}.bblqbw{grid-template-columns:repeat(2,minmax(0,1fr))}.bblqrec{grid-template-columns:repeat(2,minmax(0,1fr))}.bblqpc b{font-size:13px}.bblqpc.p1 .bblqstep{height:96px}.bblqpc.p2 .bblqstep{height:70px}.bblqpc.p3 .bblqstep{height:52px}}';
  document.head.appendChild(s)}
+
+/* ================= Birebir · ÜYELİK: davet kodları, veli hesapları, izinler =================
+   Davet: öğretmen 6 haneli kod üretir → portal/{portalId('davet',kod)} (role:'b', d.inv = davet bilgisi + o hesabın verisi).
+   Öğrenci/veli kodu girip şifresini kendisi belirler → bbreq/{davetId} içine {claim:{pid,…}} yazar (mevcut kurallar yeterli).
+   Öğretmen uygulaması isteği alır (bbUyePull), hesabı bağlar, verisini portal/{pid}'e yazar, davet belgesini siler.
+   Öğrenci kimliği: portalId(kullanıcıAdı, şifre) · veli kimliği: portalId(telefon 10 hane, şifre). Aynı telefon+şifreli veli
+   birden fazla öğrencinin velisiyse tek belgede kids:[…] olarak toplanır. */
+var BB_PERM=[['pr','Haftalık program ve görev durumu',1],['dn','Deneme netleri ve puan',1],['q','Çözülen soru ve çalışma süresi',1],['why','Yanlış nedenleri ve konu analizi',0],['bk','Kitap okuma',1],['msg','Koçla mesajlaşma',1],['pay','Ödeme durumu (Muhasebe)',1],['lig','Lig sıralaması',0]];
+var BB_INVH=48;
+function bbAcc(st){if(!st.acc||typeof st.acc!=='object')st.acc={};if(!Array.isArray(st.acc.v))st.acc.v=[];if(!Array.isArray(st.acc.inv))st.acc.inv=[];return st.acc}
+function bbPerm(st){var p=st.perm||{},o={};BB_PERM.forEach(function(x){o[x[0]]=p[x[0]]==null?x[2]:(p[x[0]]?1:0)});return o}
+function bbPh(s){var d=String(s||'').replace(/\D/g,'');if(d.length>10)d=d.slice(-10);return d}
+function bbPhFmt(s){var d=bbPh(s);return d.length===10?'0'+d.slice(0,3)+' '+d.slice(3,6)+' '+d.slice(6,8)+' '+d.slice(8):String(s||'')}
+function bbCodeFmt(c){return String(c).slice(0,3)+' '+String(c).slice(3)}
+function bbInvLink(inv){return bbUrl()+'?k='+inv.code}
+function bbInvLeft(inv){var h=Math.ceil((inv.exp-Date.now())/36e5);return h<=0?'süresi doldu':h>=24?Math.floor(h/24)+' gün '+(h%24)+' saat geçerli':h+' saat geçerli'}
+function bbStuUser(st){if(st.lg&&st.lg.u)return st.lg.u;var used={};try{Object.keys(ptS()).forEach(function(k){var e=ptS()[k];['v','o'].forEach(function(r){if(e[r])used[e[r].u]=1})})}catch(x){}bbS().st.forEach(function(s){if(s.lg&&s.id!==st.id)used[s.lg.u]=1;(bbAcc(s).inv||[]).forEach(function(i){if(i.u&&s.id!==st.id)used[i.u]=1})});
+  var base=(ptAscii(st.name.split(' ')[0])||'ogrenci').slice(0,10)+'.bb',u=base,i=2;while(used[u])u=base.replace('.bb',i+++'.bb');return u}
+function bbRelL(r){return {anne:'anne',baba:'baba',diger:'veli'}[r]||'veli'}
+
+/* ---------- davet oluştur / iptal ---------- */
+async function bbInvNew(st,kind,o){o=o||{};if(st.demo){toast('Örnek öğrenci için davet oluşturulmaz');return null}if(!ptOn()){toast('Davet için hesabınızla giriş yapın (bulut eşitleme açık olmalı)');return null}
+  var A=bbAcc(st),code='',id='';for(var t=0;t<5;t++){var a=new Uint32Array(1);crypto.getRandomValues(a);code=String(100000+a[0]%900000);if(!A.inv.some(function(i){return i.code===code}))break}
+  id=await window.SPCloud.portalId('davet',code);
+  A.inv=A.inv.filter(function(i){if(kind==='o'||(kind==='r'&&!o.vid))return !(i.kind==='o'||(i.kind==='r'&&!i.vid));return !(o.vid&&i.vid===o.vid)});
+  var inv={id:id,code:code,kind:kind,cr:Date.now(),exp:Date.now()+BB_INVH*36e5,rel:o.rel||'',name:o.name||'',vid:o.vid||'',ph:bbPh(o.ph),u:kind==='o'||(kind==='r'&&!o.vid)?bbStuUser(st):''};
+  A.inv.push(inv);BBU.inv=id;save();render();bbSync(true);return inv}
+function bbInvMsg(st,inv){var fn=st.name.split(' ')[0],T=S.set.teacher||'',L=bbInvLink(inv),C=bbCodeFmt(inv.code);
+  if(inv.kind==='o')return 'Merhaba '+fn+'! 🎯\nBirebir koçluk sayfana katılman için davet:\n\n'+L+'\nDavet kodu: '+C+' ('+BB_INVH+' saat geçerli)\nKullanıcı adın: '+inv.u+'\n\nBağlantıya dokun, kendi şifreni belirle. Haftalık programın, görevlerin ve deneme sonuçların burada.\n'+T;
+  if(inv.kind==='v'){var nm=(inv.name||'').split(' ')[0];return 'Merhaba'+(nm?' '+nm+(inv.rel==='anne'?' Hanım':inv.rel==='baba'?' Bey':''):'')+',\n'+fn+'’nin birebir koçluk sayfasına veli olarak katılmanız için davet:\n\n'+L+'\nDavet kodu: '+C+' ('+BB_INVH+' saat geçerli)\n\nBağlantıya dokunun, telefon numaranız ve kendi belirleyeceğiniz şifreyle hesabınızı açın. Haftalık programı, deneme sonuçlarını ve ödeme durumunu buradan takip edebilirsiniz.\n'+T}
+  return 'Şifre sıfırlama · Birebir\n\n'+L+'\nKod: '+C+' ('+BB_INVH+' saat geçerli)\n\nBağlantıya dokunup yeni şifreni belirle. Eski şifren artık çalışmaz.\n'+T}
+function bbInvPh(st,inv){if(inv.kind==='v')return inv.ph||'';if(inv.kind==='r'&&inv.vid){var v=bbAcc(st).v.find(function(x){return x.vid===inv.vid});return v?v.ph:''}return ''}
+function bbWaUrl(ph,t){var d=bbPh(ph);return 'https://wa.me/'+(d.length===10?'90'+d:'')+'?text='+encodeURIComponent(t)}
+
+/* ---------- öğretmen arayüzü: Üyelik sekmesi ---------- */
+function bbUyeV(st){var A=bbAcc(st),P=bbPerm(st),on=ptOn(),now=Date.now(),h='';
+  if(st.demo)return '<div class="card"><p class="mut">Örnek ve sanal öğrenciler için üyelik oluşturulmaz. Gerçek bir öğrenci ekleyip deneyin.</p></div>';
+  if(!on)h+='<p class="bbwarn">🚨 Davet ve girişler için hesabınızla giriş yapmış olmanız gerekir (bulut eşitleme açık olmalı).</p>';
+  var invO=A.inv.find(function(i){return !i.vid&&(i.kind==='o'||i.kind==='r')}),invV=A.inv.filter(function(i){return i.kind==='v'}),chip=function(t,c){return '<span class="bbuc '+c+'">'+t+'</span>'};
+  /* öğrenci */
+  var so='<section class="card bbu1"><div class="bbuh"><h3>Öğrenci hesabı</h3>'+(st.lg&&st.lg.id?chip('Aktif','ok'):invO?chip('Davet bekliyor','wt'):chip('Yok','no'))+'</div>';
+  if(st.lg&&st.lg.id){so+='<div class="bbub"><div><small>Kullanıcı adı</small><b>'+esc(st.lg.u)+'</b></div><div><small>Şifre</small><b>'+(st.lg.p&&!st.lg.self?esc(st.lg.p):'kendisi belirledi')+'</b></div></div><p class="mut bbus">Son kayıt '+bbAgo(bbLast(st.id))+(A.v.some(function(v){return v.cons})?'':' · <span class="lo">veli onayı yok</span>')+'</p>'+
+    '<div class="bbubt"><button class="btn g s" data-bb="uyeInv" data-k="r">Şifre sıfırlama kodu</button>'+(st.lg.p&&!st.lg.self?'<button class="btn g s" data-bb="lgCopy">Bilgileri kopyala</button>':'')+'<button class="btn g s bad" data-bb="lgDel">Erişimi kapat</button></div>'}
+  else if(invO)so+='<p class="mut bbus">Davet kodu <b>'+bbCodeFmt(invO.code)+'</b> · '+bbInvLeft(invO)+'<br>Kullanıcı adı: <b>'+esc(invO.u)+'</b></p><div class="bbubt"><button class="btn g s" data-bb="uyeSel" data-id="'+invO.id+'">Daveti göster</button></div>';
+  else so+='<p class="mut bbus">Öğrenciye 6 haneli bir davet kodu gönderin; kendi şifresini belirleyerek girer.</p><div class="bbubt"><button class="btn y" data-bb="uyeInv" data-k="o"'+(on?'':' disabled')+'>＋ Öğrenci daveti oluştur</button></div>';
+  so+='</section>';
+  /* veliler */
+  var sv='<section class="card bbu1"><div class="bbuh"><h3>Veli hesapları</h3><span class="mut">'+A.v.length+' / 3</span></div>';
+  A.v.forEach(function(v){sv+='<div class="bbuv"><span class="bbav sm">'+esc(ini(v.name||'V'))+'</span><span class="bbcn"><b>'+esc(v.name||'Veli')+' · '+bbRelL(v.rel)+'</b><small>'+esc(bbPhFmt(v.ph))+(v.omr?' · son görülme '+bbAgo(v.omr):'')+'</small></span>'+chip('Aktif','ok')+'<button class="bbux" data-bb="uyeVMenu" data-vid="'+v.vid+'" aria-label="İşlemler">⋯</button></div>'});
+  invV.forEach(function(i){sv+='<button class="bbuv wt" data-bb="uyeSel" data-id="'+i.id+'"><span class="bbav sm">'+esc(ini(i.name||'V'))+'</span><span class="bbcn"><b>'+esc(i.name||'Veli')+' · '+bbRelL(i.rel)+'</b><small>Kod '+bbCodeFmt(i.code)+' · '+bbInvLeft(i)+'</small></span>'+chip(i.exp<now?'Süresi doldu':'Bekliyor','wt')+'</button>'});
+  if(A.v.length+invV.length<3)sv+='<button class="bbuadd" data-bb="uyeVNew"'+(on?'':' disabled')+'>＋ Veli davet et</button>';
+  sv+='</section>';
+  /* davet paneli */
+  var sel=A.inv.find(function(i){return i.id===BBU.inv})||A.inv[A.inv.length-1],sd;
+  if(sel){var who=sel.kind==='v'?(sel.name||'Veli'):sel.kind==='r'?'Şifre sıfırlama':st.name;
+    sd='<section class="card bbu1 bbud"><div class="bbuh"><h3>Davet: '+esc(who)+'</h3></div><div id="bbUQr" class="bbuqr" data-l="'+esc(bbInvLink(sel))+'"></div><div class="bbucode">'+bbCodeFmt(sel.code)+'</div><p class="mut">'+(sel.exp<now?'<b class="lo">Süresi doldu.</b> Yeni kod üretin.':'Kod tek kullanımlık, '+bbInvLeft(sel)+'. Kişi kendi şifresini belirler; şifreyi siz görmezsiniz.')+'</p>'+
+     '<div class="bbudb"><a class="btn wa s" target="_blank" rel="noopener" href="'+bbWaUrl(bbInvPh(st,sel),bbInvMsg(st,sel))+'">WhatsApp</a><button class="btn g s" data-bb="uyeCopy" data-id="'+sel.id+'">Kopyala</button><button class="btn g s" data-bb="uyeRenew" data-id="'+sel.id+'">Yeni kod</button><button class="btn g s" data-bb="uyeCancel" data-id="'+sel.id+'">İptal</button></div></section>'}
+  else sd='<section class="card bbu1 bbud"><div class="bbuh"><h3>Davet</h3></div><p class="mut" style="margin:auto 0">Bir davet oluşturduğunuzda 6 haneli kod, karekod ve WhatsApp mesajı burada görünür.</p></section>';
+  h+='<div class="bbug3">'+so+sv+sd+'</div>';
+  /* izinler + mesaj önizleme */
+  h+='<div class="bbug2"><section class="card"><div class="bbuh"><h3>Velinin görebilecekleri</h3></div><p class="mut" style="margin:0 0 8px">'+esc(st.name)+'’in velileri için. Değişiklik velinin bir sonraki açılışında yansır.</p><div class="bbup">'+
+    BB_PERM.map(function(x){return '<label><input type="checkbox" data-bbi="perm" data-k="'+x[0]+'"'+(P[x[0]]?' checked':'')+'>'+esc(x[1])+'</label>'}).join('')+'<label class="dis"><input type="checkbox" disabled>Öğrenci–koç yazışmaları (her zaman gizli)</label></div></section>'+
+    (sel?'<section class="card bbuwa"><div class="bbuh"><h3>WhatsApp mesajı önizleme</h3></div><div class="bbuwb">'+esc(bbInvMsg(st,sel))+'</div></section>':'<section class="card"><div class="bbuh"><h3>Nasıl çalışır?</h3></div><ol class="bbuol"><li>Davet oluşturun, WhatsApp’tan gönderin.</li><li>Öğrenci/veli bağlantıya dokunur, kendi şifresini belirler, onay verir.</li><li>Uygulamanız açıkken hesap birkaç saniyede bağlanır; kişi hemen girebilir.</li><li>Öğrenci kullanıcı adıyla, veli telefon numarasıyla girer.</li></ol></section>')+'</div>';
+  h+='<div class="card"><div class="sec">💬 Öğrenciye not</div><p class="mut">Öğrencinin sayfasının en üstünde görünür (program izni açıksa veli de görür).</p><textarea id="bbMsgT" rows="3" maxlength="300" data-bbi="msg" placeholder="ör. Bu hafta hedefimiz 400 soru ve paragraf rutini!">'+esc(st.msg||'')+'</textarea></div>';
+  setTimeout(bbUQr,0);return h}
+function bbUQr(){var box=$('bbUQr');if(!box||!window.qrcode)return;try{var q=qrcode(0,'M');q.addData(box.dataset.l);q.make();box.innerHTML=q.createSvgTag({cellSize:3,margin:1,scalable:true})}catch(x){}}
+function bbVForm(st,v){openM('<div id="bbVF"><h3>'+(v?'Veli bilgileri':'＋ Veli davet et')+'</h3><label>Yakınlık</label><div class="chips bbvr">'+[['anne','Anne'],['baba','Baba'],['diger','Diğer']].map(function(r,i){var on=v?v.rel===r[0]:i===0;return '<button class="chip'+(on?' on':'')+'" data-bb="uyeRel" data-v="'+r[0]+'">'+r[1]+'</button>'}).join('')+'</div>'+
+  '<label>Ad soyad</label><input id="bbVn" maxlength="60" value="'+esc(v?v.name:'')+'" placeholder="Velinin adı soyadı"><label>Telefon (WhatsApp)</label><input id="bbVp" inputmode="tel" maxlength="20" value="'+esc(v?bbPhFmt(v.ph):(bbAcc(st).v.length?'':st.ph||''))+'" placeholder="05xx xxx xx xx">'+
+  '<p class="mut">Veli bu numara ve kendi belirleyeceği şifreyle girer.</p><div class="acts"><button class="btn y" data-bb="uyeVAdd" style="flex:1">Davet oluştur</button><button class="btn g" data-a="close">Vazgeç</button></div></div>')}
+
+/* ---------- veriler ---------- */
+function bbPayInfo(st){try{var D=dtS(),f=bbFold(st.name),s=D.students.find(function(x){return x.id===st.dtid})||D.students.find(function(x){return bbFold(x.name)===f});if(!s)return null;var td=dtToday(),m=td.slice(0,7);
+  var L=D.lessons.filter(function(l){return l.sid===s.id}),done=L.filter(function(l){return l.status==='done'&&String(l.date).slice(0,7)===m}),plan=L.filter(function(l){return l.status==='planned'&&l.date>=td&&String(l.date).slice(0,7)===m});
+  var P=D.payments.filter(function(p){return p.sid===s.id}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'')}),earned=dtEarned(s.id),paid=dtPaid(s.id);
+  return {m:m,n:done.length,fee:done.reduce(function(a,l){return a+(+l.fee||0)},0),pl:plan.length,next:plan.length?plan.sort(function(a,b){return (a.date+a.time)<(b.date+b.time)?-1:1})[0].date:'',bal:Math.round((earned-paid)*100)/100,lp:P[0]?{d:P[0].date,a:P[0].amount}:null,rate:+s.rate||0}}catch(e){return null}}
+function bbPortalDataV(st,v){var P=bbPerm(st),b=bbS(),full=bbPortalData(st),o={sid:st.id,name:st.name,gr:st.gr||'',sc:st.sc||'',hl:st.hl||'',hp:st.hp||'',hn:st.hn||{},ws:+st.ws||0,teacher:full.teacher,p:P,rel:v&&v.rel||''};
+  if(P.pr){o.wk=full.wk;o.msg=st.msg||''}if(P.pr||P.q)o.log=full.log.map(function(l){var c=Object.assign({},l);delete c.nt;return c});
+  if(P.dn)o.dn=full.dn.map(function(d){return P.why?d:Object.assign({},d,{k:[]})});if(P.why)o.kt=full.kt;if(P.bk){o.bk=full.bk;o.rl=full.rl}
+  if(P.msg){o.vch=(b.vch&&b.vch[st.id]||[]).slice(-300);o.vmr=st.vmr||0}if(P.pay)o.pay=bbPayInfo(st);if(P.lig)o.lg=bbLegPortal(st.id);return o}
+function bbDocs(){var b=bbS(),out={},T=S.set.teacherFull||S.set.teacher||'',now=Date.now();
+  b.st.forEach(function(st){if(st.demo||st.sim)return;var A=bbAcc(st);
+    if(st.lg&&st.lg.id)out[st.lg.id]=bbPortalData(st);
+    A.v.forEach(function(v){if(!v.id)return;var d=out[v.id];if(!d||!d.par)d=out[v.id]={par:1,bb:1,name:v.name||'',teacher:T,kids:[]};d.kids.push(bbPortalDataV(st,v))});
+    A.inv.forEach(function(i){if(i.exp<now)return;var vv=i.vid?A.v.find(function(x){return x.vid===i.vid}):null,meta={kind:i.kind,stu:st.name,rel:vv?vv.rel:i.rel,name:vv?vv.name:i.name,u:i.kind==='r'&&!i.vid&&st.lg?st.lg.u:i.u,ph:vv?vv.ph:i.ph,teacher:T,exp:i.exp,par:i.kind==='v'||!!i.vid?1:0};
+      if(meta.par)out[i.id]={par:1,bb:1,inv:meta,name:meta.name||'',teacher:T,kids:[bbPortalDataV(st,vv||{rel:i.rel})]};else out[i.id]=Object.assign(bbPortalData(st),{inv:meta})})});
+  return out}
+
+/* ---------- gelen davet kabulleri ve veli mesajları ---------- */
+function bbClaim(st,inv,c){var A=bbAcc(st),p=String(c.pid||'');if(!/^[0-9a-f]{64}$/.test(p))return 0;
+  if(inv.kind==='o'){st.lg={u:inv.u,id:p,cr:Date.now(),self:1}}
+  else if(inv.kind==='v'){var ph=bbPh(c.ph),v=A.v.find(function(x){return ph&&x.ph===ph});if(!v){v={vid:'v'+uid()};A.v.push(v)}Object.assign(v,{name:String(c.name||inv.name||'Veli').slice(0,60),rel:inv.rel||v.rel||'diger',ph:ph,id:p,at:Date.now(),cons:c.cons?Date.now():0,wa:c.wa?1:0})}
+  else if(inv.kind==='r'){if(inv.vid){var v2=A.v.find(function(x){return x.vid===inv.vid});if(v2)v2.id=p}else{st.lg=Object.assign(st.lg||{u:inv.u},{id:p,self:1});delete st.lg.p}}
+  A.inv=A.inv.filter(function(x){return x!==inv});if(BBU.inv===inv.id)BBU.inv=null;
+  BBNEW.push({sid:st.id,m:{t:(inv.kind==='v'?'👪 '+(c.name||'Veli')+' veli hesabını açtı':inv.kind==='r'?'🔑 Yeni şifre belirlendi':'🎉 '+st.name+' hesabını açtı')}});return 1}
+function bbVMerge(J,v){var b=bbS(),n=0;b.vch=b.vch||{};(J.vm||[]).forEach(function(e){if(!e||!e.id||typeof e.t!=='string'||!e.t.trim())return;var st=bbStu(e.sid);if(!st)return;var vv=bbAcc(st).v.find(function(x){return x.id===v.id})||v;if(!vv.id&&!vv.name)return;var C=b.vch[st.id]=b.vch[st.id]||[];if(C.some(function(z){return z.id===e.id}))return;
+    var c={id:String(e.id).slice(0,24),f:'v',by:String(vv.name||'Veli').slice(0,40),vid:vv.vid||'',t:e.t.slice(0,1000),at:Math.min(Date.now(),+e.at||Date.now())};C.push(c);n++;BBNEW.push({sid:st.id,m:{t:'👪 '+c.by+': '+c.t}})});
+  if(+J.mr){bbS().st.forEach(function(st){bbAcc(st).v.forEach(function(x){if(x.id===v.id&&+J.mr>(x.omr||0)){x.omr=Math.min(Date.now(),+J.mr);n++}})})}return n}
+async function bbUyePull(db){var n=0,b=bbS(),seen={};
+  for(var st of b.st){if(st.demo||st.sim)continue;var A=bbAcc(st);
+    for(var inv of A.inv.slice()){try{var d=await db.collection('bbreq').doc(inv.id).get();if(!d.exists)continue;var x=d.data();if(!x||!x.j||!(x.at>(inv.rq||0)))continue;inv.rq=x.at;var J=JSON.parse(x.j);
+      if(!inv.vid&&inv.kind!=='v')n+=bbMerge(st.id,J);else n+=bbVMerge(J,{id:inv.id,name:J.claim&&J.claim.name||inv.name});
+      if(J.claim&&J.claim.pid&&inv.exp>Date.now())n+=bbClaim(st,inv,J.claim)}catch(e){}}
+    for(var v of A.v){if(!v.id||seen[v.id])continue;seen[v.id]=1;try{var d2=await db.collection('bbreq').doc(v.id).get();if(!d2.exists)continue;var x2=d2.data();if(!x2||!x2.j||!(x2.at>(v.rq||0)))continue;v.rq=x2.at;n+=bbVMerge(JSON.parse(x2.j),v)+0}catch(e){}}}
+  return n}
+
+/* ---------- veli mesajları (öğretmen) ---------- */
+function bbVMsgs(sid){return ((bbS().vch||{})[sid]||[]).slice().sort(function(a,b){return (a.at||0)-(b.at||0)})}
+function bbUnreadV(sid){var st=bbStu(sid);if(!st)return 0;return ((bbS().vch||{})[sid]||[]).filter(function(m){return m.f==='v'&&(m.at||0)>(st.vmr||0)}).length}
+function bbVMsgV(st){var sid=st.id,M=bbVMsgs(sid),A=bbAcc(st),P=bbPerm(st);if(bbUnreadV(sid)){st.vmr=Date.now();setTimeout(function(){save();renderNav()},0)}
+  var om=0;A.v.forEach(function(v){if((v.omr||0)>om)om=v.omr});var h='';
+  if(!A.v.length)h+='<p class="bbwarn">Bu öğrencinin henüz veli hesabı yok. <b>Üyelik</b> sekmesinden veli davet edin.</p>';else if(!P.msg)h+='<p class="bbwarn">Mesajlaşma izni kapalı: veliler yazamaz ve yazdıklarınızı göremez.</p>';
+  h+='<div class="card bbchatc"><div class="bbchat" id="bbChat">';if(!M.length)h+='<p class="bbnone" style="text-align:center;padding:30px 10px">Velilerle yazışma burada görünür. Öğrenci bu yazışmayı göremez.</p>';
+  var day='';M.forEach(function(m){var d=bbIso(new Date(m.at));if(d!==day){day=d;h+='<div class="bbcd">'+fd(d,{weekday:'long',day:'numeric',month:'long'})+'</div>'}
+    h+='<div class="bbm '+(m.f==='t'?'me':'ot')+'"><div class="bbmb">'+(m.f==='v'?'<b class="bbmby">'+esc(m.by||'Veli')+'</b>':'')+esc(m.t).replace(/\n/g,'<br>')+'<small>'+new Date(m.at).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})+(m.f==='t'?' '+(om>=m.at?'<b class="bbseen">✓✓</b>':'✓'):'')+'</small></div></div>'});
+  h+='</div><div class="bbcomp"><textarea id="bbVt" rows="2" maxlength="1000" placeholder="Velilere mesaj yaz…"></textarea><button class="btn y" data-bb="vmsgSend" aria-label="Gönder">➤</button></div></div>';
+  setTimeout(function(){var c=$('bbChat');if(c)c.scrollTop=c.scrollHeight},0);return h}
+function bbMthChips(st){var u=bbUnread(st.id),uv=bbUnreadV(st.id),v=BBU.mth==='v';return '<div class="chips bbmth"><button class="chip'+(v?'':' on')+'" data-bb="mth" data-v="o">Öğrenci'+(u&&v?' <span class="bbnc st">'+u+'</span>':'')+'</button><button class="chip'+(v?' on':'')+'" data-bb="mth" data-v="v">Veliler ('+bbAcc(st).v.length+')'+(uv&&!v?' <span class="bbnc st">'+uv+'</span>':'')+'</button></div>'}
+
+/* ---------- olaylar ---------- */
+var BBVR='anne';
+document.addEventListener('click',function(ev){var b=ev.target.closest('[data-bb]');if(!b)return;var a=b.dataset.bb;if(a.indexOf('uye')!==0&&a!=='vmsgSend'&&a!=='mth')return;var st=BBU.sid&&bbStu(BBU.sid);if(!st)return;var A=bbAcc(st),B=bbS();
+  if(a==='mth'){BBU.mth=b.dataset.v;render();return}
+  if(a==='vmsgSend'){var t=($('bbVt')||{}).value||'';t=t.trim();if(!t)return;B.vch=B.vch||{};(B.vch[st.id]=B.vch[st.id]||[]).push({id:uid(),f:'t',t:t.slice(0,1000),at:Date.now()});st.vmr=Date.now();save();clearTimeout(bbTm);bbSync();render();setTimeout(function(){var x=$('bbVt');if(x)x.focus()},30);return}
+  if(a==='uyeInv'){var k=b.dataset.k;b.disabled=true;bbInvNew(st,k,{vid:b.dataset.vid||''}).then(function(i){if(i)toast(k==='r'?'🔑 Sıfırlama kodu hazır · WhatsApp’tan gönderin':'Davet hazır · WhatsApp’tan gönderin')});return}
+  if(a==='uyeSel'){BBU.inv=b.dataset.id;bbRender();return}
+  if(a==='uyeVNew'){BBVR='anne';bbVForm(st);return}
+  if(a==='uyeRel'){BBVR=b.dataset.v;b.parentNode.querySelectorAll('.chip').forEach(function(c){c.classList.toggle('on',c===b)});return}
+  if(a==='uyeVAdd'){var nm=($('bbVn').value||'').trim().replace(/\s+/g,' '),ph=bbPh($('bbVp').value);if(!nm){toast('Velinin adını yazın');return}if(ph.length!==10){toast('Telefonu 05xx xxx xx xx biçiminde yazın');return}closeM();bbInvNew(st,'v',{name:nm,ph:ph,rel:BBVR}).then(function(i){if(i)toast('Veli daveti hazır · WhatsApp’tan gönderin')});return}
+  var inv=A.inv.find(function(i){return i.id===b.dataset.id});
+  if(a==='uyeCopy'&&inv){bbCopy(bbInvMsg(st,inv),'Davet mesajı kopyalandı ✓');return}
+  if(a==='uyeRenew'&&inv){bbInvNew(st,inv.kind,{vid:inv.vid,name:inv.name,ph:inv.ph,rel:inv.rel}).then(function(i){if(i)toast('Yeni kod üretildi · eski kod artık çalışmaz')});return}
+  if(a==='uyeCancel'&&inv){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Emin misiniz?';return}A.inv=A.inv.filter(function(i){return i!==inv});BBU.inv=null;save();bbRender();bbSync();toast('Davet iptal edildi');return}
+  var v=A.v.find(function(x){return x.vid===b.dataset.vid});
+  if(a==='uyeVMenu'&&v){openM('<h3>'+esc(v.name)+' · '+bbRelL(v.rel)+'</h3><p class="mut">'+esc(bbPhFmt(v.ph))+(v.cons?' · onay '+new Date(v.cons).toLocaleDateString('tr-TR'):'')+'</p><div class="acts" style="flex-direction:column;align-items:stretch"><button class="btn y" data-bb="uyeInv" data-k="r" data-vid="'+v.vid+'">🔑 Şifre sıfırlama kodu</button>'+(v.ph?'<a class="btn wa" target="_blank" rel="noopener" href="'+bbWaUrl(v.ph,'Merhaba '+(v.name||'').split(' ')[0]+',\n')+'">💬 WhatsApp’tan yaz</a>':'')+'<button class="btn g" data-bb="uyeVDel" data-vid="'+v.vid+'">Veli hesabını kaldır</button><button class="btn g" data-a="close">Kapat</button></div>');return}
+  if(a==='uyeVDel'&&v){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Kaldırılsın mı? Tekrar dokunun';return}A.v=A.v.filter(function(x){return x!==v});save();closeM();bbRender();bbSync();toast('Veli hesabı kaldırıldı');return}
+  if(a==='uyeInv'&&b.closest('#mb'))closeM();
+});
+document.addEventListener('change',function(ev){var t=ev.target;if(!t||!t.dataset||t.dataset.bbi!=='perm')return;var st=bbStu(BBU.sid);if(!st)return;st.perm=bbPerm(st);st.perm[t.dataset.k]=t.checked?1:0;save();bbSoon();toast('İzin güncellendi')});
+function bbUyeCss(){return '.bbug3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px}.bbug2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:10px;margin-bottom:10px}.bbug3 .card,.bbug2 .card{margin:0!important}'+
+ '.bbu1{display:flex;flex-direction:column;gap:8px}.bbuh{display:flex;align-items:center;gap:8px}.bbuh h3{margin:0;font-size:14.5px;font-weight:900;flex:1}.bbuc{font-size:11px;font-weight:900;border-radius:99px;padding:3px 9px;white-space:nowrap}.bbuc.ok{background:#DFF3E8;color:#1F6B4A}.bbuc.wt{background:#FCEBD7;color:#8A4E10}.bbuc.no{background:#EEF1F5;color:#5A6B85}'+
+ '.bbub{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.bbub>div{background:#F4F7FC;border-radius:11px;padding:6px 9px;min-width:0}.bbub small{display:block;font-size:11px;font-weight:800;color:var(--mut)}.bbub b{display:block;font-size:14.5px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bbus{margin:0;font-size:12.5px}.bbubt{display:flex;flex-wrap:wrap;gap:6px}.bbubt .btn.bad{color:var(--bad)}'+
+ '.bbuv{display:flex;align-items:center;gap:8px;width:100%;text-align:left;font:inherit;color:var(--tx);border:1.5px solid var(--bd);background:var(--card);border-radius:13px;padding:6px 8px}.bbuv.wt{border-style:dashed;border-color:#E9C454;background:#FFFBEA;cursor:pointer}.bbuv .bbcn b{font-size:13.5px}.bbuv .bbcn small{font-size:11.5px}.bbux{width:32px;height:32px;border:0;background:none;font:900 18px/1 inherit;color:var(--mut);cursor:pointer;border-radius:9px}.bbux:hover{background:#EEF3FA}'+
+ '.bbuadd{height:40px;border-radius:12px;border:1.5px dashed #B8C8DE;background:none;font:inherit;font-weight:900;font-size:13px;color:#25406B;cursor:pointer}.bbud{align-items:center;text-align:center}.bbud .bbuh{align-self:stretch;text-align:left}.bbud p{margin:0;font-size:12px}.bbuqr{width:124px;height:124px;border-radius:12px;border:1.5px solid var(--bd);background:#fff;padding:4px;box-sizing:border-box}.bbuqr svg{width:100%;height:100%}.bbucode{font-size:28px;font-weight:900;letter-spacing:.12em;color:#161616}.bbudb{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-self:stretch}.bbudb .btn{flex:1}'+
+ '.bbup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 16px}.bbup label{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800;margin:0;cursor:pointer}.bbup input{width:18px;height:18px;margin:0;accent-color:#C9A227;flex:none}.bbup label.dis{color:var(--mut);cursor:default}'+
+ '.bbuwa{background:#E9F0E6!important;border-color:#CFE0C8!important}.bbuwb{background:#fff;border-radius:13px 13px 13px 4px;padding:9px 11px;font-size:12.5px;font-weight:700;line-height:1.45;white-space:pre-line;overflow-wrap:anywhere}.bbuol{margin:0;padding-left:18px;font-size:13px;font-weight:700;line-height:1.6}'+
+ '.bbmth{margin:0 0 8px}.bbmby{display:block;font-size:11px;color:#8A4E10;margin-bottom:1px}'+
+ '@media(max-width:980px){.bbug3{grid-template-columns:repeat(2,minmax(0,1fr))}.bbug3 .bbud{grid-column:1/-1}.bbug2{grid-template-columns:1fr}}@media(max-width:620px){.bbug3{grid-template-columns:1fr}.bbup{grid-template-columns:1fr}}'}
 
 /* ================= BİREBİR · MUHASEBE (Ders Takibi uygulamasından taşındı) =================
    Veri: S.dt = {students:[{id,name,rate}], lessons:[{id,sid,date,time,status:'planned'|'done'|'cancel',fee,series?}], payments:[{id,sid,date,amount}]}
