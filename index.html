@@ -5110,12 +5110,18 @@ function bbPortalData(st){var b=bbS(),sid=st.id,w0=bbW0(st),W={};[-7,0,7].forEac
 var bbTm=null,bbBusy=false,bbAgain=false,bbQuiet=false;
 function bbSoon(){if(!ptOn()||!bbHasAcc())return;clearTimeout(bbTm);bbTm=setTimeout(bbSync,10000)}
 function bbHasAcc(){return bbS().st.some(function(s){return (s.lg&&s.lg.id)||(s.acc&&((s.acc.v||[]).length||(s.acc.inv||[]).length))})}
-async function bbSync(force){if(!ptOn()||bbSimOn())return;if(bbBusy){bbAgain=true;return}bbBusy=true;var n=0,b=bbS();
+function bbHsGet(){try{return JSON.parse(localStorage.getItem('bb-hs')||'{}')||{}}catch(e){return {}}}
+function bbHsSet(H){try{localStorage.setItem('bb-hs',JSON.stringify(H))}catch(e){}}
+function bbGone(id){if(!id)return;var b=bbS();b.gone=b.gone||[];if(b.gone.indexOf(id)<0)b.gone.push(id)}
+async function bbPutDoc(db,uidv,id,d){d.at=Date.now();await db.collection('portal').doc(id).set({owner:uidv,role:'b',d:JSON.stringify(d),at:Date.now()})}
+async function bbSync(force){if(!ptOn()||bbSimOn())return;if(bbBusy){bbAgain=true;return}bbBusy=true;var n=0,bad=0,b=bbS();
   try{var db=await claude.use('db'),user=await claude.use('user');if(!db||!user)throw 0;var uidv=await user.id();if(!uidv)throw 0;
-    var D=bbDocs(),H=b.hs=b.hs||{};
-    for(var id in D){var d=D[id],h=ptHash(JSON.stringify(Object.assign({},d,{at:0})));if(!force&&H[id]===h)continue;d.at=Date.now();await db.collection('portal').doc(id).set({owner:uidv,role:'b',d:JSON.stringify(d),at:Date.now()});H[id]=h;n++;b.st.forEach(function(st){if(st.lg&&st.lg.id===id)st.at=Date.now()})}
-    for(var id2 of Object.keys(H)){if(D[id2])continue;try{await db.collection('portal').doc(id2).delete()}catch(x){}delete H[id2];n++}
-    if(n){bbQuiet=true;save();bbQuiet=false}}
+    var D=bbDocs(),H=bbHsGet(),ids=Object.keys(D).sort(function(a,c){return (D[c].inv?1:0)-(D[a].inv?1:0)});
+    for(var id of ids){var d=D[id],h=ptHash(JSON.stringify(Object.assign({},d,{at:0})));if(!force&&H[id]===h)continue;
+      try{await bbPutDoc(db,uidv,id,d);H[id]=h;n++;b.st.forEach(function(st){if(st.lg&&st.lg.id===id)st.at=Date.now()})}catch(er){bad++;console.warn('birebir yazılamadı',id.slice(0,8),er)}}
+    var G=(b.gone||[]).slice(),keep=[];for(var g of G){if(D[g])continue;try{await db.collection('portal').doc(g).delete();delete H[g];n++}catch(er){keep.push(g)}}
+    if(G.length){b.gone=keep;n++}bbHsSet(H);if(b.hs){delete b.hs;n++}
+    if(n){bbQuiet=true;save();bbQuiet=false}if(bad&&force)toast('⚠ '+bad+' sayfa yayınlanamadı · bağlantıyı kontrol edin')}
   catch(er){if(er)console.warn('birebir',er);if(force)toast('Öğrenci sayfası güncellenemedi · bağlantıyı kontrol edin')}
   bbBusy=false;if(bbAgain){bbAgain=false;bbSync()}return n}
 var _bbSave=save;save=function(){_bbSave.apply(this,arguments);if(!bbQuiet)bbSoon()};
@@ -5720,9 +5726,12 @@ function bbRelL(r){return {anne:'anne',baba:'baba',diger:'veli'}[r]||'veli'}
 async function bbInvNew(st,kind,o){o=o||{};if(st.demo){toast('Örnek öğrenci için davet oluşturulmaz');return null}if(!ptOn()){toast('Davet için hesabınızla giriş yapın (bulut eşitleme açık olmalı)');return null}
   var A=bbAcc(st),code='',id='';for(var t=0;t<5;t++){var a=new Uint32Array(1);crypto.getRandomValues(a);code=String(100000+a[0]%900000);if(!A.inv.some(function(i){return i.code===code}))break}
   id=await window.SPCloud.portalId('davet',code);
-  A.inv=A.inv.filter(function(i){if(kind==='o'||(kind==='r'&&!o.vid))return !(i.kind==='o'||(i.kind==='r'&&!i.vid));return !(o.vid&&i.vid===o.vid)});
+  A.inv=A.inv.filter(function(i){var drop=(kind==='o'||(kind==='r'&&!o.vid))?(i.kind==='o'||(i.kind==='r'&&!i.vid)):!!(o.vid&&i.vid===o.vid);if(drop)bbGone(i.id);return !drop});
   var inv={id:id,code:code,kind:kind,cr:Date.now(),exp:Date.now()+BB_INVH*36e5,rel:o.rel||'',name:o.name||'',vid:o.vid||'',ph:bbPh(o.ph),u:kind==='o'||(kind==='r'&&!o.vid)?bbStuUser(st):''};
-  A.inv.push(inv);BBU.inv=id;save();render();bbSync(true);return inv}
+  A.inv.push(inv);BBU.inv=id;save();render();await bbInvPub(st,inv);return inv}
+async function bbInvPub(st,inv){inv.pub=0;try{var db=await claude.use('db'),user=await claude.use('user'),uidv=user&&await user.id();if(!db||!uidv)throw new Error('oturum yok');var D=bbDocs(),d=D[inv.id];if(!d)throw new Error('davet verisi oluşmadı');
+    await bbPutDoc(db,uidv,inv.id,d);var H=bbHsGet();H[inv.id]=ptHash(JSON.stringify(Object.assign({},d,{at:0})));bbHsSet(H);inv.pub=Date.now();save();bbRender();return true}
+  catch(er){console.warn('davet yayınlanamadı',er);inv.pub=0;save();bbRender();toast('⚠ Davet yayınlanamadı: '+((er&&(er.code||er.message))||'bağlantı')+' · “Tekrar yayınla”ya dokunun');return false}}
 function bbInvMsg(st,inv){var fn=st.name.split(' ')[0],T=S.set.teacher||'',L=bbInvLink(inv),C=bbCodeFmt(inv.code);
   if(inv.kind==='o')return 'Merhaba '+fn+'! 🎯\nBirebir koçluk sayfana katılman için davet:\n\n'+L+'\nDavet kodu: '+C+' ('+BB_INVH+' saat geçerli)\nKullanıcı adın: '+inv.u+'\n\nBağlantıya dokun, kendi şifreni belirle. Haftalık programın, görevlerin ve deneme sonuçların burada.\n'+T;
   if(inv.kind==='v'){var nm=(inv.name||'').split(' ')[0];return 'Merhaba'+(nm?' '+nm+(inv.rel==='anne'?' Hanım':inv.rel==='baba'?' Bey':''):'')+',\n'+fn+'’nin birebir koçluk sayfasına veli olarak katılmanız için davet:\n\n'+L+'\nDavet kodu: '+C+' ('+BB_INVH+' saat geçerli)\n\nBağlantıya dokunun, telefon numaranız ve kendi belirleyeceğiniz şifreyle hesabınızı açın. Haftalık programı, deneme sonuçlarını ve ödeme durumunu buradan takip edebilirsiniz.\n'+T}
@@ -5751,7 +5760,7 @@ function bbUyeV(st){var A=bbAcc(st),P=bbPerm(st),on=ptOn(),now=Date.now(),h='';
   /* davet paneli */
   var sel=A.inv.find(function(i){return i.id===BBU.inv})||A.inv[A.inv.length-1],sd;
   if(sel){var who=sel.kind==='v'?(sel.name||'Veli'):sel.kind==='r'?'Şifre sıfırlama':st.name;
-    sd='<section class="card bbu1 bbud"><div class="bbuh"><h3>Davet: '+esc(who)+'</h3></div><div id="bbUQr" class="bbuqr" data-l="'+esc(bbInvLink(sel))+'"></div><div class="bbucode">'+bbCodeFmt(sel.code)+'</div><p class="mut">'+(sel.exp<now?'<b class="lo">Süresi doldu.</b> Yeni kod üretin.':'Kod tek kullanımlık, '+bbInvLeft(sel)+'. Kişi kendi şifresini belirler; şifreyi siz görmezsiniz.')+'</p>'+
+    sd='<section class="card bbu1 bbud"><div class="bbuh"><h3>Davet: '+esc(who)+'</h3></div><div id="bbUQr" class="bbuqr" data-l="'+esc(bbInvLink(sel))+'"></div><div class="bbucode">'+bbCodeFmt(sel.code)+'</div>'+(sel.exp<now?'':sel.pub?'<span class="bbuc ok">Yayında ✓ · kod şimdi kullanılabilir</span>':'<button class="btn y s" data-bb="uyePub" data-id="'+sel.id+'">⚠ Yayınlanmadı · Tekrar yayınla</button>')+'<p class="mut">'+(sel.exp<now?'<b class="lo">Süresi doldu.</b> Yeni kod üretin.':'Kod tek kullanımlık, '+bbInvLeft(sel)+'. Kişi kendi şifresini belirler; şifreyi siz görmezsiniz.')+'</p>'+
      '<div class="bbudb"><a class="btn wa s" target="_blank" rel="noopener" href="'+bbWaUrl(bbInvPh(st,sel),bbInvMsg(st,sel))+'">WhatsApp</a><button class="btn g s" data-bb="uyeCopy" data-id="'+sel.id+'">Kopyala</button><button class="btn g s" data-bb="uyeRenew" data-id="'+sel.id+'">Yeni kod</button><button class="btn g s" data-bb="uyeCancel" data-id="'+sel.id+'">İptal</button></div></section>'}
   else sd='<section class="card bbu1 bbud"><div class="bbuh"><h3>Davet</h3></div><p class="mut" style="margin:auto 0">Bir davet oluşturduğunuzda 6 haneli kod, karekod ve WhatsApp mesajı burada görünür.</p></section>';
   h+='<div class="bbug3">'+so+sv+sd+'</div>';
@@ -5775,7 +5784,7 @@ function bbPortalDataV(st,v){var P=bbPerm(st),b=bbS(),full=bbPortalData(st),o={s
   if(P.pr){o.wk=full.wk;o.msg=st.msg||''}if(P.pr||P.q)o.log=full.log.map(function(l){var c=Object.assign({},l);delete c.nt;return c});
   if(P.dn)o.dn=full.dn.map(function(d){return P.why?d:Object.assign({},d,{k:[]})});if(P.why)o.kt=full.kt;if(P.bk){o.bk=full.bk;o.rl=full.rl}
   if(P.msg){o.vch=(b.vch&&b.vch[st.id]||[]).slice(-300);o.vmr=st.vmr||0}if(P.pay)o.pay=bbPayInfo(st);if(P.lig)o.lg=bbLegPortal(st.id);return o}
-function bbDocs(){var b=bbS(),out={},T=S.set.teacherFull||S.set.teacher||'',now=Date.now();
+function bbDocs(){var b=bbS(),out={},T=S.set.teacherFull||S.set.teacher||'',now=Date.now();b.st.forEach(function(st){if(st.acc&&st.acc.inv)st.acc.inv.forEach(function(i){if(i.exp<now&&!i.gx){i.gx=1;bbGone(i.id)}})});
   b.st.forEach(function(st){if(st.demo||st.sim)return;var A=bbAcc(st);
     if(st.lg&&st.lg.id)out[st.lg.id]=bbPortalData(st);
     A.v.forEach(function(v){if(!v.id)return;var d=out[v.id];if(!d||!d.par)d=out[v.id]={par:1,bb:1,name:v.name||'',teacher:T,kids:[]};d.kids.push(bbPortalDataV(st,v))});
@@ -5785,10 +5794,10 @@ function bbDocs(){var b=bbS(),out={},T=S.set.teacherFull||S.set.teacher||'',now=
 
 /* ---------- gelen davet kabulleri ve veli mesajları ---------- */
 function bbClaim(st,inv,c){var A=bbAcc(st),p=String(c.pid||'');if(!/^[0-9a-f]{64}$/.test(p))return 0;
-  if(inv.kind==='o'){st.lg={u:inv.u,id:p,cr:Date.now(),self:1}}
-  else if(inv.kind==='v'){var ph=bbPh(c.ph),v=A.v.find(function(x){return ph&&x.ph===ph});if(!v){v={vid:'v'+uid()};A.v.push(v)}Object.assign(v,{name:String(c.name||inv.name||'Veli').slice(0,60),rel:inv.rel||v.rel||'diger',ph:ph,id:p,at:Date.now(),cons:c.cons?Date.now():0,wa:c.wa?1:0})}
-  else if(inv.kind==='r'){if(inv.vid){var v2=A.v.find(function(x){return x.vid===inv.vid});if(v2)v2.id=p}else{st.lg=Object.assign(st.lg||{u:inv.u},{id:p,self:1});delete st.lg.p}}
-  A.inv=A.inv.filter(function(x){return x!==inv});if(BBU.inv===inv.id)BBU.inv=null;
+  if(inv.kind==='o'){if(st.lg&&st.lg.id&&st.lg.id!==p)bbGone(st.lg.id);st.lg={u:inv.u,id:p,cr:Date.now(),self:1}}
+  else if(inv.kind==='v'){var ph=bbPh(c.ph),v=A.v.find(function(x){return ph&&x.ph===ph});if(!v){v={vid:'v'+uid()};A.v.push(v)}if(v.id&&v.id!==p)bbGone(v.id);Object.assign(v,{name:String(c.name||inv.name||'Veli').slice(0,60),rel:inv.rel||v.rel||'diger',ph:ph,id:p,at:Date.now(),cons:c.cons?Date.now():0,wa:c.wa?1:0})}
+  else if(inv.kind==='r'){if(inv.vid){var v2=A.v.find(function(x){return x.vid===inv.vid});if(v2){if(v2.id&&v2.id!==p)bbGone(v2.id);v2.id=p}}else{if(st.lg&&st.lg.id&&st.lg.id!==p)bbGone(st.lg.id);st.lg=Object.assign(st.lg||{u:inv.u},{id:p,self:1});delete st.lg.p}}
+  bbGone(inv.id);A.inv=A.inv.filter(function(x){return x!==inv});if(BBU.inv===inv.id)BBU.inv=null;
   BBNEW.push({sid:st.id,m:{t:(inv.kind==='v'?'👪 '+(c.name||'Veli')+' veli hesabını açtı':inv.kind==='r'?'🔑 Yeni şifre belirlendi':'🎉 '+st.name+' hesabını açtı')}});return 1}
 function bbVMerge(J,v){var b=bbS(),n=0;b.vch=b.vch||{};(J.vm||[]).forEach(function(e){if(!e||!e.id||typeof e.t!=='string'||!e.t.trim())return;var st=bbStu(e.sid);if(!st)return;var vv=bbAcc(st).v.find(function(x){return x.id===v.id})||v;if(!vv.id&&!vv.name)return;var C=b.vch[st.id]=b.vch[st.id]||[];if(C.some(function(z){return z.id===e.id}))return;
     var c={id:String(e.id).slice(0,24),f:'v',by:String(vv.name||'Veli').slice(0,40),vid:vv.vid||'',t:e.t.slice(0,1000),at:Math.min(Date.now(),+e.at||Date.now())};C.push(c);n++;BBNEW.push({sid:st.id,m:{t:'👪 '+c.by+': '+c.t}})});
@@ -5825,12 +5834,13 @@ document.addEventListener('click',function(ev){var b=ev.target.closest('[data-bb
   if(a==='uyeRel'){BBVR=b.dataset.v;b.parentNode.querySelectorAll('.chip').forEach(function(c){c.classList.toggle('on',c===b)});return}
   if(a==='uyeVAdd'){var nm=($('bbVn').value||'').trim().replace(/\s+/g,' '),ph=bbPh($('bbVp').value);if(!nm){toast('Velinin adını yazın');return}if(ph.length!==10){toast('Telefonu 05xx xxx xx xx biçiminde yazın');return}closeM();bbInvNew(st,'v',{name:nm,ph:ph,rel:BBVR}).then(function(i){if(i)toast('Veli daveti hazır · WhatsApp’tan gönderin')});return}
   var inv=A.inv.find(function(i){return i.id===b.dataset.id});
+  if(a==='uyePub'&&inv){b.disabled=true;b.textContent='Yayınlanıyor…';bbInvPub(st,inv).then(function(ok){if(ok)toast('Davet yayında ✓')});return}
   if(a==='uyeCopy'&&inv){bbCopy(bbInvMsg(st,inv),'Davet mesajı kopyalandı ✓');return}
   if(a==='uyeRenew'&&inv){bbInvNew(st,inv.kind,{vid:inv.vid,name:inv.name,ph:inv.ph,rel:inv.rel}).then(function(i){if(i)toast('Yeni kod üretildi · eski kod artık çalışmaz')});return}
-  if(a==='uyeCancel'&&inv){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Emin misiniz?';return}A.inv=A.inv.filter(function(i){return i!==inv});BBU.inv=null;save();bbRender();bbSync();toast('Davet iptal edildi');return}
+  if(a==='uyeCancel'&&inv){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Emin misiniz?';return}bbGone(inv.id);A.inv=A.inv.filter(function(i){return i!==inv});BBU.inv=null;save();bbRender();bbSync();toast('Davet iptal edildi');return}
   var v=A.v.find(function(x){return x.vid===b.dataset.vid});
   if(a==='uyeVMenu'&&v){openM('<h3>'+esc(v.name)+' · '+bbRelL(v.rel)+'</h3><p class="mut">'+esc(bbPhFmt(v.ph))+(v.cons?' · onay '+new Date(v.cons).toLocaleDateString('tr-TR'):'')+'</p><div class="acts" style="flex-direction:column;align-items:stretch"><button class="btn y" data-bb="uyeInv" data-k="r" data-vid="'+v.vid+'">🔑 Şifre sıfırlama kodu</button>'+(v.ph?'<a class="btn wa" target="_blank" rel="noopener" href="'+bbWaUrl(v.ph,'Merhaba '+(v.name||'').split(' ')[0]+',\n')+'">💬 WhatsApp’tan yaz</a>':'')+'<button class="btn g" data-bb="uyeVDel" data-vid="'+v.vid+'">Veli hesabını kaldır</button><button class="btn g" data-a="close">Kapat</button></div>');return}
-  if(a==='uyeVDel'&&v){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Kaldırılsın mı? Tekrar dokunun';return}A.v=A.v.filter(function(x){return x!==v});save();closeM();bbRender();bbSync();toast('Veli hesabı kaldırıldı');return}
+  if(a==='uyeVDel'&&v){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Kaldırılsın mı? Tekrar dokunun';return}A.v=A.v.filter(function(x){return x!==v});if(v.id&&!bbS().st.some(function(s){return bbAcc(s).v.some(function(x){return x.id===v.id})}))bbGone(v.id);save();closeM();bbRender();bbSync();toast('Veli hesabı kaldırıldı');return}
   if(a==='uyeInv'&&b.closest('#mb'))closeM();
 });
 document.addEventListener('change',function(ev){var t=ev.target;if(!t||!t.dataset||t.dataset.bbi!=='perm')return;var st=bbStu(BBU.sid);if(!st)return;st.perm=bbPerm(st);st.perm[t.dataset.k]=t.checked?1:0;save();bbSoon();toast('İzin güncellendi')});
